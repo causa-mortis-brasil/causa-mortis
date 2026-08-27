@@ -36,9 +36,19 @@ Consulte estes guias antes de trabalhar em tarefas relacionadas:
 
 ---
 
-## 1. Princípios fundamentais
+# Regras de Desenvolvimento
 
-### 1.1 Simplicidade
+Este arquivo define as regras e padrões que devem ser seguidos ao trabalhar neste projeto.
+
+O objetivo é produzir código simples, legível, tipado, acessível, performático, consistente com a arquitetura existente e fácil de manter.
+
+As regras deste documento devem ser seguidas em todas as alterações realizadas no projeto.
+
+---
+
+# 1. Princípios fundamentais
+
+## 1.1 Simplicidade
 
 Prefira sempre a solução mais simples que resolva corretamente o problema.
 
@@ -48,7 +58,7 @@ Não crie abstrações, camadas, padrões ou estruturas apenas porque podem ser 
 
 Uma solução deve existir porque há uma necessidade concreta.
 
-### 1.2 Consistência
+## 1.2 Consistência
 
 Antes de implementar qualquer funcionalidade:
 
@@ -59,7 +69,7 @@ Antes de implementar qualquer funcionalidade:
 
 Não introduza uma arquitetura diferente para resolver uma única funcionalidade.
 
-### 1.3 Código mínimo
+## 1.3 Código mínimo
 
 Escreva somente o código necessário.
 
@@ -72,11 +82,11 @@ Não crie:
 - arquivos desnecessários;
 - abstrações preventivas;
 - dependências desnecessárias;
-- configurações que não sejam necessárias;
+- configurações desnecessárias;
 - código comentado;
 - código morto.
 
-### 1.4 Reutilização
+## 1.4 Reutilização
 
 Antes de criar algo novo, procure por uma implementação existente que possa ser reutilizada.
 
@@ -88,7 +98,7 @@ Código semelhante não necessariamente precisa compartilhar uma abstração.
 
 A abstração deve representar uma responsabilidade real.
 
-### 1.5 Manutenibilidade
+## 1.5 Manutenibilidade
 
 O código deve ser compreensível por outro desenvolvedor sem depender do conhecimento das circunstâncias que levaram à sua implementação.
 
@@ -100,7 +110,7 @@ Evite:
 - APIs excessivamente genéricas;
 - funções com muitas responsabilidades;
 - componentes gigantes;
-- condicionais profundamente aninhadas;
+- condicionais profundamente aninhados;
 - lógica duplicada;
 - efeitos colaterais escondidos.
 
@@ -151,7 +161,7 @@ Antes de adicionar uma dependência, verifique se:
 - a funcionalidade pode ser implementada com APIs nativas;
 - a dependência é compatível com a arquitetura existente.
 
-Não adicione dependências sem necessidade explícita.
+Não adicione dependências sem necessidade concreta.
 
 ---
 
@@ -238,13 +248,13 @@ O valor deve ser validado antes de ser utilizado.
 
 ## 4.4 Type assertions
 
-Evite:
+Evite type assertions:
 
 ```ts
 value as SomeType;
 ```
 
-Type assertions somente devem ser utilizadas quando o tipo puder ser garantido pela estrutura do programa e o TypeScript não conseguir inferi-lo corretamente.
+Utilize assertions somente quando o tipo puder ser garantido pela estrutura do programa e o TypeScript não conseguir inferi-lo corretamente.
 
 Não utilize assertions para esconder erros de modelagem.
 
@@ -252,9 +262,7 @@ Não utilize assertions para esconder erros de modelagem.
 
 Prefira a inferência de tipos quando ela produzir um tipo claro.
 
-Evite adicionar anotações redundantes.
-
-Não transforme código simples em código excessivamente verboso adicionando tipos que o TypeScript já consegue inferir.
+Evite anotações redundantes.
 
 ## 4.6 Tipos
 
@@ -328,21 +336,15 @@ Não utilize React, Vue, Svelte ou outro framework dentro de Astro sem justifica
 
 Não utilize diretivas de hidratação automaticamente.
 
-Evite:
+Evite `client:load` quando o componente não precisar ser interativo imediatamente.
 
-```astro
-client:load
-```
-
-quando o componente não precisar ser interativo imediatamente.
-
-Utilize a diretiva de hidratação mais adequada à necessidade real do componente.
+Escolha a diretiva de hidratação de acordo com a necessidade real.
 
 ## 5.5 JavaScript no cliente
 
 Não envie JavaScript ao navegador quando HTML e CSS forem suficientes.
 
-Antes de adicionar JavaScript, verifique se a funcionalidade pode ser implementada com:
+Antes de adicionar JavaScript, verifique se a funcionalidade pode ser implementada utilizando:
 
 - HTML;
 - CSS;
@@ -360,7 +362,7 @@ Separe claramente:
 - tipos;
 - dados;
 - lógica;
-- configuração de propriedades.
+- propriedades.
 
 Não coloque grandes quantidades de lógica de apresentação no frontmatter.
 
@@ -410,7 +412,7 @@ Não existe um limite rígido de linhas, mas componentes que crescem excessivame
 
 Não transforme cada elemento HTML em um componente.
 
-Evite componentes como:
+Evite componentes sem responsabilidade real, como:
 
 ```text
 Text
@@ -422,7 +424,7 @@ Box
 Section
 ```
 
-quando eles não possuírem comportamento ou significado real.
+quando eles não possuírem comportamento ou significado próprio.
 
 ## 6.3 Componentes sem significado
 
@@ -451,91 +453,322 @@ Prefira composição a componentes excessivamente configuráveis.
 
 Evite componentes com dezenas de flags booleanas.
 
-Exemplo a evitar:
-
-```ts
-type Props = {
-  compact?: boolean;
-  bordered?: boolean;
-  rounded?: boolean;
-  large?: boolean;
-  dark?: boolean;
-  centered?: boolean;
-};
-```
-
-Se as variações forem estruturalmente diferentes, prefira componentes ou composição diferentes.
-
 ---
 
-# 7. Tailwind CSS
+# 7. Tailwind CSS 4
 
-## 7.1 Utilização
+O projeto utiliza Tailwind CSS 4.
 
-Utilize Tailwind CSS como padrão para estilização quando o projeto já o utiliza.
+Utilize as APIs e convenções atuais do Tailwind CSS 4.
 
-Não introduza outro sistema de estilização sem necessidade.
+Não aplique automaticamente padrões encontrados em projetos Tailwind CSS 3.
 
-## 7.2 Valores arbitrários
+Quando houver dúvida sobre uma funcionalidade, consulte a documentação oficial da versão utilizada no projeto antes de implementá-la.
 
-Evite valores arbitrários:
+O Tailwind CSS 4 utiliza uma abordagem CSS-first para configuração e design tokens, com `@theme`.
 
-```text
-w-[317px]
-mt-[13px]
-text-[17px]
+Em projetos Astro atuais, a integração recomendada do Tailwind CSS 4 utiliza `@tailwindcss/vite` e `@import "tailwindcss";`.
+
+## 7.1 CSS-first
+
+Prefira a configuração CSS-first do Tailwind CSS 4.
+
+Não crie `tailwind.config.js`, `tailwind.config.ts` ou equivalente apenas por hábito de versões anteriores.
+
+Não introduza uma configuração legada quando os recursos nativos do Tailwind CSS 4 forem suficientes.
+
+## 7.2 `@theme`
+
+Utilize `@theme` para definir tokens que devem originar utilitários Tailwind.
+
+Exemplo:
+
+```css
+@theme {
+  --color-primary: oklch(0.6 0.2 250);
+}
 ```
 
-Prefira os tokens existentes no projeto.
+Isso permite utilizar os tokens através dos utilitários correspondentes.
 
-Valores arbitrários podem ser utilizados quando representam uma necessidade real e não houver um token apropriado.
+Não repita valores de design diretamente em dezenas de componentes quando o valor representar um token compartilhado.
 
 ## 7.3 Design tokens
 
-Utilize os tokens definidos pelo projeto.
+Utilize os tokens existentes no projeto.
 
-Cores, espaçamentos, tipografia, raios e demais propriedades recorrentes devem utilizar os valores definidos no sistema de design.
+Cores, espaçamentos, tipografia, raios, sombras, fontes e breakpoints recorrentes devem utilizar os valores definidos pelo design system.
 
 Não invente valores semelhantes aos existentes.
 
-## 7.4 Classes duplicadas
+Quando um valor visual recorrente não existir, avalie a criação de um token apropriado em vez de repetir valores arbitrários.
 
-Não gere classes Tailwind redundantes.
+## 7.4 Valores arbitrários
 
-Revise classes conflitantes ou duplicadas antes de finalizar.
+Evite valores arbitrários quando existir um utilitário ou token adequado.
 
-## 7.5 Classes condicionais
+Evite:
 
-Quando classes forem condicionais, utilize a abordagem já adotada pelo projeto.
+```text
+w-[317px]
+p-[17px]
+mt-[23px]
+text-[15px]
+z-[9999]
+```
 
-Não introduza uma biblioteca somente para concatenar poucas classes.
+Valores arbitrários são permitidos quando representam uma necessidade específica que não pode ser atendida adequadamente pelos tokens existentes.
 
-## 7.6 CSS personalizado
+Não utilize valores arbitrários para compensar um layout mal estruturado.
 
-Não utilize CSS personalizado quando Tailwind resolver corretamente o problema.
+Antes de utilizar um valor arbitrário, verifique se o problema pode ser resolvido utilizando:
 
-CSS personalizado é aceitável quando:
+- flexbox;
+- grid;
+- gap;
+- padding;
+- margin;
+- max-width;
+- min-width;
+- container;
+- tokens existentes;
+- unidades relativas.
 
-- a funcionalidade não possui equivalente adequado em Tailwind;
-- existe uma regra complexa;
-- é necessário trabalhar com recursos específicos do navegador;
-- uma abstração CSS melhora significativamente a manutenção.
+## 7.5 Classes redundantes
 
-## 7.7 `@apply`
+Não adicione utilitários redundantes.
+
+Evite classes que não alterem o resultado final.
+
+Exemplo:
+
+```text
+flex flex-row
+```
+
+quando `flex-row` não for necessário.
+
+Não mantenha classes conflitantes.
+
+Revise as classes antes de finalizar uma implementação.
+
+## 7.6 Classes conflitantes
+
+Não utilize simultaneamente classes que representam valores conflitantes sem uma razão clara.
+
+Evite:
+
+```text
+block flex
+text-left text-center
+w-full w-1/2
+hidden block
+```
+
+quando não houver uma variante condicional ou responsiva justificando o comportamento.
+
+## 7.7 Ordem e legibilidade
+
+Mantenha as classes Tailwind organizadas de maneira consistente com o projeto.
+
+Quando existir uma ferramenta de ordenação de classes configurada no projeto, utilize-a.
+
+Não tente criar manualmente uma convenção diferente da ferramenta existente.
+
+Não sacrifique legibilidade para reduzir caracteres.
+
+## 7.8 Responsividade
+
+Utilize breakpoints somente quando houver alteração real de layout ou comportamento.
+
+Não adicione breakpoints por padrão.
+
+Evite:
+
+```text
+text-sm md:text-base lg:text-lg xl:text-xl
+```
+
+quando não houver uma necessidade real de alterar a tipografia em cada breakpoint.
+
+Prefira uma composição que funcione naturalmente em diferentes tamanhos de tela.
+
+## 7.9 Mobile-first
+
+Utilize a abordagem mobile-first do Tailwind.
+
+Comece pelo comportamento base e adicione variantes para telas maiores quando necessário.
+
+Não escreva estilos para desktop primeiro e tente corrigir o comportamento mobile posteriormente.
+
+## 7.10 Espaçamento
+
+Prefira `gap` para espaçamento entre elementos de uma mesma composição.
+
+Evite utilizar margens individuais para reproduzir espaçamento entre elementos quando `gap` resolver corretamente.
+
+Prefira:
+
+```text
+flex gap-4
+```
+
+a múltiplos elementos com margens artificiais quando a relação entre eles for de espaçamento de composição.
+
+## 7.11 Layout
+
+Prefira:
+
+- flexbox;
+- grid;
+- fluxo normal do documento.
+
+Evite `absolute` quando o problema puder ser resolvido pelo sistema normal de layout.
+
+Não utilize posicionamento absoluto para corrigir uma estrutura HTML inadequada.
+
+## 7.12 Estados
+
+Prefira variantes nativas do Tailwind para estados visuais:
+
+```text
+hover:
+focus:
+focus-visible:
+active:
+disabled:
+group:
+peer:
+aria-*:
+data-*:
+```
+
+Não utilize JavaScript para controlar estados puramente visuais que possam ser representados pelo CSS.
+
+## 7.13 `group`
+
+Utilize `group` quando um estado visual de um elemento depender do estado de outro elemento ancestral.
+
+Não introduza JavaScript para esse tipo de interação visual.
+
+## 7.14 `peer`
+
+Utilize `peer` quando um estado visual depender de um elemento irmão.
+
+Não utilize JavaScript quando uma variante CSS resolver corretamente o problema.
+
+## 7.15 Atributos `data-*` e `aria-*`
+
+Utilize variantes baseadas em atributos quando a interface já possuir estados representados semanticamente por esses atributos.
+
+Não duplique estado em JavaScript apenas para controlar estilos.
+
+## 7.16 `!important`
+
+Não utilize `!important` como solução para conflitos de estilos.
+
+Evite:
+
+```text
+!important
+```
+
+sem uma justificativa técnica real.
+
+Antes de utilizar `!important`, identifique a origem do conflito.
+
+## 7.17 `z-index`
+
+Não utilize valores arbitrariamente altos:
+
+```text
+z-[9999]
+z-[99999]
+z-[2147483647]
+```
+
+Estabeleça uma hierarquia de camadas coerente.
+
+Se o projeto possuir tokens de `z-index`, utilize-os.
+
+## 7.18 `@apply`
 
 Não utilize `@apply` indiscriminadamente.
 
-Não utilize `@apply` apenas para transformar classes utilitárias em classes sem necessidade.
+Não utilize `@apply` apenas para transformar uma longa lista de utilitários em uma classe CSS.
 
-## 7.8 Classes excessivas
+Não use `@apply` para esconder componentes mal estruturados.
 
-Se um elemento possuir uma quantidade excessiva de classes, avalie:
+Utilize `@apply` somente quando houver uma razão concreta e consistente com a arquitetura do projeto.
 
-- se o componente está fazendo coisas demais;
-- se existe um padrão visual reutilizável;
-- se a estrutura pode ser simplificada.
+## 7.19 CSS tradicional
 
-Não crie abstrações automaticamente apenas porque uma lista de classes ficou grande.
+Não crie CSS tradicional apenas para evitar escrever classes Tailwind.
+
+CSS tradicional é aceitável quando:
+
+- Tailwind não representa adequadamente a necessidade;
+- existe uma regra CSS complexa;
+- existe uma necessidade específica do navegador;
+- uma abstração CSS melhora claramente a manutenção;
+- o comportamento pertence naturalmente a uma regra CSS.
+
+Não misture múltiplos sistemas de estilização sem necessidade.
+
+## 7.20 Componentes e classes
+
+Não crie um componente apenas para esconder uma lista grande de classes Tailwind.
+
+Uma lista extensa de classes pode indicar um componente com responsabilidades demais, mas isso deve ser avaliado antes da extração.
+
+Não transforme cada combinação visual em um componente.
+
+## 7.21 Classes condicionais
+
+Quando classes forem condicionais, utilize a abordagem já existente no projeto.
+
+Não introduza uma biblioteca como `clsx`, `classnames` ou equivalente se o projeto não precisar dela.
+
+Se o projeto já utilizar uma função utilitária para composição de classes, reutilize-a.
+
+## 7.22 Design system
+
+Não invente:
+
+- cores;
+- espaçamentos;
+- tamanhos;
+- sombras;
+- raios;
+- breakpoints;
+- famílias tipográficas.
+
+quando o projeto já possuir tokens equivalentes.
+
+O design system existente deve ser a fonte de verdade.
+
+## 7.23 Tailwind e HTML
+
+Não utilize Tailwind para compensar HTML semanticamente incorreto.
+
+Primeiro corrija a estrutura.
+
+Depois estilize a estrutura.
+
+## 7.24 Tailwind e JavaScript
+
+Não utilize JavaScript para resolver problemas que pertencem ao CSS.
+
+Antes de adicionar estado ou lógica JavaScript para uma interação visual, verifique se:
+
+- variantes Tailwind;
+- `group`;
+- `peer`;
+- `data-*`;
+- `aria-*`;
+- pseudo-classes;
+
+resolvem o problema.
 
 ---
 
@@ -548,13 +781,13 @@ Utilize elementos HTML de acordo com seu significado.
 Prefira:
 
 ```html
-button
+<button></button>
 ```
 
 a:
 
 ```html
-div
+<div></div>
 ```
 
 quando o elemento representar uma ação.
@@ -709,25 +942,17 @@ Implemente interfaces responsivas.
 
 Não desenvolva somente para uma resolução específica.
 
-## 12.2 Mobile first
-
-Siga a estratégia mobile-first utilizada pelo Tailwind.
-
-Adicione breakpoints quando realmente houver alteração necessária de comportamento ou apresentação.
-
-## 12.3 Layout
+## 12.2 Layout
 
 Prefira:
 
 - flexbox;
 - grid;
-- fluxo normal do documento;
+- fluxo normal do documento.
 
 antes de posicionamento absoluto.
 
-Não utilize `position: absolute` para corrigir problemas que deveriam ser resolvidos pelo layout.
-
-## 12.4 Z-index
+## 12.3 Z-index
 
 Evite valores arbitrariamente altos de `z-index`.
 
@@ -840,7 +1065,7 @@ Credenciais e chaves privadas não devem ser expostas ao cliente.
 
 ---
 
-# 17. Acessos ao DOM
+# 17. Manipulação do DOM
 
 Evite manipulação direta do DOM.
 
@@ -943,19 +1168,60 @@ Componentes devem representar conceitos da interface ou domínio.
 
 # 22. Comentários
 
-O código deve ser suficientemente claro para não depender de comentários explicativos.
+Não adicione comentários explicativos ao código por padrão.
 
-Não adicione comentários que apenas descrevam o que o código já deixa evidente.
+O código deve ser escrito de forma suficientemente clara para que sua intenção seja compreendida pela leitura da implementação.
 
-Não deixe código comentado.
+Não adicione comentários que:
 
-Comentários podem ser utilizados quando explicarem uma decisão não óbvia ou uma restrição externa relevante.
+- descrevam o que uma linha de código faz;
+- repitam o nome de uma função ou variável;
+- expliquem sintaxe;
+- expliquem operações óbvias;
+- narrem passo a passo o código;
+- justifiquem decisões triviais;
+- sejam utilizados para tornar código complexo aparentemente compreensível.
 
-Não utilize comentários para compensar código mal estruturado.
+Não utilize comentários como substituto para:
+
+- nomes melhores;
+- funções menores;
+- componentes menores;
+- melhor separação de responsabilidades;
+- melhor estrutura de código.
+
+Comentários são permitidos quando registrarem uma informação que não possa ser obtida facilmente lendo o código, especialmente:
+
+- decisões arquiteturais;
+- restrições impostas por uma API externa;
+- limitações de uma biblioteca;
+- comportamentos inesperados de uma plataforma;
+- decisões tomadas por motivos de compatibilidade;
+- regras de negócio não óbvias.
+
+Não escreva comentários para explicar ao desenvolvedor o que o código está fazendo quando isso puder ser compreendido diretamente pelo código.
+
+Não deixe código antigo comentado.
+
+Comentários devem ser exceção, não padrão.
 
 ---
 
-# 23. Documentação
+# 23. JSDoc
+
+Não utilize JSDoc para narrar implementações óbvias.
+
+Não adicione JSDoc automaticamente a todas as funções.
+
+JSDoc pode ser utilizado quando necessário para representar contratos públicos, tipos complexos ou informações que não sejam expressas adequadamente pelo TypeScript.
+
+Quando JSDoc for utilizado, mantenha-o objetivo.
+
+Não escreva documentação explicativa extensa dentro do código.
+
+---
+
+# 24. Documentação
 
 Documente APIs públicas e comportamentos que realmente necessitem de documentação.
 
@@ -965,7 +1231,7 @@ Tipos devem ser documentados pelo próprio sistema de tipos sempre que possível
 
 ---
 
-# 24. Formatação
+# 25. Formatação
 
 Siga as ferramentas de formatação e linting existentes no projeto.
 
@@ -975,9 +1241,25 @@ Não altere configurações de formatação apenas para acomodar uma implementa�
 
 O código final deve estar formatado conforme os padrões existentes.
 
+## 25.1 Prettier
+
+O projeto utiliza Prettier (com `prettier-plugin-astro`) como formatador obrigatório.
+
+Antes de finalizar qualquer tarefa, execute:
+
+```bash
+npm run format
+```
+
+Nenhuma tarefa deve ser considerada concluída com `npm run format:check` falhando.
+
+`npm run build` já executa `format:check` automaticamente; não remova ou contorne essa verificação.
+
+Não altere as configurações do Prettier (`.prettierrc.json`, `.prettierignore`) sem necessidade relacionada à tarefa.
+
 ---
 
-# 25. ESLint
+# 26. ESLint
 
 Todo código deve estar em conformidade com as regras do ESLint configuradas no projeto.
 
@@ -985,15 +1267,15 @@ Não desabilite regras apenas para fazer uma implementação passar.
 
 Não utilize:
 
-```ts
-eslint - disable;
+```text
+eslint-disable
 ```
 
 sem uma justificativa técnica real.
 
 ---
 
-# 26. Type checking
+# 27. Type checking
 
 Antes de considerar uma tarefa concluída, execute a verificação de tipos disponível no projeto.
 
@@ -1011,7 +1293,7 @@ Não finalize uma tarefa deixando erros introduzidos pela implementação.
 
 ---
 
-# 27. Testes
+# 28. Testes
 
 Quando existirem testes no projeto:
 
@@ -1024,7 +1306,7 @@ Não altere testes apenas para fazer uma implementação incorreta passar.
 
 ---
 
-# 28. Refatoração
+# 29. Refatoração
 
 Refatore quando a implementação resultar em:
 
@@ -1039,7 +1321,7 @@ Não refatore partes não relacionadas sem necessidade.
 
 ---
 
-# 29. Código legado
+# 30. Código legado
 
 Ao trabalhar em código legado:
 
@@ -1052,7 +1334,7 @@ Não introduza novos padrões incompatíveis com o restante do código sem uma r
 
 ---
 
-# 30. Migrações
+# 31. Migrações
 
 Durante migrações de tecnologia:
 
@@ -1064,7 +1346,7 @@ Durante migrações de tecnologia:
 
 ---
 
-# 31. Arquivos
+# 32. Arquivos
 
 Não crie arquivos sem necessidade.
 
@@ -1086,7 +1368,7 @@ Prefira arquivos organizados por responsabilidade ou domínio.
 
 ---
 
-# 32. Organização
+# 33. Organização
 
 A organização deve facilitar a localização do código.
 
@@ -1098,7 +1380,7 @@ Evite categorizar arquivos em excesso apenas para manter diretórios aparentemen
 
 ---
 
-# 33. Regras contra código lixo
+# 34. Regras contra código lixo
 
 Nunca introduza deliberadamente:
 
@@ -1120,6 +1402,7 @@ Nunca introduza deliberadamente:
 - valores mágicos quando houver constantes ou tokens apropriados;
 - CSS duplicado;
 - classes Tailwind redundantes;
+- valores arbitrários desnecessários;
 - `z-index` arbitrariamente altos;
 - `!important` sem necessidade;
 - condicionais excessivamente complexas;
@@ -1128,7 +1411,7 @@ Nunca introduza deliberadamente:
 
 ---
 
-# 34. Não otimizar prematuramente
+# 35. Não otimizar prematuramente
 
 Não introduza otimizações complexas sem evidência de que são necessárias.
 
@@ -1145,7 +1428,7 @@ Não sacrifique legibilidade por micro-otimizações.
 
 ---
 
-# 35. Não alterar a configuração sem necessidade
+# 36. Não alterar a configuração sem necessidade
 
 Não altere:
 
@@ -1165,7 +1448,7 @@ Toda alteração de configuração deve possuir uma razão concreta.
 
 ---
 
-# 36. Dependências e pacotes
+# 37. Dependências e pacotes
 
 Antes de instalar qualquer pacote:
 
@@ -1179,7 +1462,7 @@ Não instale bibliotecas apenas por conveniência.
 
 ---
 
-# 37. Compatibilidade
+# 38. Compatibilidade
 
 Respeite as versões definidas pelo projeto.
 
@@ -1189,7 +1472,7 @@ Antes de introduzir uma API recente, verifique a compatibilidade com o ambiente 
 
 ---
 
-# 38. Mudanças de API
+# 39. Mudanças de API
 
 Não altere APIs públicas ou contratos existentes sem necessidade.
 
@@ -1203,18 +1486,18 @@ Quando uma mudança for necessária:
 
 ---
 
-# 39. Antes de finalizar uma tarefa
+# 40. Antes de finalizar uma tarefa
 
 Toda tarefa deve passar pelo seguinte processo.
 
-### Análise
+## Análise
 
 - [ ] O código existente foi analisado?
 - [ ] Foram encontrados padrões semelhantes?
 - [ ] A implementação segue a arquitetura existente?
 - [ ] Foi evitada uma abstração desnecessária?
 
-### Implementação
+## Implementação
 
 - [ ] O código é mínimo?
 - [ ] Não existem duplicações desnecessárias?
@@ -1227,23 +1510,30 @@ Toda tarefa deve passar pelo seguinte processo.
 - [ ] Astro está sendo utilizado de maneira server-first?
 - [ ] Não existe JavaScript desnecessário no cliente?
 - [ ] Não existe hidratação desnecessária?
-- [ ] Tailwind está sendo utilizado de maneira consistente?
+- [ ] Tailwind 4 está sendo utilizado corretamente?
+- [ ] Os tokens existentes estão sendo reutilizados?
 - [ ] Não existem valores arbitrários desnecessários?
+- [ ] Não existem classes conflitantes?
+- [ ] Não existem classes redundantes?
+- [ ] Não existe `!important` desnecessário?
+- [ ] Não existem valores arbitrários de `z-index`?
 - [ ] HTML é semântico?
 - [ ] Acessibilidade foi considerada?
 - [ ] SEO foi considerado quando aplicável?
 
-### Qualidade
+## Qualidade
 
 - [ ] Não existem imports não utilizados?
 - [ ] Não existem variáveis não utilizadas?
 - [ ] Não existe código morto?
-- [ ] Não existem comentários desnecessários?
+- [ ] Não existem comentários explicativos desnecessários?
+- [ ] Não existe código antigo comentado?
 - [ ] Os nomes são claros?
 - [ ] A implementação é simples?
 - [ ] A solução não possui complexidade desnecessária?
+- [ ] Não foram introduzidas abstrações prematuras?
 
-### Verificação
+## Verificação
 
 Execute as ferramentas disponíveis no projeto.
 
@@ -1251,6 +1541,10 @@ Quando aplicável:
 
 ```bash
 astro check
+```
+
+```bash
+npm run format:check
 ```
 
 ```bash
@@ -1265,7 +1559,7 @@ Corrija os problemas encontrados antes de finalizar.
 
 ---
 
-# 40. Regra final
+# 41. Regra final
 
 Quando houver dúvida entre duas soluções tecnicamente válidas, prefira, nesta ordem:
 
@@ -1274,8 +1568,9 @@ Quando houver dúvida entre duas soluções tecnicamente válidas, prefira, nest
 3. A solução com menor quantidade de código.
 4. A solução com menor quantidade de dependências.
 5. A solução com menor quantidade de JavaScript no cliente.
-6. A solução mais fácil de testar.
-7. A solução mais fácil de compreender e manter.
+6. A solução com menor quantidade de abstrações.
+7. A solução mais fácil de testar.
+8. A solução mais fácil de compreender e manter.
 
 Não escreva código apenas para demonstrar capacidade técnica.
 
@@ -1283,4 +1578,12 @@ Não complique uma solução simples.
 
 Não crie abstrações para problemas que ainda não existem.
 
-O objetivo é produzir software correto, simples, consistente e sustentável.
+Não adicione comentários para explicar código que deveria ser autoexplicativo.
+
+Não utilize Tailwind para mascarar problemas de arquitetura, HTML ou layout.
+
+Não utilize TypeScript para mascarar problemas de modelagem.
+
+Não utilize JavaScript para resolver problemas que HTML ou CSS resolvem.
+
+O objetivo é produzir software correto, simples, consistente, acessível, performático e sustentável.

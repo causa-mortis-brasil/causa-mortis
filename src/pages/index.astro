@@ -6,18 +6,20 @@ import Layout from "../components/Layout.astro";
   <div class="center p-4">
     <header class="app-content justify-between items-center">
       <div data-name="logo" class="flex gap-3 items-center">
-        <img src="logo.svg" alt="Logo" class="w-12" />
+        <img src="/logo.svg" alt="" class="w-12" />
         <div class="text-lg flex flex-col gap-0 *:leading-none">
           <span>Causa</span>
           <span class="font-bold">Mortis</span>
         </div>
       </div>
 
-      <menu class="flex gap-4">
-        <a href="#">O que é?</a>
-        <a href="#">Explorar dados</a>
-        <a href="#">Fontes</a>
-      </menu>
+      <nav aria-label="Navegação principal">
+        <ul class="flex gap-4">
+          <li><a href="#">O que é?</a></li>
+          <li><a href="#app-charts">Explorar dados</a></li>
+          <li><a href="#">Fontes</a></li>
+        </ul>
+      </nav>
     </header>
   </div>
 
