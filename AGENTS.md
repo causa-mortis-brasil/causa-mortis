@@ -8,6 +8,12 @@ As regras deste documento têm prioridade sobre preferências pessoais de implem
 
 ---
 
+## Sobre o projeto
+
+Causa Mortis é um site de infográficos sobre mortalidade no Brasil, construído com Astro. Ele apresenta dados oficiais de óbitos (SIM/DATASUS e projeções do IBGE) através de visualizações interativas — evolução de taxas, causas de morte, distribuição geográfica, composição por idade e pirâmide de mortalidade por sexo.
+
+---
+
 Ao iniciar o servidor de desenvolvimento, utilize o modo em segundo plano:
 
 ```
@@ -33,6 +39,7 @@ Consulte estes guias antes de trabalhar em tarefas relacionadas:
 
 - Não adicione comentários.
 - Não adicione textos placeholder genéricos, use lorem ipsum quando necessário.
+- Ícones devem vir da lib de ícones do projeto, Lucide (`@lucide/astro`, já instalada). Não crie SVGs de ícones manualmente nem adicione outra lib de ícones.
 
 ---
 
@@ -1163,6 +1170,19 @@ Nomes devem representar o significado do valor.
 Funções devem utilizar verbos quando apropriado.
 
 Componentes devem representar conceitos da interface ou domínio.
+
+## 21.1 Idioma do código
+
+Código e nomes de arquivo devem ser sempre em inglês: identificadores (variáveis,
+funções, tipos, classes, propriedades, IDs e classes CSS/HTML, chaves de dados
+internas) e comentários.
+
+Isso não se aplica a conteúdo voltado ao usuário final — o site é em pt-BR, então
+textos de interface (labels, headings, mensagens, tooltips, rótulos de dados como
+nomes de UF/sexo/causa) permanecem em português, pois são conteúdo, não código.
+
+Arquivos de documentação (README, etc.) também são conteúdo, não código: devem
+ser escritos em português.
 
 ---
 

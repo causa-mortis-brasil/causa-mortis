@@ -1,0 +1,184 @@
+---
+import ChartCard from "./ChartCard.astro";
+---
+
+<section id="mortality-explorer" class="app-content-col gap-6">
+  <div
+    class="w-full bg-white border border-gray-200 rounded-2xl p-4 flex flex-wrap gap-4 items-end"
+  >
+    <div class="flex flex-col gap-1">
+      <label for="filter-location" class="text-sm font-medium text-gray-600"
+        >Território</label
+      >
+      <select
+        id="filter-location"
+        class="border border-gray-200 rounded-lg px-3 py-2 min-w-40"></select>
+    </div>
+
+    <fieldset class="flex flex-col gap-1">
+      <legend class="text-sm font-medium text-gray-600">Sexo</legend>
+      <div
+        id="filter-sex"
+        class="flex gap-1 bg-gray-100 rounded-lg p-1"
+        role="radiogroup"
+        aria-label="Sexo"
+      >
+      </div>
+    </fieldset>
+
+    <div class="flex flex-col gap-1">
+      <label for="filter-cause-group" class="text-sm font-medium text-gray-600"
+        >Grupo de causas</label
+      >
+      <select
+        id="filter-cause-group"
+        class="border border-gray-200 rounded-lg px-3 py-2 min-w-48"></select>
+    </div>
+
+    <div id="filter-detail-wrap" hidden class="flex flex-col gap-1">
+      <label
+        id="filter-detail-label"
+        for="filter-detail"
+        class="text-sm font-medium text-gray-600">Detalhe</label
+      >
+      <select
+        id="filter-detail"
+        class="border border-gray-200 rounded-lg px-3 py-2 min-w-48"></select>
+    </div>
+
+    <div id="filter-external-wrap" hidden class="flex flex-col gap-1">
+      <label for="filter-external" class="text-sm font-medium text-gray-600"
+        >Tipo de causa externa</label
+      >
+      <select
+        id="filter-external"
+        class="border border-gray-200 rounded-lg px-3 py-2 min-w-48"></select>
+    </div>
+
+    <div id="filter-assault-wrap" hidden class="flex flex-col gap-1">
+      <label for="filter-assault" class="text-sm font-medium text-gray-600"
+        >Meio utilizado</label
+      >
+      <select
+        id="filter-assault"
+        class="border border-gray-200 rounded-lg px-3 py-2 min-w-48"></select>
+    </div>
+
+    <div class="flex flex-col gap-1 grow min-w-50">
+      <label for="filter-year" class="text-sm font-medium text-gray-600">
+        Ano · <output id="filter-year-value" for="filter-year">2025</output>
+        <span id="filter-year-preliminary" hidden class="text-primary-500"
+          >(preliminar)</span
+        >
+      </label>
+      <input type="range" id="filter-year" class="w-full accent-primary-500" />
+    </div>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <ChartCard
+      title="Evolução das taxas"
+      description='A bruta responde "quantos morrem"; a padronizada, "qual o risco". Quando divergem, a diferença é envelhecimento populacional.'
+      chartId="chart-evolution"
+      chartName="evolution"
+      height="h-80"
+    />
+
+    <ChartCard
+      title="Do que se morre"
+      description="Área proporcional aos óbitos. Blocos com detalhamento — clique para descer um nível."
+      chartId="chart-causes"
+      chartName="causes"
+      height="h-80"
+    />
+  </div>
+
+  <ChartCard
+    title="Onde se morre mais"
+    description="Somente taxa padronizada: comparar taxas brutas entre estados compararia estruturas etárias diferentes. Clique num estado para filtrar."
+    chartId="chart-map"
+    chartName="map"
+    height="h-120"
+  >
+    <div slot="controls" class="flex items-center gap-4">
+      <label class="flex items-center gap-2 text-sm text-gray-600">
+        <input
+          type="checkbox"
+          id="map-scale-stable"
+          checked
+          class="accent-primary-500"
+        />
+        Escala estável
+      </label>
+      <div
+        id="map-scale-type"
+        class="flex gap-1 bg-gray-100 rounded-lg p-1"
+        role="radiogroup"
+        aria-label="Escala do mapa"
+      >
+      </div>
+    </div>
+  </ChartCard>
+
+  <ChartCard
+    title="Do que se morre em cada idade"
+    description="Cada coluna soma 100%: a leitura é qual causa domina naquela idade, não quantos óbitos ela tem."
+    chartId="chart-age-composition"
+    chartName="age-composition"
+    height="h-96"
+  >
+    <p
+      slot="notice"
+      id="age-composition-warning"
+      hidden
+      class="text-sm text-primary-500 bg-primary-50 rounded-lg px-3 py-2"
+    >
+      Esta visão respeita apenas o filtro de grupo de causas — o detalhe
+      selecionado é ignorado, pois um subgrupo não particiona o total da faixa
+      etária.
+    </p>
+  </ChartCard>
+
+  <ChartCard
+    title="Pirâmide de mortalidade"
+    description="Três leituras do mesmo dado — cada uma sozinha induz leitura incompleta. Não respeita o filtro de sexo: a visão inteira é a comparação entre os dois."
+    chartId="chart-pyramid"
+    chartName="pyramid"
+    height="h-120"
+  >
+    <div slot="controls" class="flex flex-col gap-1">
+      <label for="pyramid-measure" class="text-sm font-medium text-gray-600"
+        >Medida</label
+      >
+      <select
+        id="pyramid-measure"
+        class="border border-gray-200 rounded-lg px-3 py-2"
+      >
+        <option value="deaths">Óbitos</option>
+        <option value="rate" selected>Taxa por faixa</option>
+        <option value="contribution"
+          >Contribuição para a taxa padronizada</option
+        >
+      </select>
+    </div>
+  </ChartCard>
+</section>
+
+<script>
+  import { mountMortalityExplorer } from "../../lib/mortality/main.ts";
+
+  const explorer = document.getElementById("mortality-explorer");
+  if (explorer) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.disconnect();
+          void mountMortalityExplorer(explorer);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(explorer);
+  }
+</script>
