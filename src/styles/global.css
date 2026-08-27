@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-poppins);
+}
+
+@layer components {
+  .app-content {
+    @apply w-full max-w-300 flex;
+  }
+
+  .app-content-col {
+    @apply w-full max-w-300 flex flex-col;
+  }
+
+  .center {
+    @apply flex justify-center items-center;
+  }
+
+  .center-col {
+    @apply flex flex-col justify-center items-center;
+  }
+}
