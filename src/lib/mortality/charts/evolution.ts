@@ -36,9 +36,9 @@ export function init(
     }
 
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 16, top: 24, bottom: 32 },
+      grid: { left: 48, right: 16, top: 24, bottom: 56 },
       tooltip: { trigger: "axis" },
-      legend: { bottom: 0, data: ["Padronizada por idade", "Bruta"] },
+      legend: { bottom: 4, data: ["Padronizada por idade", "Bruta"] },
       xAxis: {
         type: "category",
         data: dimensions.years.map(String),

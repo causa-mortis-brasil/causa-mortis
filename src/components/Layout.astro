@@ -14,7 +14,10 @@ import "../styles/global.css";
     <Font cssVariable="--font-poppins" preload />
   </head>
 
-  <body class="flex flex-col w-full text-gray-900">
+  <body
+    class="flex flex-col w-full text-gray-900 relative"
+    style="min-height: 3000px; /*TODO:REMOVER*/"
+  >
     <slot />
   </body>
 </html>

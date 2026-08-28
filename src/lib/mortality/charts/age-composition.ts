@@ -80,7 +80,11 @@ export function init(
         stack: "total",
         symbol: "none" as const,
         areaStyle: { opacity: isHighlighted ? 0.9 : 0.25 },
-        lineStyle: { opacity: isHighlighted ? 1 : 0.25, width: 0.5 },
+        lineStyle: {
+          color: "#fff",
+          width: 1,
+          opacity: isHighlighted ? 1 : 0.25,
+        },
         color: causeGroupColor(causeGroupIndex),
         data: shares,
       };
@@ -99,14 +103,17 @@ export function init(
     );
 
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 16, top: 16, bottom: 72 },
+      grid: { left: 48, right: 16, top: 16, bottom: 152 },
       tooltip: {
         trigger: "axis",
+        order: "seriesDesc",
         valueFormatter: (value: number | string) =>
           formatPercent(Number(value)),
       },
       legend: {
-        bottom: 0,
+        bottom: 8,
+        icon: "circle",
+        itemGap: 16,
         data: includedIndices.map(
           (causeGroupIndex) => dimensions.cause_groups[causeGroupIndex],
         ),
@@ -118,7 +125,13 @@ export function init(
         data: dimensions.age_groups,
         name: "Faixa de idade (anos)",
         nameLocation: "middle",
-        nameGap: 28,
+        nameGap: 24,
+        axisLabel: {
+          formatter: (value: string, index: number) =>
+            index % 2 === 0 || index === dimensions.age_groups.length - 1
+              ? value
+              : "",
+        },
       },
       yAxis: {
         type: "value",

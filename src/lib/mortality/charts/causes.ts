@@ -173,6 +173,7 @@ export function init(
       },
       series: [
         {
+          name: "Todas as causas",
           type: "treemap",
           roam: false,
           nodeClick: "zoomToNode",
@@ -183,11 +184,11 @@ export function init(
             formatter: (params: { name: string; data: CauseNode }) =>
               `${params.name}\n${formatPercent((params.data.percent ?? 0) / 100)}`,
           },
-          itemStyle: { borderColor: "#fff", gapWidth: 1 },
+          itemStyle: { borderColor: "#fff", gapWidth: 3 },
           levels: [
             {},
-            { itemStyle: { borderColorSaturation: 0.4, gapWidth: 2 } },
-            { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 1 } },
+            { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
+            { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
           ],
           data: level1,
         },

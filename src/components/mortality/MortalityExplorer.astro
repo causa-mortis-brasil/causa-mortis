@@ -33,7 +33,7 @@ const charts = [
       >
       <select
         id="filter-location"
-        class="h-10 border border-gray-200 rounded-lg px-3 min-w-40 cursor-pointer"
+        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-40 cursor-pointer"
       ></select>
     </div>
 
@@ -41,7 +41,7 @@ const charts = [
       <legend class="text-sm font-medium text-gray-600">Sexo</legend>
       <div
         id="filter-sex"
-        class="h-10 flex items-center gap-1 bg-gray-100 rounded-lg p-1"
+        class="h-10 flex items-center gap-1 bg-white border border-gray-200 rounded-2xl p-2"
         role="radiogroup"
         aria-label="Sexo"
       >
@@ -54,7 +54,7 @@ const charts = [
       >
       <select
         id="filter-cause-group"
-        class="h-10 border border-gray-200 rounded-lg px-3 min-w-48 cursor-pointer"
+        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
       ></select>
     </div>
 
@@ -66,7 +66,7 @@ const charts = [
       >
       <select
         id="filter-detail"
-        class="h-10 border border-gray-200 rounded-lg px-3 min-w-48 cursor-pointer"
+        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
       ></select>
     </div>
 
@@ -76,7 +76,7 @@ const charts = [
       >
       <select
         id="filter-external"
-        class="h-10 border border-gray-200 rounded-lg px-3 min-w-48 cursor-pointer"
+        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
       ></select>
     </div>
 
@@ -86,7 +86,7 @@ const charts = [
       >
       <select
         id="filter-assault"
-        class="h-10 border border-gray-200 rounded-lg px-3 min-w-48 cursor-pointer"
+        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
       ></select>
     </div>
 
@@ -108,7 +108,7 @@ const charts = [
           id="filter-year-toggle"
           aria-pressed="false"
           aria-label="Reproduzir evolução dos anos"
-          class="shrink-0 size-10 grid place-items-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors"
+          class="shrink-0 size-10 grid place-items-center rounded-2xl border border-gray-200 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors"
         >
           <span id="filter-year-icon-play"><Play class="size-4" /></span>
           <span id="filter-year-icon-pause" hidden
@@ -152,7 +152,7 @@ const charts = [
     <div class="min-w-0 grow flex flex-col gap-6">
       <ChartCard
         title="Onde se morre mais"
-        description="Somente taxa padronizada: comparar taxas brutas entre estados compararia estruturas etárias diferentes. Clique num estado para filtrar."
+        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-map"
         chartName="map"
         height="h-120"
@@ -170,7 +170,7 @@ const charts = [
           </label>
           <div
             id="map-scale-type"
-            class="flex gap-1 bg-gray-100 rounded-lg p-1"
+            class="flex gap-1 bg-white border border-gray-200 rounded-2xl p-2"
             role="radiogroup"
             aria-label="Escala do mapa"
           >
@@ -180,7 +180,7 @@ const charts = [
 
       <ChartCard
         title="Evolução das taxas"
-        description='A bruta responde "quantos morrem"; a padronizada, "qual o risco". Quando divergem, a diferença é envelhecimento populacional.'
+        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-evolution"
         chartName="evolution"
         height="h-80"
@@ -188,24 +188,24 @@ const charts = [
 
       <ChartCard
         title="Do que se morre"
-        description="Área proporcional aos óbitos. Blocos com detalhamento — clique para descer um nível."
+        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-causes"
         chartName="causes"
-        height="h-80"
+        height="h-120 max-w-2xl mx-auto"
       />
 
       <ChartCard
         title="Do que se morre em cada idade"
-        description="Cada coluna soma 100%: a leitura é qual causa domina naquela idade, não quantos óbitos ela tem."
+        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-age-composition"
         chartName="age-composition"
-        height="h-96"
+        height="h-128"
       >
         <p
           slot="notice"
           id="age-composition-warning"
           hidden
-          class="text-sm text-primary-500 bg-primary-50 rounded-lg px-3 py-2"
+          class="text-sm text-primary-500 bg-primary-50 rounded-2xl px-3 py-2"
         >
           Esta visão respeita apenas o filtro de grupo de causas — o detalhe
           selecionado é ignorado, pois um subgrupo não particiona o total da
@@ -215,26 +215,23 @@ const charts = [
 
       <ChartCard
         title="Pirâmide de mortalidade"
-        description="Três leituras do mesmo dado — cada uma sozinha induz leitura incompleta. Não respeita o filtro de sexo: a visão inteira é a comparação entre os dois."
+        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-pyramid"
         chartName="pyramid"
         height="h-120"
       >
-        <div slot="controls" class="flex flex-col gap-1">
-          <label for="pyramid-measure" class="text-sm font-medium text-gray-600"
-            >Medida</label
+        <select
+          slot="controls"
+          id="pyramid-measure"
+          aria-label="Medida"
+          class="border border-gray-200 rounded-2xl px-2 py-1 text-sm cursor-pointer"
+        >
+          <option value="deaths">Óbitos</option>
+          <option value="rate" selected>Taxa por faixa</option>
+          <option value="contribution"
+            >Contribuição para a taxa padronizada</option
           >
-          <select
-            id="pyramid-measure"
-            class="border border-gray-200 rounded-lg px-2 py-1 text-sm cursor-pointer"
-          >
-            <option value="deaths">Óbitos</option>
-            <option value="rate" selected>Taxa por faixa</option>
-            <option value="contribution"
-              >Contribuição para a taxa padronizada</option
-            >
-          </select>
-        </div>
+        </select>
       </ChartCard>
     </div>
   </div>

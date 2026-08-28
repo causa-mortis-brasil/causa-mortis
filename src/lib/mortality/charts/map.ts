@@ -112,6 +112,7 @@ export function init(
         max,
         type: scaleType === "stepped" ? "piecewise" : "continuous",
         splitNumber: MAP_SCALE_STEPS,
+        itemGap: 2,
         inRange: { color: mapScaleSteps() },
         orient: "horizontal",
         left: "left",
