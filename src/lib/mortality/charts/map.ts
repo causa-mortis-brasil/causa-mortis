@@ -138,7 +138,8 @@ export function init(
           type: "map",
           map: MAP_NAME,
           aspectScale: 0.95,
-          roam: false,
+          roam: true,
+          scaleLimit: { min: 1, max: 8 },
           selectedMode: "single",
           select:
             filters.location !== "BR"

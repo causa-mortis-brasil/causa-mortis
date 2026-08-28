@@ -217,6 +217,7 @@ function setupChartTabs(root: ParentNode): (target: string) => void {
     ...root.querySelectorAll<HTMLButtonElement>("[data-chart-tab]"),
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
+  const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
   const yearWrap = root.querySelector("#filter-year-wrap");
 
   function activate(target: string): void {
@@ -225,8 +226,29 @@ function setupChartTabs(root: ParentNode): (target: string) => void {
         "aria-selected",
         String(tab.dataset.chartTab === target),
       );
+
+    const startHeight = panelsWrap?.getBoundingClientRect().height ?? 0;
     for (const panel of panels)
       panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
+
+    if (panelsWrap) {
+      const endHeight = panelsWrap.scrollHeight;
+      if (Math.round(startHeight) !== Math.round(endHeight)) {
+        panelsWrap.classList.add("overflow-hidden");
+        panelsWrap.style.height = `${startHeight}px`;
+        void panelsWrap.offsetHeight;
+        panelsWrap.style.height = `${endHeight}px`;
+        panelsWrap.addEventListener(
+          "transitionend",
+          () => {
+            panelsWrap.style.height = "";
+            panelsWrap.classList.remove("overflow-hidden");
+          },
+          { once: true },
+        );
+      }
+    }
+
     yearWrap?.toggleAttribute("hidden", target === "evolution");
   }
 

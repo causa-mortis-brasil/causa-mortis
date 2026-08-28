@@ -165,7 +165,10 @@ const charts = [
       }
     </nav>
 
-    <div class="min-w-0 grow flex flex-col gap-4">
+    <div
+      data-chart-panels
+      class="min-w-0 grow flex flex-col gap-4 transition-[height] duration-300 ease-in-out motion-reduce:transition-none"
+    >
       <ChartCard
         title="Onde se morre mais"
         chartId="chart-map"
