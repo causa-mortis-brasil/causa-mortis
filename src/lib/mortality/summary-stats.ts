@@ -23,7 +23,7 @@ function renderRate(
     return;
   }
   const change = (rate - previousRate) / previousRate;
-  deltaEl.textContent = `${formatSignedPercent(change)} no ano`;
+  deltaEl.textContent = `(${formatSignedPercent(change)} no ano)`;
 }
 
 export function initSummaryStats(
