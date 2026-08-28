@@ -12,11 +12,11 @@ const { label, valueId, subtitleId } = Astro.props;
   class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col gap-1"
 >
   <p class="text-sm font-medium text-gray-600">{label}</p>
-  <div class="flex gap-1 lg:items-end flex-col lg:flex-row">
-    <p class="text-sm font-bold text-gray-800" id={valueId}>—</p>
+  <div class="text-sm lg:text-xs flex gap-1 lg:items-end flex-col lg:flex-row">
+    <p class="font-bold text-gray-800" id={valueId}>—</p>
     {
       subtitleId && (
-        <p class="text-xs text-gray-500" id={subtitleId}>
+        <p class="text-gray-500" id={subtitleId}>
           &nbsp;
         </p>
       )
