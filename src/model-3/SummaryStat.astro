@@ -1,0 +1,23 @@
+---
+interface Props {
+  label: string;
+  valueId: string;
+  subtitleId?: string;
+}
+
+const { label, valueId, subtitleId } = Astro.props;
+---
+
+<div
+  class="min-w-0 flex items-center gap-1.5 bg-white border border-gray-200 rounded-xl px-3 py-1.5 transition-colors duration-200 group-data-[stuck]:border-transparent group-data-[stuck]:bg-transparent group-data-[stuck]:px-0 group-data-[stuck]:py-0"
+>
+  <p class="text-xs font-medium text-gray-600 shrink-0">{label}:</p>
+  <p class="text-sm font-bold text-gray-800 truncate" id={valueId}>—</p>
+  {
+    subtitleId && (
+      <p class="text-xs text-gray-500 truncate" id={subtitleId}>
+        &nbsp;
+      </p>
+    )
+  }
+</div>
