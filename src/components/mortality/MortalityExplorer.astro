@@ -12,15 +12,15 @@ import ChartCard from "./ChartCard.astro";
 import SummaryStat from "./SummaryStat.astro";
 
 const charts = [
-  { name: "map", label: "Onde se morre mais", icon: Map },
-  { name: "evolution", label: "Evolução das taxas", icon: ChartLine },
-  { name: "causes", label: "Do que se morre", icon: Blocks },
+  { name: "map", label: "Mapa", icon: Map },
+  { name: "evolution", label: "Evolução", icon: ChartLine },
+  { name: "causes", label: "Causas", icon: Blocks },
   {
     name: "age-composition",
-    label: "Do que se morre em cada idade",
+    label: "Composição",
     icon: ChartColumnStacked,
   },
-  { name: "pyramid", label: "Pirâmide de mortalidade", icon: Pyramid },
+  { name: "pyramid", label: "Sexo", icon: Pyramid },
 ];
 ---
 
@@ -42,7 +42,7 @@ const charts = [
       <legend class="text-sm font-medium text-gray-600">Sexo</legend>
       <div
         id="filter-sex"
-        class="h-10 flex items-center gap-1 bg-white border border-gray-200 rounded-2xl p-2"
+        class="flex gap-1 bg-white border border-gray-200 rounded-2xl p-2"
         role="radiogroup"
         aria-label="Sexo"
       >
@@ -91,7 +91,7 @@ const charts = [
       ></select>
     </div>
 
-    <div class="flex flex-col gap-1 grow min-w-50">
+    <div id="filter-year-wrap" class="flex flex-col gap-1 grow min-w-50">
       <label for="filter-year" class="text-sm font-medium text-gray-600">
         Ano · <output id="filter-year-value" for="filter-year">2025</output>
 

@@ -217,6 +217,7 @@ function setupChartTabs(root: ParentNode): void {
     ...root.querySelectorAll<HTMLButtonElement>("[data-chart-tab]"),
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
+  const yearWrap = root.querySelector("#filter-year-wrap");
 
   for (const tab of tabs) {
     tab.addEventListener("click", () => {
@@ -225,6 +226,7 @@ function setupChartTabs(root: ParentNode): void {
         otherTab.setAttribute("aria-selected", String(otherTab === tab));
       for (const panel of panels)
         panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
+      yearWrap?.toggleAttribute("hidden", target === "evolution");
     });
   }
 }

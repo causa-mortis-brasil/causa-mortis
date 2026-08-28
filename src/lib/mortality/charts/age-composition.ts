@@ -26,6 +26,29 @@ export function init(
   const card = container.closest(".chart-card") ?? document;
   const warning = card.querySelector("#age-composition-warning");
   let exportRows: ChartExportRows = { headers: [], rows: [] };
+  let seriesOrder: string[] = [];
+  let sharesByAge: number[][] = [];
+
+  chart.getZr().on("click", (event) => {
+    const pixel: [number, number] = [event.offsetX, event.offsetY];
+    if (!chart.containPixel({ gridIndex: 0 }, pixel)) return;
+
+    const ageIndex = Math.round(
+      Number(chart.convertFromPixel({ xAxisIndex: 0 }, pixel[0])),
+    );
+    const shareAtClick = Number(
+      chart.convertFromPixel({ yAxisIndex: 0 }, pixel[1]),
+    );
+
+    let cumulative = 0;
+    for (let i = 0; i < seriesOrder.length; i++) {
+      cumulative += sharesByAge[i]?.[ageIndex] ?? 0;
+      if (shareAtClick <= cumulative) {
+        store.setCauseGroup(seriesOrder[i] ?? null);
+        return;
+      }
+    }
+  });
 
   async function render(): Promise<void> {
     const filters = store.get();
@@ -150,6 +173,9 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+
+    seriesOrder = series.map((s) => s.name);
+    sharesByAge = series.map((s) => s.data);
 
     exportRows = {
       headers: [

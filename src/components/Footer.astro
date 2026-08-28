@@ -1,0 +1,45 @@
+---
+const year = new Date().getFullYear();
+---
+
+<div class="center w-full border-t border-gray-200 bg-white">
+  <footer class="app-content-col gap-6 py-10 px-4">
+    <div class="flex flex-wrap items-center justify-between gap-6">
+      <a href="/" class="flex gap-3 items-center">
+        <img src="/logo.svg" alt="" class="w-10" />
+        <div class="text-base flex flex-col gap-0 *:leading-none">
+          <span>Causa</span>
+          <span class="font-bold">Mortis</span>
+        </div>
+      </a>
+
+      <nav aria-label="Navegação do rodapé">
+        <ul class="flex flex-wrap gap-4 text-sm text-gray-600">
+          <li>
+            <a href="#app-sobre" class="hover:text-gray-900 transition-colors"
+              >O que é?</a
+            >
+          </li>
+          <li>
+            <a href="#app-charts" class="hover:text-gray-900 transition-colors"
+              >Explorar dados</a
+            >
+          </li>
+          <li>
+            <a href="#app-fontes" class="hover:text-gray-900 transition-colors"
+              >Fontes</a
+            >
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <p class="text-sm text-gray-600 max-w-140">
+      Painel de infográficos sobre mortalidade no Brasil, construído a partir
+      dos microdados do SIM/DATASUS e das projeções populacionais do IBGE.
+      Finalidade didática e de divulgação.
+    </p>
+
+    <p class="text-xs text-gray-500">© {year} Causa Mortis.</p>
+  </footer>
+</div>

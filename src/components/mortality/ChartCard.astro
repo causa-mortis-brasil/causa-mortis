@@ -34,7 +34,7 @@ const {
   aria-labelledby={`tab-${chartName}`}
   hidden={!active}
 >
-  <div class="flex flex-wrap items-start justify-between gap-2">
+  <div class="flex flex-wrap items-start gap-2">
     <div class="flex gap-4">
       <div class="flex flex-col gap-1">
         <h3 data-chart-title class="font-bold text-lg">{title}</h3>
@@ -46,8 +46,18 @@ const {
         <slot name="controls" />
       </div>
     </div>
+  </div>
+  <slot name="notice" />
+  <div id={chartId} class={`relative w-full ${height}`} data-chart={chartName}>
+    <p
+      class="chart-placeholder absolute inset-0 flex items-center justify-center text-gray-400 text-sm"
+    >
+      Carregando gráfico…
+    </p>
+  </div>
 
-    <details data-chart-export class="group relative shrink-0">
+  <div class="flex justify-end">
+    <details data-chart-export class="group relative">
       <summary class="chart-export-trigger">
         <Download class="size-4" />
         Exportar
@@ -82,13 +92,5 @@ const {
         </button>
       </div>
     </details>
-  </div>
-  <slot name="notice" />
-  <div id={chartId} class={`relative w-full ${height}`} data-chart={chartName}>
-    <p
-      class="chart-placeholder absolute inset-0 flex items-center justify-center text-gray-400 text-sm"
-    >
-      Carregando gráfico…
-    </p>
   </div>
 </article>

@@ -1,4 +1,5 @@
 ---
+import Footer from "../components/Footer.astro";
 import Layout from "../components/Layout.astro";
 import DataDownloads from "../components/mortality/DataDownloads.astro";
 import MortalityExplorer from "../components/mortality/MortalityExplorer.astro";
@@ -8,19 +9,19 @@ import Pattern from "../components/Pattern.astro";
 <Layout>
   <div class="center p-4">
     <header class="app-content justify-between items-center">
-      <div data-name="logo" class="flex gap-3 items-center">
+      <a href="/" class="flex gap-3 items-center">
         <img src="/logo.svg" alt="" class="w-12" />
         <div class="text-lg flex flex-col gap-0 *:leading-none">
           <span>Causa</span>
           <span class="font-bold">Mortis</span>
         </div>
-      </div>
+      </a>
 
       <nav aria-label="Navegação principal">
         <ul class="flex gap-4">
-          <li><a href="#">O que é?</a></li>
+          <li><a href="#app-sobre">O que é?</a></li>
           <li><a href="#app-charts">Explorar dados</a></li>
-          <li><a href="#">Fontes</a></li>
+          <li><a href="#app-fontes">Fontes</a></li>
         </ul>
       </nav>
     </header>
@@ -70,14 +71,14 @@ import Pattern from "../components/Pattern.astro";
         <div class="flex gap-2">
           <a
             href="#app-charts"
-            class="bg-primary-500 hover:bg-primary-600 transition-colors duration-200 rounded-2xl flex items-center justify-center px-8 min-h-12 text-white font-medium"
+            class="select-none bg-primary-500 hover:bg-primary-600 transition-colors duration-200 rounded-2xl flex items-center justify-center px-8 min-h-12 text-white font-medium"
           >
             Explorar dados
           </a>
 
           <a
-            href="#"
-            class="bg-white hover:bg-gray-50 transition-colors duration-200 border border-gray-200 rounded-2xl flex items-center justify-center px-8 min-h-12 font-medium"
+            href="#app-fontes"
+            class="select-none bg-white hover:bg-gray-50 transition-colors duration-200 border border-gray-200 rounded-2xl flex items-center justify-center px-8 min-h-12 font-medium"
           >
             Fontes
           </a>
@@ -95,7 +96,7 @@ import Pattern from "../components/Pattern.astro";
     </section>
 
     <div class="center w-full bg-primary-50 border border-gray-200">
-      <section class="app-content-col gap-4 py-16">
+      <section id="app-sobre" class="app-content-col gap-4 py-16">
         <h3 class="text-gray-800 text-2xl font-bold">Sobre o painel</h3>
 
         <p class="text-gray-800">
@@ -115,7 +116,7 @@ import Pattern from "../components/Pattern.astro";
     </div>
 
     <div class="center w-full bg-primary-600/80">
-      <section class="app-content-col gap-6 py-16 text-white">
+      <section id="app-fontes" class="app-content-col gap-6 py-16 text-white">
         <div class="flex flex-col gap-4">
           <h3 class="text-2xl font-bold">De onde vêm os números</h3>
 
@@ -193,4 +194,6 @@ import Pattern from "../components/Pattern.astro";
       </section>
     </div>
   </main>
+
+  <Footer />
 </Layout>

@@ -307,6 +307,14 @@ export function setupChartExport(
   const details = card.querySelector("[data-chart-export]");
   if (!details) return;
 
+  if (details instanceof HTMLDetailsElement) {
+    document.addEventListener("click", (event) => {
+      if (!details.open) return;
+      if (event.target instanceof Node && !details.contains(event.target))
+        details.open = false;
+    });
+  }
+
   const title =
     card.querySelector("[data-chart-title]")?.textContent?.trim() ?? "";
   const description =
