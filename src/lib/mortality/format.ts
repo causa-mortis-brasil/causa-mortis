@@ -25,6 +25,11 @@ export function formatPercent(fraction: number): string {
   return percentFormatter.format(fraction);
 }
 
+export function formatSignedPercent(fraction: number): string {
+  const formatted = percentFormatter.format(fraction);
+  return fraction > 0 ? `+${formatted}` : formatted;
+}
+
 export function formatCompact(value: number): string {
   return compactFormatter.format(value);
 }

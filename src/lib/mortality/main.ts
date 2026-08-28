@@ -1,6 +1,7 @@
 import { fetchDimensions } from "./dimensions";
 import { FiltersStore } from "./filters";
 import { createPillToggle } from "./pill-toggle";
+import { initSummaryStats } from "./summary-stats";
 import type { Dimensions, Filters, Sex } from "./types";
 
 interface ChartModule {
@@ -297,6 +298,7 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   setupCauseFilters(root, dimensions, store);
   setupChartTabs(root);
   observeChartCards(root, store, dimensions);
+  initSummaryStats(root, store, dimensions);
 
   store.subscribe((filters) => {
     locationSelect.value = filters.location;

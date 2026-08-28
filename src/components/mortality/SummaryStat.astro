@@ -1,0 +1,23 @@
+---
+interface Props {
+  label: string;
+  valueId: string;
+  subtitleId?: string;
+}
+
+const { label, valueId, subtitleId } = Astro.props;
+---
+
+<div
+  class="bg-white border border-gray-200 rounded-2xl p-4 flex flex-col gap-1"
+>
+  <p class="text-sm font-medium text-gray-600">{label}</p>
+  <p class="font-bold text-gray-800" id={valueId}>—</p>
+  {
+    subtitleId && (
+      <p class="text-sm text-gray-500" id={subtitleId}>
+        &nbsp;
+      </p>
+    )
+  }
+</div>

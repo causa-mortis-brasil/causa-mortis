@@ -25,6 +25,7 @@ export type CauseRateEntry = [
   stdRate: number,
 ];
 export type AgeSeries = (number | null)[];
+export type CoverageTable = (number | null)[][];
 
 export type OverallTable = (OverallEntry | null)[][][];
 export type DeathsByCauseGroupTable = ((CauseGroupEntry | null)[] | null)[][][];
@@ -60,6 +61,7 @@ export interface MortalityIndexed {
   deaths_by_assault_means_age: DeathsByAssaultMeansAgeTable;
   deaths_by_detailed_subgroup: DeathsByDetailedSubgroupTable;
   deaths_by_detailed_subgroup_age: DeathsByDetailedSubgroupAgeTable;
+  coverage: CoverageTable;
 }
 
 export type Sex = "Ambos" | "Homens" | "Mulheres";

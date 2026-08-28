@@ -2,6 +2,7 @@ import type {
   AgeSeries,
   CauseGroupEntry,
   CauseRateEntry,
+  CoverageTable,
   DeathsByAssaultMeansAgeTable,
   DeathsByAssaultMeansTable,
   DeathsByCauseGroupAgeTable,
@@ -110,6 +111,14 @@ export function getAssaultMeansAgeSeries(
 ): AgeSeries | null {
   const byMeans = table[locationIndex]?.[sexIndex]?.[yearIndex];
   return byMeans?.[assaultMeansIndex] ?? null;
+}
+
+export function getCoverage(
+  table: CoverageTable,
+  locationIndex: number,
+  yearIndex: number,
+): number | null {
+  return table[locationIndex]?.[yearIndex] ?? null;
 }
 
 export function getDetailedSubgroupAgeSeries(

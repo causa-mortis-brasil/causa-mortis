@@ -26,6 +26,7 @@ const TABLES = [
   "deaths_by_detailed_subgroup_age",
   "deaths_by_age",
   "population_by_age",
+  "coverage",
 ] as const;
 
 const stats = TABLES.map((table) => {

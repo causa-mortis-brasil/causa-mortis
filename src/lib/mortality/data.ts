@@ -11,6 +11,7 @@ import type {
   DeathsByDetailedSubgroupAgeTable,
   DeathsByAgeTable,
   PopulationByAgeTable,
+  CoverageTable,
 } from "./types";
 
 const BASE_URL = "/data/mortality";
@@ -56,6 +57,8 @@ export const fetchDeathsByAge = (): Promise<DeathsByAgeTable> =>
   fetchTable("deaths_by_age");
 export const fetchPopulationByAge = (): Promise<PopulationByAgeTable> =>
   fetchTable("population_by_age");
+export const fetchCoverage = (): Promise<CoverageTable> =>
+  fetchTable("coverage");
 
 let geoJsonPromise: Promise<FeatureCollection> | null = null;
 
