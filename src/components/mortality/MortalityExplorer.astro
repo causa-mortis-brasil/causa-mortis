@@ -24,120 +24,179 @@ const charts = [
 ];
 ---
 
-<section id="mortality-explorer" class="app-content-col gap-4">
+<section id="mortality-explorer" class="app-content-col gap-4 relative">
   <div
-    class="w-full bg-white border border-gray-200 rounded-2xl p-4 flex flex-col gap-4"
+    id="filters-sentinel"
+    aria-hidden="true"
+    class="absolute inset-x-0 top-0 h-px"
   >
-    <div class="w-full flex flex-wrap gap-4 items-end">
-      <div class="w-full sm:w-auto flex flex-col gap-1">
-        <label for="filter-location" class="text-sm font-medium text-gray-600"
-          >Território</label
-        >
-        <select
-          id="filter-location"
-          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-40 cursor-pointer"
-        ></select>
-      </div>
-
-      <fieldset class="w-full sm:w-auto flex flex-col gap-1">
-        <legend class="text-sm font-medium text-gray-600">Sexo</legend>
+  </div>
+  <div
+    id="filters-panel"
+    class="group sticky z-10 w-full bg-white border border-gray-200 rounded-2xl transition-[border-radius,border-width] duration-200 data-[stuck]:rounded-none data-[stuck]:border-t-0 data-[stuck]:border-x-0 data-[stuck]:w-screen data-[stuck]:ml-[calc(50%-50vw)]"
+  >
+    <div class="center w-full">
+      <div
+        class="app-content flex-col gap-4 p-4 transition-[padding] duration-200 group-data-[stuck]:py-2"
+      >
         <div
-          id="filter-sex"
-          class="center gap-1 bg-white border border-gray-200 rounded-2xl max-h-10 p-2"
-          role="radiogroup"
-          aria-label="Sexo"
+          id="filters-row"
+          class="w-full flex flex-wrap gap-4 items-end group-data-[stuck]:flex-nowrap group-data-[stuck]:items-center"
         >
-        </div>
-      </fieldset>
-
-      <div class="w-full sm:w-auto flex flex-col gap-1">
-        <label
-          for="filter-cause-group"
-          class="text-sm font-medium text-gray-600">Grupo de causas</label
-        >
-        <select
-          id="filter-cause-group"
-          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-        ></select>
-      </div>
-
-      <div
-        id="filter-detail-wrap"
-        hidden
-        class="w-full sm:w-auto flex flex-col gap-1"
-      >
-        <label
-          id="filter-detail-label"
-          for="filter-detail"
-          class="text-sm font-medium text-gray-600">Detalhe</label
-        >
-        <select
-          id="filter-detail"
-          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-        ></select>
-      </div>
-
-      <div
-        id="filter-external-wrap"
-        hidden
-        class="w-full sm:w-auto flex flex-col gap-1"
-      >
-        <label for="filter-external" class="text-sm font-medium text-gray-600"
-          >Tipo de causa externa</label
-        >
-        <select
-          id="filter-external"
-          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-        ></select>
-      </div>
-
-      <div
-        id="filter-assault-wrap"
-        hidden
-        class="w-full sm:w-auto flex flex-col gap-1"
-      >
-        <label for="filter-assault" class="text-sm font-medium text-gray-600"
-          >Meio utilizado</label
-        >
-        <select
-          id="filter-assault"
-          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-        ></select>
-      </div>
-    </div>
-
-    <div id="filter-year-wrap" class="w-full flex flex-col gap-1">
-      <label for="filter-year" class="text-sm font-medium text-gray-600">
-        Ano · <output id="filter-year-value" for="filter-year">2025</output>
-
-        <span> </span><span
-          id="filter-year-preliminary"
-          hidden
-          class="text-primary-500"
-        >
-          (preliminar)</span
-        >
-      </label>
-      <div class="h-10 flex items-center gap-3">
-        <button
-          type="button"
-          id="filter-year-toggle"
-          aria-pressed="false"
-          aria-label="Reproduzir evolução dos anos"
-          class="shrink-0 size-10 grid place-items-center rounded-2xl border border-gray-200 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors"
-        >
-          <span id="filter-year-icon-play"><Play class="size-4" /></span>
-          <span id="filter-year-icon-pause" hidden
-            ><Pause class="size-4" /></span
+          <div
+            class="w-full sm:w-auto flex flex-col gap-1 group-data-[stuck]:w-auto"
           >
-        </button>
-        <input
-          type="range"
-          id="filter-year"
-          class="w-full accent-primary-500"
-        />
+            <label
+              for="filter-location"
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+              >Território</label
+            >
+            <select
+              id="filter-location"
+              class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-40 cursor-pointer"
+            ></select>
+          </div>
+
+          <fieldset
+            class="w-full sm:w-auto flex flex-col gap-1 group-data-[stuck]:w-auto"
+          >
+            <legend
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+              >Sexo</legend
+            >
+            <div
+              id="filter-sex"
+              class="flex gap-1 bg-white border border-gray-200 rounded-2xl h-10 p-1"
+              role="radiogroup"
+              aria-label="Sexo"
+            >
+            </div>
+          </fieldset>
+
+          <div
+            class="w-full sm:w-auto flex flex-col gap-1 group-data-[stuck]:w-auto"
+          >
+            <label
+              for="filter-cause-group"
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+              >Grupo de causas</label
+            >
+            <select
+              id="filter-cause-group"
+              class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+            ></select>
+          </div>
+
+          <div
+            id="filter-detail-wrap"
+            hidden
+            class="w-full sm:w-auto flex flex-col gap-1 group-data-[stuck]:w-auto"
+          >
+            <label
+              id="filter-detail-label"
+              for="filter-detail"
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+              >Detalhe</label
+            >
+            <select
+              id="filter-detail"
+              class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+            ></select>
+          </div>
+
+          <div
+            id="filter-external-wrap"
+            hidden
+            class="w-full sm:w-auto flex flex-col gap-1 group-data-[stuck]:w-auto"
+          >
+            <label
+              for="filter-external"
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+              >Tipo de causa externa</label
+            >
+            <select
+              id="filter-external"
+              class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+            ></select>
+          </div>
+
+          <div
+            id="filter-assault-wrap"
+            hidden
+            class="w-full sm:w-auto flex flex-col gap-1 group-data-[stuck]:w-auto"
+          >
+            <label
+              for="filter-assault"
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+              >Meio utilizado</label
+            >
+            <select
+              id="filter-assault"
+              class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+            ></select>
+          </div>
+
+          <div
+            id="filter-year-wrap"
+            class="w-full sm:min-w-72 sm:flex-1 flex flex-col gap-1 group-data-[stuck]:w-auto"
+          >
+            <label
+              for="filter-year"
+              class="text-sm font-medium text-gray-600 group-data-[stuck]:sr-only"
+            >
+              Ano ·
+              <output id="filter-year-value" for="filter-year">2025</output>
+
+              <span> </span><span
+                id="filter-year-preliminary"
+                hidden
+                class="text-primary-500"
+              >
+                (preliminar)</span
+              >
+            </label>
+            <div class="h-10 flex items-center gap-3">
+              <button
+                type="button"
+                id="filter-year-toggle"
+                aria-pressed="false"
+                aria-label="Reproduzir evolução dos anos"
+                class="shrink-0 size-10 grid place-items-center rounded-2xl border border-gray-200 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors"
+              >
+                <span id="filter-year-icon-play"><Play class="size-4" /></span>
+                <span id="filter-year-icon-pause" hidden
+                  ><Pause class="size-4" /></span
+                >
+              </button>
+              <input
+                type="range"
+                id="filter-year"
+                class="w-full accent-primary-500"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+    <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
+    <SummaryStat
+      label="Taxa padronizada"
+      valueId="stat-std-rate-value"
+      subtitleId="stat-std-rate-delta"
+    />
+    <SummaryStat
+      label="Taxa bruta"
+      valueId="stat-crude-rate-value"
+      subtitleId="stat-crude-rate-delta"
+    />
+    <SummaryStat
+      label="Cobertura do SIM"
+      valueId="stat-coverage-value"
+      subtitleId="stat-coverage-subtitle"
+    />
   </div>
 
   <div class="flex flex-col md:flex-row gap-4 items-start">
@@ -145,7 +204,7 @@ const charts = [
       aria-label="Selecionar gráfico"
       role="tablist"
       aria-orientation="vertical"
-      class="flex flex-row md:flex-col flex-wrap gap-1 md:w-64 md:shrink-0"
+      class="flex flex-row md:flex-col flex-wrap gap-1 md:w-42 md:shrink-0"
     >
       {
         charts.map(({ name, label, icon: Icon }) => (
@@ -188,7 +247,7 @@ const charts = [
           </label>
           <div
             id="map-scale-type"
-            class="center gap-1 bg-white border border-gray-200 rounded-2xl max-h-10 p-2"
+            class="flex gap-1 bg-white border border-gray-200 rounded-2xl h-10 p-1"
             role="radiogroup"
             aria-label="Escala do mapa"
           >
@@ -249,25 +308,6 @@ const charts = [
       </ChartCard>
     </div>
   </div>
-
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-    <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
-    <SummaryStat
-      label="Taxa padronizada"
-      valueId="stat-std-rate-value"
-      subtitleId="stat-std-rate-delta"
-    />
-    <SummaryStat
-      label="Taxa bruta"
-      valueId="stat-crude-rate-value"
-      subtitleId="stat-crude-rate-delta"
-    />
-    <SummaryStat
-      label="Cobertura do SIM"
-      valueId="stat-coverage-value"
-      subtitleId="stat-coverage-subtitle"
-    />
-  </div>
 </section>
 
 <script>
@@ -286,5 +326,24 @@ const charts = [
       { rootMargin: "200px" },
     );
     observer.observe(explorer);
+  }
+</script>
+
+<script>
+  const filtersPanel = document.getElementById("filters-panel");
+  const filtersSentinel = document.getElementById("filters-sentinel");
+  const miniHeader = document.getElementById("app-header-mini");
+
+  if (filtersPanel && filtersSentinel && miniHeader) {
+    const offset = miniHeader.offsetHeight;
+    filtersPanel.style.top = `${offset}px`;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        filtersPanel.toggleAttribute("data-stuck", !entry.isIntersecting);
+      },
+      { rootMargin: `-${offset}px 0px 0px 0px`, threshold: 0 },
+    );
+    observer.observe(filtersSentinel);
   }
 </script>

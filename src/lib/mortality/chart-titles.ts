@@ -10,9 +10,9 @@ export function causePathLabel(filters: CauseFilter): string {
 }
 
 export function sexLabel(sex: Sex): string {
-  if (sex === "Homens") return "sexo masculino";
-  if (sex === "Mulheres") return "sexo feminino";
-  return "ambos os sexos";
+  if (sex === "Homens") return "Sexo masculino";
+  if (sex === "Mulheres") return "Sexo feminino";
+  return "Ambos os sexos";
 }
 
 export function locationLabel(
