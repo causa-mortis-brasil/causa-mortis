@@ -11,6 +11,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
+import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
   fetchDeathsByAssaultMeans,
@@ -134,11 +135,17 @@ export function init(
   });
 
   const card = container.closest(".chart-card") ?? document;
+  const context = card.querySelector("[data-chart-context]");
   let renderKey = "";
   let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   async function render(): Promise<void> {
     const filters = store.get();
+
+    if (context) {
+      context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
+    }
+
     const key = `${filters.location}|${filters.sex}|${filters.year}`;
     if (key === renderKey) return;
     renderKey = key;

@@ -1,4 +1,5 @@
 import { getCauseGroupAgeSeries } from "../access";
+import { locationLabel, sexLabel } from "../chart-titles";
 import {
   buildFilenameBase,
   buildFilterContext,
@@ -24,6 +25,7 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
+  const context = card.querySelector("[data-chart-context]");
   const warning = card.querySelector("#age-composition-warning");
   let exportRows: ChartExportRows = { headers: [], rows: [] };
   let seriesOrder: string[] = [];
@@ -52,6 +54,9 @@ export function init(
 
   async function render(): Promise<void> {
     const filters = store.get();
+    if (context) {
+      context.textContent = `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
+    }
     warning?.toggleAttribute(
       "hidden",
       !(

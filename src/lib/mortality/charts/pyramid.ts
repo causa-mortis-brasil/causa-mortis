@@ -1,5 +1,6 @@
 import { loadDeathsByAgeGetter, resolveCauseLevel } from "../cause-level";
 import { getAgeSeries } from "../access";
+import { causePathLabel, locationLabel } from "../chart-titles";
 import {
   buildFilenameBase,
   buildFilterContext,
@@ -22,6 +23,16 @@ type Measure = "deaths" | "rate" | "contribution";
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
 
+function niceCeil(value: number): number {
+  if (value <= 0) return 1;
+  const exponent = Math.floor(Math.log10(value));
+  const base = 10 ** exponent;
+  const fraction = value / base;
+  const niceFraction =
+    fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+  return niceFraction * base;
+}
+
 export function init(
   container: HTMLElement,
   store: FiltersStore,
@@ -31,6 +42,7 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
+  const context = card.querySelector("[data-chart-context]");
   const measureSelect = card.querySelector("#pyramid-measure");
   let measure: Measure = "rate";
 
@@ -59,6 +71,10 @@ export function init(
       fetchPopulationByAge(),
     ]);
     if (token !== renderToken) return;
+
+    if (context) {
+      context.textContent = `${causePathLabel(filters)} · ${filters.year} · ${locationLabel(dimensions, filters.location)}`;
+    }
 
     const locationIndex = indexOf(dimensions.locations, filters.location);
     const yearIndex = indexOf(dimensions.years, filters.year);
@@ -109,16 +125,7 @@ export function init(
           ? womenRate
           : womenContribution;
 
-    const ratioLabels = dimensions.age_groups.map((_, i) => {
-      const men = menRate[i] ?? 0;
-      const women = womenRate[i] ?? 0;
-      if (men === 0 || women === 0) return "";
-      return men >= women
-        ? `${formatRate(men / women)}×`
-        : `${formatRate(women / men)}×`;
-    });
-
-    const rawMaxAbs = Math.max(...menValues, ...womenValues, 1);
+    const maxAbs = niceCeil(Math.max(...menValues, ...womenValues, 1));
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
 
@@ -157,7 +164,7 @@ export function init(
           gridIndex: 0,
           type: "value",
           min: 0,
-          max: rawMaxAbs,
+          max: maxAbs,
           inverse: true,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
@@ -165,7 +172,7 @@ export function init(
           gridIndex: 1,
           type: "value",
           min: 0,
-          max: rawMaxAbs,
+          max: maxAbs,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
         {
@@ -218,15 +225,6 @@ export function init(
           yAxisIndex: 1,
           data: womenValues,
           color: WOMEN_COLOR,
-          label: {
-            show: true,
-            position: "right",
-            distance: 6,
-            formatter: (params: { dataIndex: number }) =>
-              ratioLabels[params.dataIndex] ?? "",
-            color: themeColor("--color-gray-500"),
-            fontSize: 11,
-          },
         },
         {
           name: "Faixa etária",

@@ -212,23 +212,32 @@ function setupCauseFilters(
   store.subscribe(syncControls);
 }
 
-function setupChartTabs(root: ParentNode): void {
+function setupChartTabs(root: ParentNode): (target: string) => void {
   const tabs = [
     ...root.querySelectorAll<HTMLButtonElement>("[data-chart-tab]"),
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const yearWrap = root.querySelector("#filter-year-wrap");
 
+  function activate(target: string): void {
+    for (const tab of tabs)
+      tab.setAttribute(
+        "aria-selected",
+        String(tab.dataset.chartTab === target),
+      );
+    for (const panel of panels)
+      panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
+    yearWrap?.toggleAttribute("hidden", target === "evolution");
+  }
+
   for (const tab of tabs) {
     tab.addEventListener("click", () => {
       const target = tab.dataset.chartTab;
-      for (const otherTab of tabs)
-        otherTab.setAttribute("aria-selected", String(otherTab === tab));
-      for (const panel of panels)
-        panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
-      yearWrap?.toggleAttribute("hidden", target === "evolution");
+      if (target) activate(target);
     });
   }
+
+  return activate;
 }
 
 function observeChartCards(
@@ -298,7 +307,11 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     (year) => store.setYear(year),
   );
   setupCauseFilters(root, dimensions, store);
-  setupChartTabs(root);
+  const activateChartTab = setupChartTabs(root);
+  const chartNames = Object.keys(CHART_LOADERS);
+  activateChartTab(
+    chartNames[Math.floor(Math.random() * chartNames.length)] ?? "map",
+  );
   observeChartCards(root, store, dimensions);
   initSummaryStats(root, store, dimensions);
 

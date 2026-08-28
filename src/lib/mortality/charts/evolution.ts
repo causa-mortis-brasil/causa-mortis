@@ -8,6 +8,7 @@ import {
 } from "../chart-export";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
+import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { indexOf } from "../dimensions";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
@@ -22,6 +23,7 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
+  const context = card.querySelector("[data-chart-context]");
   const maxYear = Math.max(...dimensions.years);
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
@@ -32,6 +34,10 @@ export function init(
     const level = resolveCauseLevel(filters);
     const pointGetter = await loadRatePointGetter(level, dimensions);
     if (token !== renderToken) return;
+
+    if (context) {
+      context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
+    }
 
     const locationIndex = indexOf(dimensions.locations, filters.location);
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
@@ -56,7 +62,7 @@ export function init(
           interval: (_index: number, value: string) => Number(value) % 5 === 0,
         },
       },
-      yAxis: { type: "value", name: "Taxa (por 100 mil hab.)" },
+      yAxis: { type: "value", name: "Taxa (por 100 mil hab.)", min: 0 },
       series: [
         {
           name: "Padronizada por idade",

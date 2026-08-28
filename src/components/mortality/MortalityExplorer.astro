@@ -26,87 +26,87 @@ const charts = [
 
 <section id="mortality-explorer" class="app-content-col gap-4">
   <div
-    class="w-full bg-white border border-gray-200 rounded-2xl p-4 flex flex-wrap gap-4 items-end"
+    class="w-full bg-white border border-gray-200 rounded-2xl p-4 flex flex-col gap-4"
   >
-    <div class="w-full sm:w-auto flex flex-col gap-1">
-      <label for="filter-location" class="text-sm font-medium text-gray-600"
-        >Território</label
-      >
-      <select
-        id="filter-location"
-        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-40 cursor-pointer"
-      ></select>
-    </div>
-
-    <fieldset class="w-full sm:w-auto flex flex-col gap-1">
-      <legend class="text-sm font-medium text-gray-600">Sexo</legend>
-      <div
-        id="filter-sex"
-        class="center gap-1 bg-white border border-gray-200 rounded-2xl max-h-10 p-2"
-        role="radiogroup"
-        aria-label="Sexo"
-      >
+    <div class="w-full flex flex-wrap gap-4 items-end">
+      <div class="w-full sm:w-auto flex flex-col gap-1">
+        <label for="filter-location" class="text-sm font-medium text-gray-600"
+          >Território</label
+        >
+        <select
+          id="filter-location"
+          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-40 cursor-pointer"
+        ></select>
       </div>
-    </fieldset>
 
-    <div class="w-full sm:w-auto flex flex-col gap-1">
-      <label for="filter-cause-group" class="text-sm font-medium text-gray-600"
-        >Grupo de causas</label
+      <fieldset class="w-full sm:w-auto flex flex-col gap-1">
+        <legend class="text-sm font-medium text-gray-600">Sexo</legend>
+        <div
+          id="filter-sex"
+          class="center gap-1 bg-white border border-gray-200 rounded-2xl max-h-10 p-2"
+          role="radiogroup"
+          aria-label="Sexo"
+        >
+        </div>
+      </fieldset>
+
+      <div class="w-full sm:w-auto flex flex-col gap-1">
+        <label
+          for="filter-cause-group"
+          class="text-sm font-medium text-gray-600">Grupo de causas</label
+        >
+        <select
+          id="filter-cause-group"
+          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+        ></select>
+      </div>
+
+      <div
+        id="filter-detail-wrap"
+        hidden
+        class="w-full sm:w-auto flex flex-col gap-1"
       >
-      <select
-        id="filter-cause-group"
-        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-      ></select>
+        <label
+          id="filter-detail-label"
+          for="filter-detail"
+          class="text-sm font-medium text-gray-600">Detalhe</label
+        >
+        <select
+          id="filter-detail"
+          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+        ></select>
+      </div>
+
+      <div
+        id="filter-external-wrap"
+        hidden
+        class="w-full sm:w-auto flex flex-col gap-1"
+      >
+        <label for="filter-external" class="text-sm font-medium text-gray-600"
+          >Tipo de causa externa</label
+        >
+        <select
+          id="filter-external"
+          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+        ></select>
+      </div>
+
+      <div
+        id="filter-assault-wrap"
+        hidden
+        class="w-full sm:w-auto flex flex-col gap-1"
+      >
+        <label for="filter-assault" class="text-sm font-medium text-gray-600"
+          >Meio utilizado</label
+        >
+        <select
+          id="filter-assault"
+          class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
+        ></select>
+      </div>
     </div>
 
-    <div
-      id="filter-detail-wrap"
-      hidden
-      class="w-full sm:w-auto flex flex-col gap-1"
-    >
-      <label
-        id="filter-detail-label"
-        for="filter-detail"
-        class="text-sm font-medium text-gray-600">Detalhe</label
-      >
-      <select
-        id="filter-detail"
-        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-      ></select>
-    </div>
-
-    <div
-      id="filter-external-wrap"
-      hidden
-      class="w-full sm:w-auto flex flex-col gap-1"
-    >
-      <label for="filter-external" class="text-sm font-medium text-gray-600"
-        >Tipo de causa externa</label
-      >
-      <select
-        id="filter-external"
-        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-      ></select>
-    </div>
-
-    <div
-      id="filter-assault-wrap"
-      hidden
-      class="w-full sm:w-auto flex flex-col gap-1"
-    >
-      <label for="filter-assault" class="text-sm font-medium text-gray-600"
-        >Meio utilizado</label
-      >
-      <select
-        id="filter-assault"
-        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
-      ></select>
-    </div>
-
-    <div
-      id="filter-year-wrap"
-      class="w-full sm:w-auto sm:grow sm:min-w-50 flex flex-col gap-1"
-    >
+    <div id="filter-year-wrap" class="w-full flex flex-col gap-1">
       <label for="filter-year" class="text-sm font-medium text-gray-600">
         Ano · <output id="filter-year-value" for="filter-year">2025</output>
 
@@ -168,7 +168,6 @@ const charts = [
     <div class="min-w-0 grow flex flex-col gap-4">
       <ChartCard
         title="Onde se morre mais"
-        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-map"
         chartName="map"
         height="h-96 md:h-120"
@@ -196,7 +195,6 @@ const charts = [
 
       <ChartCard
         title="Evolução das taxas"
-        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-evolution"
         chartName="evolution"
         height="h-64 md:h-80"
@@ -204,7 +202,6 @@ const charts = [
 
       <ChartCard
         title="Do que se morre"
-        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-causes"
         chartName="causes"
         height="h-96 md:h-120 md:max-w-2xl md:mx-auto"
@@ -212,7 +209,6 @@ const charts = [
 
       <ChartCard
         title="Do que se morre em cada idade"
-        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-age-composition"
         chartName="age-composition"
         height="h-108 md:h-128"
@@ -231,7 +227,6 @@ const charts = [
 
       <ChartCard
         title="Pirâmide de mortalidade"
-        description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-pyramid"
         chartName="pyramid"
         height="h-96 md:h-120"

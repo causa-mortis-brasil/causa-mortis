@@ -6,6 +6,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
+import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { fetchBrazilStatesGeoJson } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
@@ -29,6 +30,7 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
+  const context = card.querySelector("[data-chart-context]");
   const stableScaleCheckbox = card.querySelector("#map-scale-stable");
   const scaleTypeWrap = card.querySelector("#map-scale-type");
 
@@ -81,6 +83,10 @@ export function init(
 
     const pointGetter = await loadRatePointGetter(level, dimensions);
     if (token !== renderToken) return;
+
+    if (context) {
+      context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)} · ${filters.year}`;
+    }
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);
@@ -153,6 +159,15 @@ export function init(
               borderColor: themeColor("--color-primary-500"),
               borderWidth: 1.5,
             },
+          },
+          label: {
+            show: true,
+            formatter: (params: { value: number }) => formatRate(params.value),
+            fontSize: 10,
+            fontWeight: 600,
+            color: "#fff",
+            textBorderColor: "rgba(0, 0, 0, 0.35)",
+            textBorderWidth: 2,
           },
           data,
         },

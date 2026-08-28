@@ -9,7 +9,7 @@ import {
 
 interface Props {
   title: string;
-  description: string;
+  description?: string;
   chartId: string;
   chartName: string;
   height: string;
@@ -35,13 +35,24 @@ const {
   hidden={!active}
 >
   <div
-    class="flex flex-col sm:flex-row sm:items-start sm:flex-wrap gap-3 sm:gap-4"
+    class="flex flex-col justify-between sm:flex-row sm:items-start sm:flex-wrap gap-3 sm:gap-4"
   >
     <div class="flex flex-col gap-1">
       <h3 data-chart-title class="font-bold text-lg">{title}</h3>
-      <p data-chart-description class="text-sm text-gray-600">
-        {description}
+      <p
+        data-chart-context
+        class="text-sm font-medium text-primary-600 empty:hidden"
+      >
       </p>
+      {
+        description ? (
+          <p data-chart-description class="text-sm text-gray-600">
+            {description}
+          </p>
+        ) : (
+          ""
+        )
+      }
     </div>
     <div class="sm:text-nowrap">
       <slot name="controls" />
@@ -56,41 +67,54 @@ const {
     </p>
   </div>
 
-  <div class="flex justify-end">
-    <details data-chart-export class="group relative">
-      <summary class="chart-export-trigger">
-        <Download class="size-4" />
-        Exportar
-        <ChevronDown
-          class="size-3.5 transition-transform group-open:rotate-180"
-        />
-      </summary>
-      <div class="chart-export-menu">
-        <button
-          type="button"
-          data-export-format="png"
-          class="chart-export-item"
-        >
-          <Image class="size-4" />
-          Imagem (PNG)
-        </button>
-        <button
-          type="button"
-          data-export-format="csv"
-          class="chart-export-item"
-        >
-          <FileText class="size-4" />
-          Dados (CSV)
-        </button>
-        <button
-          type="button"
-          data-export-format="xlsx"
-          class="chart-export-item"
-        >
-          <FileSpreadsheet class="size-4" />
-          Dados (XLSX)
-        </button>
-      </div>
-    </details>
+  <div
+    class="flex flex-wrap items-end justify-between gap-3 pt-2 border-t border-gray-100 text-xs text-gray-500"
+  >
+    <div class="flex flex-col gap-0.5">
+      <span>Fonte: SIM/DATASUS · IBGE</span>
+      <a href="#app-fontes" class="text-primary-600 hover:underline">
+        Notas técnicas e metodologia
+      </a>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span>Causa Mortis</span>
+
+      <details data-chart-export class="group relative">
+        <summary class="chart-export-trigger">
+          <Download class="size-4" />
+          Exportar
+          <ChevronDown
+            class="size-3.5 transition-transform group-open:rotate-180"
+          />
+        </summary>
+        <div class="chart-export-menu">
+          <button
+            type="button"
+            data-export-format="png"
+            class="chart-export-item"
+          >
+            <Image class="size-4" />
+            Imagem (PNG)
+          </button>
+          <button
+            type="button"
+            data-export-format="csv"
+            class="chart-export-item"
+          >
+            <FileText class="size-4" />
+            Dados (CSV)
+          </button>
+          <button
+            type="button"
+            data-export-format="xlsx"
+            class="chart-export-item"
+          >
+            <FileSpreadsheet class="size-4" />
+            Dados (XLSX)
+          </button>
+        </div>
+      </details>
+    </div>
   </div>
 </article>
