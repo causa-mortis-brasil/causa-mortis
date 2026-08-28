@@ -30,4 +30,8 @@ echarts.use([
 ]);
 
 export { echarts };
-export type { EChartsCoreOption, EChartsType } from "echarts/core";
+export type {
+  ECElementEvent,
+  EChartsCoreOption,
+  EChartsType,
+} from "echarts/core";

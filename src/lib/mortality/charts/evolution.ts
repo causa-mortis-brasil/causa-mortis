@@ -45,13 +45,16 @@ export function init(
     }
 
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 16, top: 24, bottom: 56 },
+      grid: { left: 48, right: 40, top: 24, bottom: 56 },
       tooltip: { trigger: "axis" },
       legend: { bottom: 4, data: ["Padronizada por idade", "Bruta"] },
       xAxis: {
         type: "category",
         data: dimensions.years.map(String),
         boundaryGap: false,
+        axisLabel: {
+          interval: (_index: number, value: string) => Number(value) % 5 === 0,
+        },
       },
       yAxis: { type: "value", name: "Taxa (por 100 mil hab.)" },
       series: [
@@ -64,7 +67,19 @@ export function init(
           markArea: {
             silent: true,
             itemStyle: { color: "rgba(0, 0, 0, 0.04)" },
-            data: [[{ xAxis: String(maxYear) }, { xAxis: String(maxYear) }]],
+            label: {
+              show: true,
+              position: "insideTop",
+              color: themeColor("--color-gray-500"),
+              fontSize: 11,
+            },
+            data: [
+              [{ name: "pandemia", xAxis: "2020" }, { xAxis: "2023" }],
+              [
+                { name: "preliminar", xAxis: String(maxYear) },
+                { xAxis: String(maxYear) },
+              ],
+            ],
           },
           markLine: {
             silent: true,

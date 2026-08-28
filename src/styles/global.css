@@ -50,7 +50,7 @@
   }
 
   .pill-toggle-option {
-    @apply select-none px-3 py-1.5 rounded-xl text-sm font-medium cursor-pointer text-gray-600 peer-checked:bg-primary-500 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-primary-500 peer-focus-visible:outline-offset-2 transition-colors;
+    @apply select-none px-3 py-1 rounded-xl text-sm font-medium cursor-pointer text-gray-600 peer-checked:bg-primary-500 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-primary-500 peer-focus-visible:outline-offset-2 transition-colors;
   }
 
   .chart-tab-button {

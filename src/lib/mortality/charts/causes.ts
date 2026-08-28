@@ -18,14 +18,15 @@ import {
   fetchDeathsByDetailedSubgroup,
   fetchDeathsByExternalCause,
 } from "../data";
-import type { EChartsCoreOption } from "../echarts-core";
+import type { ECElementEvent, EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { causeGroupColor } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
 import type { FiltersStore } from "../filters";
-import type { Dimensions } from "../types";
+import type { CauseFilter, Dimensions } from "../types";
 
 interface CauseNode {
+  id: string;
   name: string;
   value: number;
   stdRate: number;
@@ -34,12 +35,53 @@ interface CauseNode {
   children?: CauseNode[];
 }
 
-function withPercent(nodes: Omit<CauseNode, "percent">[]): CauseNode[] {
+function withPercent(nodes: Omit<CauseNode, "id" | "percent">[]): CauseNode[] {
   const total = nodes.reduce((sum, node) => sum + node.value, 0);
   return nodes.map((node) => ({
     ...node,
+    id: node.name,
     percent: total > 0 ? (node.value / total) * 100 : 0,
   }));
+}
+
+function targetNodeId(filters: CauseFilter): string | null {
+  return (
+    filters.assaultMeans ??
+    filters.externalCauseType ??
+    filters.detailedSubgroup ??
+    filters.causeGroup
+  );
+}
+
+interface TreePathEntry {
+  name: string;
+}
+
+function isTreePathInfo(value: unknown): value is TreePathEntry[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (entry) =>
+        typeof entry === "object" &&
+        entry !== null &&
+        typeof (entry as { name?: unknown }).name === "string",
+    )
+  );
+}
+
+function applyCauseSelection(store: FiltersStore, names: string[]): void {
+  const [causeGroup, subLevel, assaultMeans] = names;
+  if (!causeGroup) {
+    store.setCauseGroup(null);
+    return;
+  }
+  store.setCauseGroup(causeGroup);
+  if (causeGroup === "Causas externas") {
+    if (subLevel) store.setExternalCauseType(subLevel);
+    if (assaultMeans) store.setAssaultMeans(assaultMeans);
+  } else if (subLevel) {
+    store.setDetailedSubgroup(subLevel);
+  }
 }
 
 function flattenCauseNodes(
@@ -67,6 +109,29 @@ export function init(
 ): void {
   const chart = echarts.init(container);
   new ResizeObserver(() => chart.resize()).observe(container);
+
+  let lastCauseKey = "";
+  let currentOption: EChartsCoreOption | null = null;
+
+  function syncZoom(filters: CauseFilter): void {
+    const target = targetNodeId(filters);
+    const key = target ?? "";
+    if (key === lastCauseKey) return;
+    lastCauseKey = key;
+    if (target) {
+      chart.dispatchAction({ type: "treemapRootToNode", targetNode: target });
+    } else if (currentOption) {
+      chart.setOption(currentOption, { notMerge: true });
+    }
+  }
+
+  chart.on("click", (params: ECElementEvent) => {
+    const treePathInfo: unknown = params.treePathInfo;
+    if (!isTreePathInfo(treePathInfo)) return;
+    const names = treePathInfo.slice(1).map((entry) => entry.name);
+    lastCauseKey = names[names.length - 1] ?? "";
+    applyCauseSelection(store, names);
+  });
 
   const card = container.closest(".chart-card") ?? document;
   let renderKey = "";
@@ -144,7 +209,7 @@ export function init(
                     yearIndex,
                     externalIndex,
                   );
-                  const node: Omit<CauseNode, "percent"> = {
+                  const node: Omit<CauseNode, "id" | "percent"> = {
                     name: externalCauseType,
                     value: extDeaths,
                     stdRate: extStdRate,
@@ -202,6 +267,7 @@ export function init(
         {
           name: "Todas as causas",
           type: "treemap",
+          top: 8,
           roam: false,
           nodeClick: "zoomToNode",
           leafDepth: 1,
@@ -222,6 +288,7 @@ export function init(
       ],
     };
 
+    currentOption = option;
     chart.setOption(option, { notMerge: true });
 
     exportRows = {
@@ -250,5 +317,5 @@ export function init(
     getRows: () => exportRows,
   });
 
-  store.subscribe(() => void render());
+  store.subscribe(() => void render().then(() => syncZoom(store.get())));
 }
