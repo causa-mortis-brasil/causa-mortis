@@ -1,0 +1,205 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import {
+  Braces,
+  Download,
+  FileSpreadsheet,
+  Map,
+  PackageOpen,
+} from "@lucide/astro";
+
+interface DataFile {
+  jsonHref: string;
+  jsonFilePath: string;
+  csvHref?: string;
+  csvFilePath?: string;
+  label: string;
+  description: string;
+}
+
+const dataFiles: DataFile[] = [
+  {
+    jsonHref: "/data/mortality/dimensions.json",
+    jsonFilePath: "public/data/mortality/dimensions.json",
+    label: "Dimensões",
+    description:
+      "Territórios, sexos, causas, faixas etárias e anos disponíveis.",
+  },
+  {
+    jsonHref: "/data/mortality/overall.json",
+    jsonFilePath: "public/data/mortality/overall.json",
+    csvHref: "/data/mortality-csv/overall.csv",
+    csvFilePath: "public/data/mortality-csv/overall.csv",
+    label: "Óbitos e taxas gerais",
+    description:
+      "Óbitos, taxa bruta, taxa padronizada e população, por recorte.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_cause_group.json",
+    jsonFilePath: "public/data/mortality/deaths_by_cause_group.json",
+    csvHref: "/data/mortality-csv/deaths_by_cause_group.csv",
+    csvFilePath: "public/data/mortality-csv/deaths_by_cause_group.csv",
+    label: "Óbitos por grupo de causa",
+    description: "Óbitos e taxa padronizada por grupo de causa.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_cause_group_age.json",
+    jsonFilePath: "public/data/mortality/deaths_by_cause_group_age.json",
+    label: "Óbitos por grupo de causa e idade",
+    description: "Óbitos por grupo de causa, abertos por faixa etária.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_detailed_subgroup.json",
+    jsonFilePath: "public/data/mortality/deaths_by_detailed_subgroup.json",
+    csvHref: "/data/mortality-csv/deaths_by_detailed_subgroup.csv",
+    csvFilePath: "public/data/mortality-csv/deaths_by_detailed_subgroup.csv",
+    label: "Óbitos por subgrupo detalhado",
+    description:
+      "Óbitos e taxas dos subgrupos de neoplasias e cardiovasculares.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_detailed_subgroup_age.json",
+    jsonFilePath: "public/data/mortality/deaths_by_detailed_subgroup_age.json",
+    label: "Óbitos por subgrupo detalhado e idade",
+    description: "Subgrupos detalhados, abertos por faixa etária.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_external_cause.json",
+    jsonFilePath: "public/data/mortality/deaths_by_external_cause.json",
+    csvHref: "/data/mortality-csv/deaths_by_external_cause.csv",
+    csvFilePath: "public/data/mortality-csv/deaths_by_external_cause.csv",
+    label: "Óbitos por tipo de causa externa",
+    description: "Óbitos e taxas por tipo de causa externa.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_external_cause_age.json",
+    jsonFilePath: "public/data/mortality/deaths_by_external_cause_age.json",
+    label: "Óbitos por tipo de causa externa e idade",
+    description: "Tipos de causa externa, abertos por faixa etária.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_assault_means.json",
+    jsonFilePath: "public/data/mortality/deaths_by_assault_means.json",
+    csvHref: "/data/mortality-csv/deaths_by_assault_means.csv",
+    csvFilePath: "public/data/mortality-csv/deaths_by_assault_means.csv",
+    label: "Óbitos por meio de agressão",
+    description: "Óbitos e taxas por meio utilizado em agressões.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_assault_means_age.json",
+    jsonFilePath: "public/data/mortality/deaths_by_assault_means_age.json",
+    label: "Óbitos por meio de agressão e idade",
+    description: "Meios de agressão, abertos por faixa etária.",
+  },
+  {
+    jsonHref: "/data/mortality/deaths_by_age.json",
+    jsonFilePath: "public/data/mortality/deaths_by_age.json",
+    csvHref: "/data/mortality-csv/deaths_by_age.csv",
+    csvFilePath: "public/data/mortality-csv/deaths_by_age.csv",
+    label: "Óbitos por idade",
+    description: "Óbitos totais por faixa etária.",
+  },
+  {
+    jsonHref: "/data/mortality/population_by_age.json",
+    jsonFilePath: "public/data/mortality/population_by_age.json",
+    csvHref: "/data/mortality-csv/population_by_age.csv",
+    csvFilePath: "public/data/mortality-csv/population_by_age.csv",
+    label: "População por idade",
+    description: "Projeções populacionais do IBGE por faixa etária.",
+  },
+  {
+    jsonHref: "/data/mortality/coverage.json",
+    jsonFilePath: "public/data/mortality/coverage.json",
+    csvHref: "/data/mortality-csv/coverage.csv",
+    csvFilePath: "public/data/mortality-csv/coverage.csv",
+    label: "Cobertura do SIM",
+    description:
+      "Indicador de cobertura do registro de óbitos por território e ano.",
+  },
+  {
+    jsonHref: "/data/geo/br-states.geojson",
+    jsonFilePath: "public/data/geo/br-states.geojson",
+    label: "Malha dos estados",
+    description: "Geometrias dos estados brasileiros usadas no mapa.",
+  },
+];
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function fileSize(filePath: string): number {
+  return fs.statSync(path.join(process.cwd(), filePath)).size;
+}
+
+const files = dataFiles.map((file) => ({
+  ...file,
+  jsonSize: formatSize(fileSize(file.jsonFilePath)),
+  csvSize: file.csvFilePath ? formatSize(fileSize(file.csvFilePath)) : null,
+  isGeo: file.jsonFilePath.endsWith(".geojson"),
+}));
+
+const bundleHref = "/data/mortality-csv/causa-mortis-dados-completos.zip";
+const bundleSize = formatSize(
+  fileSize("public/data/mortality-csv/causa-mortis-dados-completos.zip"),
+);
+---
+
+<div class="w-full flex flex-col gap-4">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div class="flex flex-col gap-4">
+      <h3 class="text-gray-800 text-2xl font-bold">Baixe os dados</h3>
+    </div>
+
+    <a
+      href={bundleHref}
+      download
+      class="shrink-0 flex items-center gap-2 bg-primary-500 hover:bg-primary-600 transition-colors rounded-2xl px-4 py-2 text-sm font-medium text-white"
+    >
+      <PackageOpen class="size-4" />
+      Baixar tudo em CSV ({bundleSize})
+    </a>
+  </div>
+
+  <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
+    {
+      files.map((file) => (
+        <li class="flex items-center gap-3 border border-gray-200 rounded-2xl p-3">
+          <span class="shrink-0 size-9 grid place-items-center rounded-xl bg-primary-50 text-primary-600">
+            {file.isGeo ? <Map class="size-4" /> : <Braces class="size-4" />}
+          </span>
+          <span class="flex flex-col min-w-0 grow">
+            <span class="font-medium text-sm truncate">{file.label}</span>
+            <span class="text-xs text-gray-600 truncate">
+              {file.description}
+            </span>
+          </span>
+          <span class="shrink-0 flex items-center gap-1">
+            {file.csvHref && (
+              <a
+                href={file.csvHref}
+                download
+                title={`CSV (${file.csvSize})`}
+                class="flex items-center gap-1 rounded-xl border border-gray-200 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                <FileSpreadsheet class="size-3.5" />
+                CSV
+              </a>
+            )}
+            <a
+              href={file.jsonHref}
+              download
+              title={`JSON (${file.jsonSize})`}
+              class="flex items-center gap-1 rounded-xl border border-gray-200 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              <Download class="size-3.5" />
+              JSON
+            </a>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>

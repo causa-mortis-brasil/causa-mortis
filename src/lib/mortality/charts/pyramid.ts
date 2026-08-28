@@ -1,5 +1,12 @@
 import { loadDeathsByAgeGetter, resolveCauseLevel } from "../cause-level";
 import { getAgeSeries } from "../access";
+import {
+  buildFilenameBase,
+  buildFilterContext,
+  roundTo,
+  setupChartExport,
+  type ChartExportRows,
+} from "../chart-export";
 import { fetchPopulationByAge } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
@@ -36,6 +43,7 @@ export function init(
   }
 
   let renderToken = 0;
+  let exportRows: ChartExportRows = { headers: [], rows: [] };
   const totalWeight = dimensions.standard_population_weights.reduce(
     (sum, w) => sum + w,
     0,
@@ -246,7 +254,36 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+
+    const measureLabel =
+      measure === "deaths"
+        ? "Óbitos"
+        : measure === "rate"
+          ? "Taxa por faixa (por 100 mil hab.)"
+          : "Contribuição para taxa padronizada (por 100 mil hab.)";
+    exportRows = {
+      headers: [
+        "Faixa etária",
+        `Homens - ${measureLabel}`,
+        `Mulheres - ${measureLabel}`,
+      ],
+      rows: dimensions.age_groups.map((ageGroup, i) => [
+        ageGroup,
+        measure === "deaths"
+          ? Math.round(menValues[i] ?? 0)
+          : roundTo(menValues[i] ?? 0, 1),
+        measure === "deaths"
+          ? Math.round(womenValues[i] ?? 0)
+          : roundTo(womenValues[i] ?? 0, 1),
+      ]),
+    };
   }
+
+  setupChartExport(card, chart, {
+    getFilenameBase: () => buildFilenameBase("piramide", store.get()),
+    getContext: () => buildFilterContext(dimensions, store.get()),
+    getRows: () => exportRows,
+  });
 
   store.subscribe(() => void render());
 }

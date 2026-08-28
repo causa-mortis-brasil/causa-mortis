@@ -1,4 +1,11 @@
 import { loadRatePointGetter, resolveCauseLevel } from "../cause-level";
+import {
+  buildFilenameBase,
+  buildFilterContext,
+  roundTo,
+  setupChartExport,
+  type ChartExportRows,
+} from "../chart-export";
 import { fetchBrazilStatesGeoJson } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
@@ -29,6 +36,7 @@ export function init(
   let stableScale = true;
   let mapRegistered = false;
   let renderToken = 0;
+  let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   if (scaleTypeWrap) {
     createPillToggle(
@@ -152,12 +160,27 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+
+    exportRows = {
+      headers: ["UF", "Território", "Taxa padronizada (por 100 mil hab.)"],
+      rows: data.map((entry) => [
+        entry.name,
+        dimensions.location_names[entry.name] ?? entry.name,
+        roundTo(entry.value, 1),
+      ]),
+    };
   }
 
   chart.on("click", (params) => {
     if (params.componentType === "series" && typeof params.name === "string") {
       store.setLocation(params.name);
     }
+  });
+
+  setupChartExport(card, chart, {
+    getFilenameBase: () => buildFilenameBase("mapa", store.get()),
+    getContext: () => buildFilterContext(dimensions, store.get()),
+    getRows: () => exportRows,
   });
 
   store.subscribe(() => void render());

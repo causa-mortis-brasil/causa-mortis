@@ -1,0 +1,673 @@
+﻿Território;Nome do território;Ano;Cobertura do SIM
+BR;Brasil;2000;84.5
+BR;Brasil;2001;85.7
+BR;Brasil;2002;87.1
+BR;Brasil;2003;88
+BR;Brasil;2004;90.2
+BR;Brasil;2005;88.7
+BR;Brasil;2006;91
+BR;Brasil;2007;91.3
+BR;Brasil;2008;92.5
+BR;Brasil;2009;93
+BR;Brasil;2010;94.4
+BR;Brasil;2011;95.7
+BR;Brasil;2012;95.3
+BR;Brasil;2013;96.5
+BR;Brasil;2014;96.2
+BR;Brasil;2015;97.7
+BR;Brasil;2016;98.3
+BR;Brasil;2017;98.6
+BR;Brasil;2018;98.5
+BR;Brasil;2019;98.6
+BR;Brasil;2020;98.6
+BR;Brasil;2021;99
+BR;Brasil;2022;98.9
+BR;Brasil;2023;98.9
+AC;Acre;2000;78.2
+AC;Acre;2001;78.5
+AC;Acre;2002;77.7
+AC;Acre;2003;79.9
+AC;Acre;2004;81.7
+AC;Acre;2005;83.5
+AC;Acre;2006;84.8
+AC;Acre;2007;83.7
+AC;Acre;2008;86.5
+AC;Acre;2009;85.2
+AC;Acre;2010;89.6
+AC;Acre;2011;92.3
+AC;Acre;2012;93.8
+AC;Acre;2013;93
+AC;Acre;2014;95.6
+AC;Acre;2015;95.2
+AC;Acre;2016;96.9
+AC;Acre;2017;95.9
+AC;Acre;2018;97.1
+AC;Acre;2019;97.2
+AC;Acre;2020;97.3
+AC;Acre;2021;98
+AC;Acre;2022;96.9
+AC;Acre;2023;96.1
+AL;Alagoas;2000;72
+AL;Alagoas;2001;75.8
+AL;Alagoas;2002;80.1
+AL;Alagoas;2003;78.7
+AL;Alagoas;2004;85.2
+AL;Alagoas;2005;82.2
+AL;Alagoas;2006;83.3
+AL;Alagoas;2007;88.1
+AL;Alagoas;2008;86.1
+AL;Alagoas;2009;88.5
+AL;Alagoas;2010;88.8
+AL;Alagoas;2011;92.3
+AL;Alagoas;2012;90.4
+AL;Alagoas;2013;94.2
+AL;Alagoas;2014;92.6
+AL;Alagoas;2015;94.7
+AL;Alagoas;2016;95.7
+AL;Alagoas;2017;96.9
+AL;Alagoas;2018;97
+AL;Alagoas;2019;97
+AL;Alagoas;2020;97.5
+AL;Alagoas;2021;97.9
+AL;Alagoas;2022;97.1
+AL;Alagoas;2023;97.5
+AM;Amazonas;2000;64.7
+AM;Amazonas;2001;64.8
+AM;Amazonas;2002;66.9
+AM;Amazonas;2003;67.8
+AM;Amazonas;2004;71.4
+AM;Amazonas;2005;72.9
+AM;Amazonas;2006;76.2
+AM;Amazonas;2007;77.2
+AM;Amazonas;2008;82.3
+AM;Amazonas;2009;82.7
+AM;Amazonas;2010;86
+AM;Amazonas;2011;89.2
+AM;Amazonas;2012;90.9
+AM;Amazonas;2013;91.2
+AM;Amazonas;2014;94.7
+AM;Amazonas;2015;95.8
+AM;Amazonas;2016;96.9
+AM;Amazonas;2017;97.9
+AM;Amazonas;2018;98.1
+AM;Amazonas;2019;98.2
+AM;Amazonas;2020;98.2
+AM;Amazonas;2021;98.9
+AM;Amazonas;2022;98.7
+AM;Amazonas;2023;99.2
+AP;Amapá;2000;61.6
+AP;Amapá;2001;68.9
+AP;Amapá;2002;69.8
+AP;Amapá;2003;69.4
+AP;Amapá;2004;74.2
+AP;Amapá;2005;70.3
+AP;Amapá;2006;72.3
+AP;Amapá;2007;73.6
+AP;Amapá;2008;79.7
+AP;Amapá;2009;79.7
+AP;Amapá;2010;79.2
+AP;Amapá;2011;86.5
+AP;Amapá;2012;85.6
+AP;Amapá;2013;85.7
+AP;Amapá;2014;89.3
+AP;Amapá;2015;90.7
+AP;Amapá;2016;91.6
+AP;Amapá;2017;94.2
+AP;Amapá;2018;93.4
+AP;Amapá;2019;94
+AP;Amapá;2020;94.9
+AP;Amapá;2021;96.6
+AP;Amapá;2022;95.6
+AP;Amapá;2023;97.8
+BA;Bahia;2000;67.4
+BA;Bahia;2001;69.6
+BA;Bahia;2002;72.8
+BA;Bahia;2003;73.8
+BA;Bahia;2004;75.9
+BA;Bahia;2005;76.3
+BA;Bahia;2006;80.3
+BA;Bahia;2007;79.7
+BA;Bahia;2008;82.9
+BA;Bahia;2009;84.2
+BA;Bahia;2010;85.8
+BA;Bahia;2011;87.2
+BA;Bahia;2012;89.3
+BA;Bahia;2013;89.7
+BA;Bahia;2014;90.9
+BA;Bahia;2015;94.3
+BA;Bahia;2016;95.3
+BA;Bahia;2017;96.8
+BA;Bahia;2018;96.9
+BA;Bahia;2019;97.7
+BA;Bahia;2020;98.3
+BA;Bahia;2021;98.9
+BA;Bahia;2022;98.9
+BA;Bahia;2023;98.6
+CE;Ceará;2000;67.6
+CE;Ceará;2001;71.6
+CE;Ceará;2002;75.9
+CE;Ceará;2003;78.1
+CE;Ceará;2004;80.5
+CE;Ceará;2005;80.2
+CE;Ceará;2006;83.9
+CE;Ceará;2007;83.2
+CE;Ceará;2008;88.5
+CE;Ceará;2009;89.5
+CE;Ceará;2010;86.8
+CE;Ceará;2011;92.8
+CE;Ceará;2012;91.5
+CE;Ceará;2013;94.9
+CE;Ceará;2014;93.3
+CE;Ceará;2015;95.9
+CE;Ceará;2016;96.2
+CE;Ceará;2017;96.8
+CE;Ceará;2018;96.8
+CE;Ceará;2019;96.9
+CE;Ceará;2020;97.1
+CE;Ceará;2021;97.7
+CE;Ceará;2022;98
+CE;Ceará;2023;98.4
+DF;Distrito Federal;2000;97.5
+DF;Distrito Federal;2001;97.2
+DF;Distrito Federal;2002;99.5
+DF;Distrito Federal;2003;96.9
+DF;Distrito Federal;2004;100.8
+DF;Distrito Federal;2005;97.8
+DF;Distrito Federal;2006;97.8
+DF;Distrito Federal;2007;98.6
+DF;Distrito Federal;2008;99.4
+DF;Distrito Federal;2009;98.1
+DF;Distrito Federal;2010;98.8
+DF;Distrito Federal;2011;100.5
+DF;Distrito Federal;2012;99.2
+DF;Distrito Federal;2013;97.6
+DF;Distrito Federal;2014;101.3
+DF;Distrito Federal;2015;98.3
+DF;Distrito Federal;2016;99.5
+DF;Distrito Federal;2017;100.1
+DF;Distrito Federal;2018;99.8
+DF;Distrito Federal;2019;99.6
+DF;Distrito Federal;2020;99.8
+DF;Distrito Federal;2021;100.4
+DF;Distrito Federal;2022;99.9
+DF;Distrito Federal;2023;99.5
+ES;Espírito Santo;2000;97.4
+ES;Espírito Santo;2001;97.6
+ES;Espírito Santo;2002;96
+ES;Espírito Santo;2003;98.3
+ES;Espírito Santo;2004;97.8
+ES;Espírito Santo;2005;95.4
+ES;Espírito Santo;2006;98.5
+ES;Espírito Santo;2007;95.7
+ES;Espírito Santo;2008;97.3
+ES;Espírito Santo;2009;96
+ES;Espírito Santo;2010;99.5
+ES;Espírito Santo;2011;98.5
+ES;Espírito Santo;2012;98.9
+ES;Espírito Santo;2013;98.1
+ES;Espírito Santo;2014;98.5
+ES;Espírito Santo;2015;98.5
+ES;Espírito Santo;2016;99
+ES;Espírito Santo;2017;99.3
+ES;Espírito Santo;2018;99
+ES;Espírito Santo;2019;98.8
+ES;Espírito Santo;2020;98.3
+ES;Espírito Santo;2021;98.1
+ES;Espírito Santo;2022;98.5
+ES;Espírito Santo;2023;98.9
+GO;Goiás;2000;78.2
+GO;Goiás;2001;79.7
+GO;Goiás;2002;83.9
+GO;Goiás;2003;81.7
+GO;Goiás;2004;87.6
+GO;Goiás;2005;85.2
+GO;Goiás;2006;87
+GO;Goiás;2007;87.9
+GO;Goiás;2008;91.9
+GO;Goiás;2009;90
+GO;Goiás;2010;94.1
+GO;Goiás;2011;94.3
+GO;Goiás;2012;96.9
+GO;Goiás;2013;95.5
+GO;Goiás;2014;97.6
+GO;Goiás;2015;98
+GO;Goiás;2016;98.7
+GO;Goiás;2017;99
+GO;Goiás;2018;99
+GO;Goiás;2019;99.6
+GO;Goiás;2020;99.1
+GO;Goiás;2021;99.3
+GO;Goiás;2022;99.3
+GO;Goiás;2023;99.4
+MA;Maranhão;2000;43.2
+MA;Maranhão;2001;50.3
+MA;Maranhão;2002;52.8
+MA;Maranhão;2003;56.8
+MA;Maranhão;2004;59.5
+MA;Maranhão;2005;64.5
+MA;Maranhão;2006;64.1
+MA;Maranhão;2007;68.7
+MA;Maranhão;2008;73.7
+MA;Maranhão;2009;74.7
+MA;Maranhão;2010;74.7
+MA;Maranhão;2011;81.5
+MA;Maranhão;2012;79.8
+MA;Maranhão;2013;83.6
+MA;Maranhão;2014;84.7
+MA;Maranhão;2015;92.3
+MA;Maranhão;2016;93
+MA;Maranhão;2017;94.6
+MA;Maranhão;2018;95.6
+MA;Maranhão;2019;96
+MA;Maranhão;2020;95.8
+MA;Maranhão;2021;95.8
+MA;Maranhão;2022;95.8
+MA;Maranhão;2023;95.7
+MG;Minas Gerais;2000;81.4
+MG;Minas Gerais;2001;84.6
+MG;Minas Gerais;2002;82.9
+MG;Minas Gerais;2003;87.1
+MG;Minas Gerais;2004;87.8
+MG;Minas Gerais;2005;85.8
+MG;Minas Gerais;2006;90.1
+MG;Minas Gerais;2007;89.1
+MG;Minas Gerais;2008;90
+MG;Minas Gerais;2009;89.9
+MG;Minas Gerais;2010;94.5
+MG;Minas Gerais;2011;94.2
+MG;Minas Gerais;2012;95.3
+MG;Minas Gerais;2013;95.2
+MG;Minas Gerais;2014;95.8
+MG;Minas Gerais;2015;97.8
+MG;Minas Gerais;2016;98.9
+MG;Minas Gerais;2017;98.9
+MG;Minas Gerais;2018;98.8
+MG;Minas Gerais;2019;98.6
+MG;Minas Gerais;2020;98.4
+MG;Minas Gerais;2021;98.5
+MG;Minas Gerais;2022;98.5
+MG;Minas Gerais;2023;98.5
+MS;Mato Grosso do Sul;2000;95.2
+MS;Mato Grosso do Sul;2001;95.6
+MS;Mato Grosso do Sul;2002;95.4
+MS;Mato Grosso do Sul;2003;98.2
+MS;Mato Grosso do Sul;2004;97.6
+MS;Mato Grosso do Sul;2005;96.1
+MS;Mato Grosso do Sul;2006;96.4
+MS;Mato Grosso do Sul;2007;97.9
+MS;Mato Grosso do Sul;2008;96.5
+MS;Mato Grosso do Sul;2009;95.7
+MS;Mato Grosso do Sul;2010;100.3
+MS;Mato Grosso do Sul;2011;96.8
+MS;Mato Grosso do Sul;2012;98
+MS;Mato Grosso do Sul;2013;98.4
+MS;Mato Grosso do Sul;2014;97.4
+MS;Mato Grosso do Sul;2015;97.6
+MS;Mato Grosso do Sul;2016;98.2
+MS;Mato Grosso do Sul;2017;98.9
+MS;Mato Grosso do Sul;2018;99.1
+MS;Mato Grosso do Sul;2019;99
+MS;Mato Grosso do Sul;2020;98
+MS;Mato Grosso do Sul;2021;99.4
+MS;Mato Grosso do Sul;2022;99.4
+MS;Mato Grosso do Sul;2023;99.3
+MT;Mato Grosso;2000;81.8
+MT;Mato Grosso;2001;80.8
+MT;Mato Grosso;2002;84.5
+MT;Mato Grosso;2003;83.2
+MT;Mato Grosso;2004;87.1
+MT;Mato Grosso;2005;87
+MT;Mato Grosso;2006;89.1
+MT;Mato Grosso;2007;86.9
+MT;Mato Grosso;2008;91.8
+MT;Mato Grosso;2009;90.6
+MT;Mato Grosso;2010;94.2
+MT;Mato Grosso;2011;93.3
+MT;Mato Grosso;2012;95.8
+MT;Mato Grosso;2013;94.3
+MT;Mato Grosso;2014;97.3
+MT;Mato Grosso;2015;96.8
+MT;Mato Grosso;2016;97.8
+MT;Mato Grosso;2017;98.3
+MT;Mato Grosso;2018;98.8
+MT;Mato Grosso;2019;98.4
+MT;Mato Grosso;2020;98.5
+MT;Mato Grosso;2021;98.7
+MT;Mato Grosso;2022;99
+MT;Mato Grosso;2023;99.3
+PA;Pará;2000;61.7
+PA;Pará;2001;67
+PA;Pará;2002;64.7
+PA;Pará;2003;69.3
+PA;Pará;2004;70.7
+PA;Pará;2005;73.1
+PA;Pará;2006;74.8
+PA;Pará;2007;76.2
+PA;Pará;2008;80.7
+PA;Pará;2009;81.6
+PA;Pará;2010;85.2
+PA;Pará;2011;87
+PA;Pará;2012;90.3
+PA;Pará;2013;89.9
+PA;Pará;2014;91.9
+PA;Pará;2015;94.5
+PA;Pará;2016;97
+PA;Pará;2017;97.7
+PA;Pará;2018;98.2
+PA;Pará;2019;99
+PA;Pará;2020;99.6
+PA;Pará;2021;99.7
+PA;Pará;2022;99.8
+PA;Pará;2023;99.2
+PB;Paraíba;2000;71
+PB;Paraíba;2001;74.5
+PB;Paraíba;2002;77.4
+PB;Paraíba;2003;78.4
+PB;Paraíba;2004;82.7
+PB;Paraíba;2005;81.8
+PB;Paraíba;2006;82.2
+PB;Paraíba;2007;85.1
+PB;Paraíba;2008;88.3
+PB;Paraíba;2009;88.4
+PB;Paraíba;2010;88.6
+PB;Paraíba;2011;91.7
+PB;Paraíba;2012;92.4
+PB;Paraíba;2013;95.3
+PB;Paraíba;2014;92.2
+PB;Paraíba;2015;93.8
+PB;Paraíba;2016;96.3
+PB;Paraíba;2017;96.9
+PB;Paraíba;2018;96.7
+PB;Paraíba;2019;97.1
+PB;Paraíba;2020;97
+PB;Paraíba;2021;97.9
+PB;Paraíba;2022;97.8
+PB;Paraíba;2023;97.8
+PE;Pernambuco;2000;83.8
+PE;Pernambuco;2001;84.1
+PE;Pernambuco;2002;86.6
+PE;Pernambuco;2003;87.8
+PE;Pernambuco;2004;90.9
+PE;Pernambuco;2005;89.2
+PE;Pernambuco;2006;90
+PE;Pernambuco;2007;92.3
+PE;Pernambuco;2008;93.3
+PE;Pernambuco;2009;94.1
+PE;Pernambuco;2010;92.6
+PE;Pernambuco;2011;97
+PE;Pernambuco;2012;95.6
+PE;Pernambuco;2013;97.4
+PE;Pernambuco;2014;94.7
+PE;Pernambuco;2015;97.6
+PE;Pernambuco;2016;98.3
+PE;Pernambuco;2017;98.7
+PE;Pernambuco;2018;98.7
+PE;Pernambuco;2019;98.8
+PE;Pernambuco;2020;98.5
+PE;Pernambuco;2021;98.5
+PE;Pernambuco;2022;98.3
+PE;Pernambuco;2023;98.6
+PI;Piauí;2000;61.5
+PI;Piauí;2001;63.3
+PI;Piauí;2002;66.9
+PI;Piauí;2003;72.2
+PI;Piauí;2004;72.6
+PI;Piauí;2005;77.4
+PI;Piauí;2006;79.8
+PI;Piauí;2007;82.3
+PI;Piauí;2008;86.5
+PI;Piauí;2009;87.6
+PI;Piauí;2010;86.1
+PI;Piauí;2011;92.4
+PI;Piauí;2012;92.7
+PI;Piauí;2013;94.4
+PI;Piauí;2014;95.2
+PI;Piauí;2015;97.4
+PI;Piauí;2016;98.9
+PI;Piauí;2017;98.3
+PI;Piauí;2018;97.8
+PI;Piauí;2019;98.2
+PI;Piauí;2020;98.2
+PI;Piauí;2021;99.6
+PI;Piauí;2022;99.2
+PI;Piauí;2023;99
+PR;Paraná;2000;97.9
+PR;Paraná;2001;95.9
+PR;Paraná;2002;97.6
+PR;Paraná;2003;96.6
+PR;Paraná;2004;99.5
+PR;Paraná;2005;95.7
+PR;Paraná;2006;97.8
+PR;Paraná;2007;96.7
+PR;Paraná;2008;97.6
+PR;Paraná;2009;97.1
+PR;Paraná;2010;98.2
+PR;Paraná;2011;99
+PR;Paraná;2012;97.6
+PR;Paraná;2013;99.1
+PR;Paraná;2014;97
+PR;Paraná;2015;98.9
+PR;Paraná;2016;99.5
+PR;Paraná;2017;99.5
+PR;Paraná;2018;99.3
+PR;Paraná;2019;99.2
+PR;Paraná;2020;99.2
+PR;Paraná;2021;99.5
+PR;Paraná;2022;99.5
+PR;Paraná;2023;99.5
+RJ;Rio de Janeiro;2000;96.5
+RJ;Rio de Janeiro;2001;98.4
+RJ;Rio de Janeiro;2002;99.9
+RJ;Rio de Janeiro;2003;98.2
+RJ;Rio de Janeiro;2004;99.5
+RJ;Rio de Janeiro;2005;96.2
+RJ;Rio de Janeiro;2006;98.9
+RJ;Rio de Janeiro;2007;98.1
+RJ;Rio de Janeiro;2008;98.5
+RJ;Rio de Janeiro;2009;97.8
+RJ;Rio de Janeiro;2010;100.2
+RJ;Rio de Janeiro;2011;99.2
+RJ;Rio de Janeiro;2012;97.8
+RJ;Rio de Janeiro;2013;99.9
+RJ;Rio de Janeiro;2014;99
+RJ;Rio de Janeiro;2015;99.4
+RJ;Rio de Janeiro;2016;99.6
+RJ;Rio de Janeiro;2017;99.7
+RJ;Rio de Janeiro;2018;99.4
+RJ;Rio de Janeiro;2019;99.3
+RJ;Rio de Janeiro;2020;99.3
+RJ;Rio de Janeiro;2021;99.9
+RJ;Rio de Janeiro;2022;99.8
+RJ;Rio de Janeiro;2023;99.8
+RN;Rio Grande do Norte;2000;64.9
+RN;Rio Grande do Norte;2001;67
+RN;Rio Grande do Norte;2002;72.4
+RN;Rio Grande do Norte;2003;71.2
+RN;Rio Grande do Norte;2004;77.5
+RN;Rio Grande do Norte;2005;76.8
+RN;Rio Grande do Norte;2006;76.5
+RN;Rio Grande do Norte;2007;80.6
+RN;Rio Grande do Norte;2008;84
+RN;Rio Grande do Norte;2009;87.1
+RN;Rio Grande do Norte;2010;83.8
+RN;Rio Grande do Norte;2011;91.4
+RN;Rio Grande do Norte;2012;88.9
+RN;Rio Grande do Norte;2013;92.8
+RN;Rio Grande do Norte;2014;91.8
+RN;Rio Grande do Norte;2015;95
+RN;Rio Grande do Norte;2016;95.7
+RN;Rio Grande do Norte;2017;96.4
+RN;Rio Grande do Norte;2018;96.6
+RN;Rio Grande do Norte;2019;96.3
+RN;Rio Grande do Norte;2020;96.7
+RN;Rio Grande do Norte;2021;97.4
+RN;Rio Grande do Norte;2022;97
+RN;Rio Grande do Norte;2023;97.8
+RO;Rondônia;2000;71.1
+RO;Rondônia;2001;74.8
+RO;Rondônia;2002;74.6
+RO;Rondônia;2003;78.9
+RO;Rondônia;2004;80
+RO;Rondônia;2005;82.2
+RO;Rondônia;2006;84.1
+RO;Rondônia;2007;79
+RO;Rondônia;2008;87.1
+RO;Rondônia;2009;88.7
+RO;Rondônia;2010;93
+RO;Rondônia;2011;89.4
+RO;Rondônia;2012;96.6
+RO;Rondônia;2013;94.1
+RO;Rondônia;2014;96
+RO;Rondônia;2015;96.1
+RO;Rondônia;2016;97.7
+RO;Rondônia;2017;98.5
+RO;Rondônia;2018;97.2
+RO;Rondônia;2019;97.5
+RO;Rondônia;2020;97.2
+RO;Rondônia;2021;99.1
+RO;Rondônia;2022;98.9
+RO;Rondônia;2023;99.3
+RR;Roraima;2000;74.2
+RR;Roraima;2001;68
+RR;Roraima;2002;74.6
+RR;Roraima;2003;75.5
+RR;Roraima;2004;76.9
+RR;Roraima;2005;79.7
+RR;Roraima;2006;82.2
+RR;Roraima;2007;84.7
+RR;Roraima;2008;83.1
+RR;Roraima;2009;85.5
+RR;Roraima;2010;92.2
+RR;Roraima;2011;87
+RR;Roraima;2012;91
+RR;Roraima;2013;94.6
+RR;Roraima;2014;91.2
+RR;Roraima;2015;97
+RR;Roraima;2016;94.6
+RR;Roraima;2017;96.8
+RR;Roraima;2018;97.1
+RR;Roraima;2019;97.2
+RR;Roraima;2020;98.8
+RR;Roraima;2021;99.3
+RR;Roraima;2022;98.5
+RR;Roraima;2023;98
+RS;Rio Grande do Sul;2000;98
+RS;Rio Grande do Sul;2001;97.6
+RS;Rio Grande do Sul;2002;97.8
+RS;Rio Grande do Sul;2003;97.7
+RS;Rio Grande do Sul;2004;99
+RS;Rio Grande do Sul;2005;97
+RS;Rio Grande do Sul;2006;97.3
+RS;Rio Grande do Sul;2007;99.8
+RS;Rio Grande do Sul;2008;95.9
+RS;Rio Grande do Sul;2009;98.5
+RS;Rio Grande do Sul;2010;98.7
+RS;Rio Grande do Sul;2011;100.2
+RS;Rio Grande do Sul;2012;97.3
+RS;Rio Grande do Sul;2013;100.8
+RS;Rio Grande do Sul;2014;98.5
+RS;Rio Grande do Sul;2015;99.1
+RS;Rio Grande do Sul;2016;99.3
+RS;Rio Grande do Sul;2017;99.5
+RS;Rio Grande do Sul;2018;99.3
+RS;Rio Grande do Sul;2019;99.5
+RS;Rio Grande do Sul;2020;99.1
+RS;Rio Grande do Sul;2021;99.3
+RS;Rio Grande do Sul;2022;99.5
+RS;Rio Grande do Sul;2023;99.4
+SC;Santa Catarina;2000;98.8
+SC;Santa Catarina;2001;97.1
+SC;Santa Catarina;2002;97.4
+SC;Santa Catarina;2003;97.5
+SC;Santa Catarina;2004;99.4
+SC;Santa Catarina;2005;96.6
+SC;Santa Catarina;2006;96.2
+SC;Santa Catarina;2007;99.2
+SC;Santa Catarina;2008;95.1
+SC;Santa Catarina;2009;98.9
+SC;Santa Catarina;2010;98
+SC;Santa Catarina;2011;99.6
+SC;Santa Catarina;2012;97
+SC;Santa Catarina;2013;97.9
+SC;Santa Catarina;2014;97.8
+SC;Santa Catarina;2015;98.5
+SC;Santa Catarina;2016;98.5
+SC;Santa Catarina;2017;98.7
+SC;Santa Catarina;2018;98.5
+SC;Santa Catarina;2019;98.5
+SC;Santa Catarina;2020;98.7
+SC;Santa Catarina;2021;99.3
+SC;Santa Catarina;2022;99.4
+SC;Santa Catarina;2023;99.4
+SE;Sergipe;2000;78
+SE;Sergipe;2001;79.2
+SE;Sergipe;2002;83.5
+SE;Sergipe;2003;83.3
+SE;Sergipe;2004;84.9
+SE;Sergipe;2005;86.7
+SE;Sergipe;2006;86.3
+SE;Sergipe;2007;88.2
+SE;Sergipe;2008;90.5
+SE;Sergipe;2009;93.3
+SE;Sergipe;2010;92.5
+SE;Sergipe;2011;93.9
+SE;Sergipe;2012;95.3
+SE;Sergipe;2013;96.9
+SE;Sergipe;2014;93.7
+SE;Sergipe;2015;98.2
+SE;Sergipe;2016;98.8
+SE;Sergipe;2017;98.7
+SE;Sergipe;2018;99.2
+SE;Sergipe;2019;99.5
+SE;Sergipe;2020;99.5
+SE;Sergipe;2021;99.3
+SE;Sergipe;2022;99.5
+SE;Sergipe;2023;99.3
+SP;São Paulo;2000;99.4
+SP;São Paulo;2001;98.7
+SP;São Paulo;2002;99.3
+SP;São Paulo;2003;99.3
+SP;São Paulo;2004;100.9
+SP;São Paulo;2005;97.2
+SP;São Paulo;2006;100
+SP;São Paulo;2007;98.5
+SP;São Paulo;2008;98.7
+SP;São Paulo;2009;99.1
+SP;São Paulo;2010;100.1
+SP;São Paulo;2011;100.3
+SP;São Paulo;2012;98.9
+SP;São Paulo;2013;99.9
+SP;São Paulo;2014;99.5
+SP;São Paulo;2015;99.9
+SP;São Paulo;2016;99.9
+SP;São Paulo;2017;99.7
+SP;São Paulo;2018;99.4
+SP;São Paulo;2019;99.3
+SP;São Paulo;2020;99.4
+SP;São Paulo;2021;99.6
+SP;São Paulo;2022;99.3
+SP;São Paulo;2023;99.3
+TO;Tocantins;2000;59.6
+TO;Tocantins;2001;65.2
+TO;Tocantins;2002;65.2
+TO;Tocantins;2003;68.5
+TO;Tocantins;2004;72.4
+TO;Tocantins;2005;72.7
+TO;Tocantins;2006;73.9
+TO;Tocantins;2007;79.6
+TO;Tocantins;2008;81.7
+TO;Tocantins;2009;82.9
+TO;Tocantins;2010;88
+TO;Tocantins;2011;90.1
+TO;Tocantins;2012;90.3
+TO;Tocantins;2013;92.5
+TO;Tocantins;2014;94.2
+TO;Tocantins;2015;94.8
+TO;Tocantins;2016;96.4
+TO;Tocantins;2017;96.7
+TO;Tocantins;2018;97
+TO;Tocantins;2019;97.3
+TO;Tocantins;2020;98.4
+TO;Tocantins;2021;99
+TO;Tocantins;2022;98.5
+TO;Tocantins;2023;97.8

@@ -4,6 +4,13 @@ import {
   getDetailedSubgroupEntry,
   getExternalCauseEntry,
 } from "../access";
+import {
+  buildFilenameBase,
+  buildFilterContext,
+  roundTo,
+  setupChartExport,
+  type ChartExportRows,
+} from "../chart-export";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
   fetchDeathsByAssaultMeans,
@@ -35,6 +42,24 @@ function withPercent(nodes: Omit<CauseNode, "percent">[]): CauseNode[] {
   }));
 }
 
+function flattenCauseNodes(
+  nodes: CauseNode[],
+  parents: string[] = [],
+): { levels: string[]; deaths: number; percent: number; stdRate: number }[] {
+  return nodes.flatMap((node) => {
+    const levels = [...parents, node.name];
+    const row = {
+      levels,
+      deaths: node.value,
+      percent: node.percent,
+      stdRate: node.stdRate,
+    };
+    return node.children
+      ? [row, ...flattenCauseNodes(node.children, levels)]
+      : [row];
+  });
+}
+
 export function init(
   container: HTMLElement,
   store: FiltersStore,
@@ -43,7 +68,9 @@ export function init(
   const chart = echarts.init(container);
   new ResizeObserver(() => chart.resize()).observe(container);
 
+  const card = container.closest(".chart-card") ?? document;
   let renderKey = "";
+  let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   async function render(): Promise<void> {
     const filters = store.get();
@@ -196,7 +223,32 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+
+    exportRows = {
+      headers: [
+        "Grupo de causa",
+        "Subcategoria",
+        "Detalhe",
+        "Óbitos",
+        "% do nível",
+        "Taxa padronizada (por 100 mil hab.)",
+      ],
+      rows: flattenCauseNodes(level1).map((row) => [
+        row.levels[0] ?? "",
+        row.levels[1] ?? "",
+        row.levels[2] ?? "",
+        Math.round(row.deaths),
+        roundTo(row.percent, 1),
+        roundTo(row.stdRate, 1),
+      ]),
+    };
   }
+
+  setupChartExport(card, chart, {
+    getFilenameBase: () => buildFilenameBase("causas", store.get()),
+    getContext: () => buildFilterContext(dimensions, store.get()),
+    getRows: () => exportRows,
+  });
 
   store.subscribe(() => void render());
 }

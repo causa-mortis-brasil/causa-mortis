@@ -1,4 +1,11 @@
 import { getCauseGroupAgeSeries } from "../access";
+import {
+  buildFilenameBase,
+  buildFilterContext,
+  roundTo,
+  setupChartExport,
+  type ChartExportRows,
+} from "../chart-export";
 import { fetchDeathsByCauseGroupAge } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
@@ -18,6 +25,7 @@ export function init(
 
   const card = container.closest(".chart-card") ?? document;
   const warning = card.querySelector("#age-composition-warning");
+  let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   async function render(): Promise<void> {
     const filters = store.get();
@@ -142,7 +150,30 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+
+    exportRows = {
+      headers: [
+        "Faixa etária",
+        ...includedIndices.map(
+          (causeGroupIndex) => dimensions.cause_groups[causeGroupIndex] ?? "",
+        ),
+      ],
+      rows: dimensions.age_groups.map((ageGroup, ageIndex) => [
+        ageGroup,
+        ...includedIndices.map((causeGroupIndex) => {
+          const deaths = deathsByCauseGroup[causeGroupIndex]?.[ageIndex] ?? 0;
+          const total = totalByAge[ageIndex] ?? 0;
+          return roundTo(total > 0 ? (deaths / total) * 100 : 0, 1);
+        }),
+      ]),
+    };
   }
+
+  setupChartExport(card, chart, {
+    getFilenameBase: () => buildFilenameBase("composicao-etaria", store.get()),
+    getContext: () => buildFilterContext(dimensions, store.get()),
+    getRows: () => exportRows,
+  });
 
   store.subscribe(() => void render());
 }

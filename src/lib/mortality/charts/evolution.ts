@@ -1,4 +1,11 @@
 import { loadRatePointGetter, resolveCauseLevel } from "../cause-level";
+import {
+  buildFilenameBase,
+  buildFilterContext,
+  roundTo,
+  setupChartExport,
+  type ChartExportRows,
+} from "../chart-export";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { indexOf } from "../dimensions";
@@ -14,8 +21,10 @@ export function init(
   const chart = echarts.init(container);
   new ResizeObserver(() => chart.resize()).observe(container);
 
+  const card = container.closest(".chart-card") ?? document;
   const maxYear = Math.max(...dimensions.years);
   let renderToken = 0;
+  let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   async function render(): Promise<void> {
     const token = ++renderToken;
@@ -79,7 +88,26 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+
+    exportRows = {
+      headers: [
+        "Ano",
+        "Taxa padronizada (por 100 mil hab.)",
+        "Taxa bruta (por 100 mil hab.)",
+      ],
+      rows: dimensions.years.map((year, i) => [
+        year,
+        roundTo(standardized[i] ?? 0, 1),
+        roundTo(crude[i] ?? 0, 1),
+      ]),
+    };
   }
+
+  setupChartExport(card, chart, {
+    getFilenameBase: () => buildFilenameBase("evolucao", store.get()),
+    getContext: () => buildFilterContext(dimensions, store.get()),
+    getRows: () => exportRows,
+  });
 
   store.subscribe(() => void render());
 }

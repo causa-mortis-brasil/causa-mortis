@@ -1,4 +1,12 @@
 ---
+import {
+  ChevronDown,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Image,
+} from "@lucide/astro";
+
 interface Props {
   title: string;
   description: string;
@@ -29,13 +37,51 @@ const {
   <div class="flex flex-wrap items-start justify-between gap-2">
     <div class="flex gap-4">
       <div class="flex flex-col gap-1">
-        <h3 class="font-bold text-lg">{title}</h3>
-        <p class="text-sm text-gray-600">{description}</p>
+        <h3 data-chart-title class="font-bold text-lg">{title}</h3>
+        <p data-chart-description class="text-sm text-gray-600">
+          {description}
+        </p>
       </div>
       <div class="text-nowrap">
         <slot name="controls" />
       </div>
     </div>
+
+    <details data-chart-export class="group relative shrink-0">
+      <summary class="chart-export-trigger">
+        <Download class="size-4" />
+        Exportar
+        <ChevronDown
+          class="size-3.5 transition-transform group-open:rotate-180"
+        />
+      </summary>
+      <div class="chart-export-menu">
+        <button
+          type="button"
+          data-export-format="png"
+          class="chart-export-item"
+        >
+          <Image class="size-4" />
+          Imagem (PNG)
+        </button>
+        <button
+          type="button"
+          data-export-format="csv"
+          class="chart-export-item"
+        >
+          <FileText class="size-4" />
+          Dados (CSV)
+        </button>
+        <button
+          type="button"
+          data-export-format="xlsx"
+          class="chart-export-item"
+        >
+          <FileSpreadsheet class="size-4" />
+          Dados (XLSX)
+        </button>
+      </div>
+    </details>
   </div>
   <slot name="notice" />
   <div id={chartId} class={`relative w-full ${height}`} data-chart={chartName}>

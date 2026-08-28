@@ -125,25 +125,6 @@ const charts = [
     </div>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
-    <SummaryStat
-      label="Taxa padronizada"
-      valueId="stat-std-rate-value"
-      subtitleId="stat-std-rate-delta"
-    />
-    <SummaryStat
-      label="Taxa bruta"
-      valueId="stat-crude-rate-value"
-      subtitleId="stat-crude-rate-delta"
-    />
-    <SummaryStat
-      label="Cobertura do SIM"
-      valueId="stat-coverage-value"
-      subtitleId="stat-coverage-subtitle"
-    />
-  </div>
-
   <div class="flex flex-col md:flex-row gap-4 items-start">
     <nav
       aria-label="Selecionar gráfico"
@@ -254,6 +235,25 @@ const charts = [
         </select>
       </ChartCard>
     </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
+    <SummaryStat
+      label="Taxa padronizada"
+      valueId="stat-std-rate-value"
+      subtitleId="stat-std-rate-delta"
+    />
+    <SummaryStat
+      label="Taxa bruta"
+      valueId="stat-crude-rate-value"
+      subtitleId="stat-crude-rate-delta"
+    />
+    <SummaryStat
+      label="Cobertura do SIM"
+      valueId="stat-coverage-value"
+      subtitleId="stat-coverage-subtitle"
+    />
   </div>
 </section>
 
