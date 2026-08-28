@@ -1,5 +1,11 @@
 import * as echarts from "echarts/core";
-import { BarChart, LineChart, MapChart, TreemapChart } from "echarts/charts";
+import {
+  BarChart,
+  LineChart,
+  MapChart,
+  ScatterChart,
+  TreemapChart,
+} from "echarts/charts";
 import {
   GridComponent,
   LegendComponent,
@@ -13,6 +19,7 @@ echarts.use([
   BarChart,
   LineChart,
   MapChart,
+  ScatterChart,
   TreemapChart,
   GridComponent,
   LegendComponent,

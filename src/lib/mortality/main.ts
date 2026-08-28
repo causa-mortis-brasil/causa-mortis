@@ -63,6 +63,8 @@ function setupSexToggle(
   };
 }
 
+const YEAR_PLAYBACK_INTERVAL_MS = 900;
+
 function setupYearControl(
   root: ParentNode,
   dimensions: Dimensions,
@@ -72,6 +74,9 @@ function setupYearControl(
   const input = root.querySelector("#filter-year");
   const output = root.querySelector("#filter-year-value");
   const preliminaryBadge = root.querySelector("#filter-year-preliminary");
+  const toggleButton = root.querySelector("#filter-year-toggle");
+  const playIcon = root.querySelector("#filter-year-icon-play");
+  const pauseIcon = root.querySelector("#filter-year-icon-pause");
   if (!(input instanceof HTMLInputElement) || !output || !preliminaryBadge)
     return () => {};
 
@@ -90,6 +95,39 @@ function setupYearControl(
   sync(initial);
 
   input.addEventListener("input", () => onChange(Number(input.value)));
+
+  if (toggleButton instanceof HTMLButtonElement && playIcon && pauseIcon) {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const stop = (): void => {
+      if (intervalId === null) return;
+      clearInterval(intervalId);
+      intervalId = null;
+      toggleButton.setAttribute("aria-pressed", "false");
+      toggleButton.setAttribute("aria-label", "Reproduzir evolução dos anos");
+      playIcon.toggleAttribute("hidden", false);
+      pauseIcon.toggleAttribute("hidden", true);
+      input.disabled = false;
+    };
+
+    const start = (): void => {
+      toggleButton.setAttribute("aria-pressed", "true");
+      toggleButton.setAttribute("aria-label", "Pausar evolução dos anos");
+      playIcon.toggleAttribute("hidden", true);
+      pauseIcon.toggleAttribute("hidden", false);
+      input.disabled = true;
+      intervalId = setInterval(() => {
+        const nextYear = Number(input.value) + 1;
+        onChange(nextYear > maxYear ? minYear : nextYear);
+      }, YEAR_PLAYBACK_INTERVAL_MS);
+    };
+
+    toggleButton.addEventListener("click", () => {
+      if (intervalId === null) start();
+      else stop();
+    });
+  }
+
   return sync;
 }
 
@@ -173,6 +211,23 @@ function setupCauseFilters(
   store.subscribe(syncControls);
 }
 
+function setupChartTabs(root: ParentNode): void {
+  const tabs = [
+    ...root.querySelectorAll<HTMLButtonElement>("[data-chart-tab]"),
+  ];
+  const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
+
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.chartTab;
+      for (const otherTab of tabs)
+        otherTab.setAttribute("aria-selected", String(otherTab === tab));
+      for (const panel of panels)
+        panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
+    });
+  }
+}
+
 function observeChartCards(
   root: ParentNode,
   store: FiltersStore,
@@ -240,6 +295,7 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     (year) => store.setYear(year),
   );
   setupCauseFilters(root, dimensions, store);
+  setupChartTabs(root);
   observeChartCards(root, store, dimensions);
 
   store.subscribe((filters) => {

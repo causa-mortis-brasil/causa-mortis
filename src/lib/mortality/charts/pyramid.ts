@@ -4,13 +4,16 @@ import { fetchPopulationByAge } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { formatInteger, formatRate } from "../format";
+import { formatCompact, formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
 import { standardizedContributionByAge } from "../rate";
 import type { FiltersStore } from "../filters";
 import type { Dimensions } from "../types";
 
 type Measure = "deaths" | "rate" | "contribution";
+
+const MEN_COLOR = "#1e3a8a";
+const WOMEN_COLOR = "#fca5a5";
 
 export function init(
   container: HTMLElement,
@@ -103,53 +106,140 @@ export function init(
       const women = womenRate[i] ?? 0;
       if (men === 0 || women === 0) return "";
       return men >= women
-        ? `${formatRate(men / women)}× ♂`
-        : `${formatRate(women / men)}× ♀`;
+        ? `${formatRate(men / women)}×`
+        : `${formatRate(women / men)}×`;
     });
 
-    const valueFormatter = measure === "deaths" ? formatInteger : formatRate;
+    const rawMaxAbs = Math.max(...menValues, ...womenValues, 1);
+    const fullValueFormatter =
+      measure === "deaths" ? formatInteger : formatRate;
 
     const option: EChartsCoreOption = {
-      grid: { left: 56, right: 64, top: 16, bottom: 32 },
+      grid: [
+        { left: 16, right: "53%", top: 40, bottom: 32 },
+        { left: "53%", right: 64, top: 40, bottom: 32 },
+        { left: 0, right: 0, top: 40, bottom: 32 },
+      ],
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "shadow" },
         valueFormatter: (value: number | string) =>
-          valueFormatter(Math.abs(Number(value))),
+          fullValueFormatter(Math.abs(Number(value))),
       },
-      legend: { bottom: 0, data: ["Homens", "Mulheres"] },
-      xAxis: {
-        type: "value",
-        axisLabel: {
-          formatter: (value: number) => valueFormatter(Math.abs(value)),
+      legend: [
+        {
+          data: ["Homens"],
+          left: 16,
+          top: 0,
+          itemWidth: 12,
+          itemHeight: 12,
+          textStyle: { fontWeight: 600 },
         },
-      },
-      yAxis: {
-        type: "category",
-        data: dimensions.age_groups,
-        name: "Faixa etária",
-      },
+        {
+          data: ["Mulheres"],
+          right: 16,
+          top: 0,
+          itemWidth: 12,
+          itemHeight: 12,
+          textStyle: { fontWeight: 600 },
+        },
+      ],
+      xAxis: [
+        {
+          gridIndex: 0,
+          type: "value",
+          min: 0,
+          max: rawMaxAbs,
+          inverse: true,
+          axisLabel: { formatter: (value: number) => formatCompact(value) },
+        },
+        {
+          gridIndex: 1,
+          type: "value",
+          min: 0,
+          max: rawMaxAbs,
+          axisLabel: { formatter: (value: number) => formatCompact(value) },
+        },
+        {
+          gridIndex: 2,
+          type: "value",
+          min: -1,
+          max: 1,
+          show: false,
+        },
+      ],
+      yAxis: [
+        {
+          gridIndex: 0,
+          type: "category",
+          data: dimensions.age_groups,
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { show: false },
+        },
+        {
+          gridIndex: 1,
+          type: "category",
+          data: dimensions.age_groups,
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { show: false },
+        },
+        {
+          gridIndex: 2,
+          type: "category",
+          data: dimensions.age_groups,
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: { show: false },
+        },
+      ],
       series: [
         {
           name: "Homens",
           type: "bar",
-          stack: "sexo",
-          data: menValues.map((v) => -v),
-          color: themeColor("--color-primary-500"),
+          xAxisIndex: 0,
+          yAxisIndex: 0,
+          data: menValues,
+          color: MEN_COLOR,
         },
         {
           name: "Mulheres",
           type: "bar",
-          stack: "sexo",
+          xAxisIndex: 1,
+          yAxisIndex: 1,
           data: womenValues,
-          color: themeColor("--color-secondary"),
+          color: WOMEN_COLOR,
           label: {
             show: true,
             position: "right",
+            distance: 6,
             formatter: (params: { dataIndex: number }) =>
               ratioLabels[params.dataIndex] ?? "",
             color: themeColor("--color-gray-500"),
             fontSize: 11,
+          },
+        },
+        {
+          name: "Faixa etária",
+          type: "scatter",
+          xAxisIndex: 2,
+          yAxisIndex: 2,
+          data: dimensions.age_groups.map(() => 0),
+          symbolSize: 0,
+          silent: true,
+          tooltip: { show: false },
+          label: {
+            show: true,
+            position: "inside",
+            formatter: (params: { dataIndex: number }) =>
+              dimensions.age_groups[params.dataIndex],
+            color: themeColor("--color-gray-700"),
+            fontSize: 11,
+            fontWeight: 600,
+            backgroundColor: "#fff",
+            padding: [2, 6],
+            borderRadius: 4,
           },
         },
       ],

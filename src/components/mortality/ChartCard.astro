@@ -5,13 +5,26 @@ interface Props {
   chartId: string;
   chartName: string;
   height: string;
+  active?: boolean;
 }
 
-const { title, description, chartId, chartName, height } = Astro.props;
+const {
+  title,
+  description,
+  chartId,
+  chartName,
+  height,
+  active = false,
+} = Astro.props;
 ---
 
 <article
+  id={`panel-${chartName}`}
   class="chart-card bg-white border border-gray-200 rounded-2xl p-4 flex flex-col gap-2"
+  data-chart-panel={chartName}
+  role="tabpanel"
+  aria-labelledby={`tab-${chartName}`}
+  hidden={!active}
 >
   <div class="flex flex-wrap items-center justify-between gap-2">
     <h3 class="font-bold text-lg">{title}</h3>

@@ -25,7 +25,7 @@ export function init(
   const stableScaleCheckbox = card.querySelector("#map-scale-stable");
   const scaleTypeWrap = card.querySelector("#map-scale-type");
 
-  let scaleType: ScaleType = "stepped";
+  let scaleType: ScaleType = "continuous";
   let stableScale = true;
   let mapRegistered = false;
   let renderToken = 0;
@@ -122,6 +122,7 @@ export function init(
         {
           type: "map",
           map: MAP_NAME,
+          aspectScale: 0.95,
           roam: false,
           selectedMode: "single",
           select:
