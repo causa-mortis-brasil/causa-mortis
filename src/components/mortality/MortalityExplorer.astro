@@ -28,17 +28,17 @@ const charts = [
   <div
     class="w-full bg-white border border-gray-200 rounded-2xl p-4 flex flex-wrap gap-4 items-end"
   >
-    <div class="flex flex-col gap-1">
+    <div class="w-full sm:w-auto flex flex-col gap-1">
       <label for="filter-location" class="text-sm font-medium text-gray-600"
         >Território</label
       >
       <select
         id="filter-location"
-        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-40 cursor-pointer"
+        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-40 cursor-pointer"
       ></select>
     </div>
 
-    <fieldset class="flex flex-col gap-1">
+    <fieldset class="w-full sm:w-auto flex flex-col gap-1">
       <legend class="text-sm font-medium text-gray-600">Sexo</legend>
       <div
         id="filter-sex"
@@ -49,17 +49,21 @@ const charts = [
       </div>
     </fieldset>
 
-    <div class="flex flex-col gap-1">
+    <div class="w-full sm:w-auto flex flex-col gap-1">
       <label for="filter-cause-group" class="text-sm font-medium text-gray-600"
         >Grupo de causas</label
       >
       <select
         id="filter-cause-group"
-        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
+        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
       ></select>
     </div>
 
-    <div id="filter-detail-wrap" hidden class="flex flex-col gap-1">
+    <div
+      id="filter-detail-wrap"
+      hidden
+      class="w-full sm:w-auto flex flex-col gap-1"
+    >
       <label
         id="filter-detail-label"
         for="filter-detail"
@@ -67,31 +71,42 @@ const charts = [
       >
       <select
         id="filter-detail"
-        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
+        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
       ></select>
     </div>
 
-    <div id="filter-external-wrap" hidden class="flex flex-col gap-1">
+    <div
+      id="filter-external-wrap"
+      hidden
+      class="w-full sm:w-auto flex flex-col gap-1"
+    >
       <label for="filter-external" class="text-sm font-medium text-gray-600"
         >Tipo de causa externa</label
       >
       <select
         id="filter-external"
-        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
+        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
       ></select>
     </div>
 
-    <div id="filter-assault-wrap" hidden class="flex flex-col gap-1">
+    <div
+      id="filter-assault-wrap"
+      hidden
+      class="w-full sm:w-auto flex flex-col gap-1"
+    >
       <label for="filter-assault" class="text-sm font-medium text-gray-600"
         >Meio utilizado</label
       >
       <select
         id="filter-assault"
-        class="h-10 border border-gray-200 rounded-2xl px-3 min-w-48 cursor-pointer"
+        class="w-full h-10 border border-gray-200 rounded-2xl px-3 sm:min-w-48 cursor-pointer"
       ></select>
     </div>
 
-    <div id="filter-year-wrap" class="flex flex-col gap-1 grow min-w-50">
+    <div
+      id="filter-year-wrap"
+      class="w-full sm:w-auto sm:grow sm:min-w-50 flex flex-col gap-1"
+    >
       <label for="filter-year" class="text-sm font-medium text-gray-600">
         Ano · <output id="filter-year-value" for="filter-year">2025</output>
 
@@ -156,10 +171,10 @@ const charts = [
         description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-map"
         chartName="map"
-        height="h-120"
+        height="h-96 md:h-120"
         active
       >
-        <div slot="controls" class="flex items-center gap-4">
+        <div slot="controls" class="flex flex-wrap items-center gap-3 sm:gap-4">
           <label class="flex items-center gap-2 text-sm text-gray-600">
             <input
               type="checkbox"
@@ -184,7 +199,7 @@ const charts = [
         description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-evolution"
         chartName="evolution"
-        height="h-80"
+        height="h-64 md:h-80"
       />
 
       <ChartCard
@@ -192,7 +207,7 @@ const charts = [
         description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-causes"
         chartName="causes"
-        height="h-120 max-w-2xl mx-auto"
+        height="h-96 md:h-120 md:max-w-2xl md:mx-auto"
       />
 
       <ChartCard
@@ -200,7 +215,7 @@ const charts = [
         description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-age-composition"
         chartName="age-composition"
-        height="h-128"
+        height="h-108 md:h-128"
       >
         <p
           slot="notice"
@@ -219,7 +234,7 @@ const charts = [
         description="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Optio autem voluptatibus vel quos et."
         chartId="chart-pyramid"
         chartName="pyramid"
-        height="h-120"
+        height="h-96 md:h-120"
       >
         <select
           slot="controls"
@@ -237,7 +252,7 @@ const charts = [
     </div>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
     <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
     <SummaryStat
       label="Taxa padronizada"

@@ -133,8 +133,15 @@ export function init(
       }),
     );
 
+    const isNarrow = container.clientWidth < 480;
+
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 16, top: 16, bottom: 152 },
+      grid: {
+        left: isNarrow ? 36 : 48,
+        right: 12,
+        top: 16,
+        bottom: isNarrow ? 216 : 152,
+      },
       tooltip: {
         trigger: "axis",
         order: "seriesDesc",
@@ -144,7 +151,9 @@ export function init(
       legend: {
         bottom: 8,
         icon: "circle",
-        itemGap: 16,
+        itemGap: isNarrow ? 8 : 16,
+        itemWidth: isNarrow ? 10 : 14,
+        textStyle: { fontSize: isNarrow ? 10 : 12 },
         data: includedIndices.map(
           (causeGroupIndex) => dimensions.cause_groups[causeGroupIndex],
         ),

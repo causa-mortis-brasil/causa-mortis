@@ -8,20 +8,20 @@ import Pattern from "../components/Pattern.astro";
 
 <Layout>
   <div class="center p-4">
-    <header class="app-content justify-between items-center">
-      <a href="/" class="flex gap-3 items-center">
-        <img src="/logo.svg" alt="" class="w-12" />
-        <div class="text-lg flex flex-col gap-0 *:leading-none">
+    <header class="app-content justify-between items-center gap-4">
+      <a href="/" class="shrink-0 flex gap-3 items-center">
+        <img src="/logo.svg" alt="" class="w-10 sm:w-12" />
+        <div class="text-base sm:text-lg flex flex-col gap-0 *:leading-none">
           <span>Causa</span>
           <span class="font-bold">Mortis</span>
         </div>
       </a>
 
-      <nav aria-label="Navegação principal">
-        <ul class="flex gap-4">
-          <li><a href="#app-sobre">O que é?</a></li>
-          <li><a href="#app-charts">Explorar dados</a></li>
-          <li><a href="#app-fontes">Fontes</a></li>
+      <nav aria-label="Navegação principal" class="min-w-0">
+        <ul class="flex gap-3 sm:gap-4 text-sm sm:text-base overflow-x-auto">
+          <li class="shrink-0"><a href="#app-sobre">O que é?</a></li>
+          <li class="shrink-0"><a href="#app-charts">Explorar dados</a></li>
+          <li class="shrink-0"><a href="#app-fontes">Fontes</a></li>
         </ul>
       </nav>
     </header>
@@ -50,7 +50,7 @@ import Pattern from "../components/Pattern.astro";
       </div>
 
       <section
-        class="app-content-col center-col gap-6 text-center py-20 px-4 z-1"
+        class="app-content-col center-col gap-6 text-center py-12 sm:py-20 px-4 z-1"
       >
         <span
           class="text-primary-500 font-medium bg-primary-100 rounded-2xl text-sm px-3 py-1"
@@ -58,7 +58,7 @@ import Pattern from "../components/Pattern.astro";
           SIM/DATASUS · IBGE · 2000–2025
         </span>
 
-        <h1 class="text-5xl font-extrabold max-w-140 text-gray-800">
+        <h1 class="text-4xl sm:text-5xl font-extrabold max-w-140 text-gray-800">
           A forma como os brasileiros morrem
         </h1>
 
@@ -68,7 +68,7 @@ import Pattern from "../components/Pattern.astro";
           região.
         </p>
 
-        <div class="flex gap-2">
+        <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
           <a
             href="#app-charts"
             class="select-none bg-primary-500 hover:bg-primary-600 transition-colors duration-200 rounded-2xl flex items-center justify-center px-8 min-h-12 text-white font-medium"
@@ -86,7 +86,7 @@ import Pattern from "../components/Pattern.astro";
       </section>
     </div>
 
-    <section id="app-charts" class="app-content-col py-6 gap-2">
+    <section id="app-charts" class="app-content-col py-6 gap-2 px-4">
       <h2 class="text-2xl font-bold">Explore os dados</h2>
       <p class="text-gray-600 mb-4">
         Filtre por território, sexo, ano e causa para ver como a mortalidade no
@@ -96,7 +96,7 @@ import Pattern from "../components/Pattern.astro";
     </section>
 
     <div class="center w-full bg-primary-50 border border-gray-200">
-      <section id="app-sobre" class="app-content-col gap-4 py-16">
+      <section id="app-sobre" class="app-content-col gap-4 py-12 sm:py-16 px-4">
         <h3 class="text-gray-800 text-2xl font-bold">Sobre o painel</h3>
 
         <p class="text-gray-800">
@@ -110,13 +110,16 @@ import Pattern from "../components/Pattern.astro";
     </div>
 
     <div class="center w-full bg-white">
-      <section class="app-content-col gap-6 py-16">
+      <section class="app-content-col gap-6 py-12 sm:py-16 px-4">
         <DataDownloads />
       </section>
     </div>
 
     <div class="center w-full bg-primary-600/80">
-      <section id="app-fontes" class="app-content-col gap-6 py-16 text-white">
+      <section
+        id="app-fontes"
+        class="app-content-col gap-6 py-12 sm:py-16 px-4 text-white"
+      >
         <div class="flex flex-col gap-4">
           <h3 class="text-2xl font-bold">De onde vêm os números</h3>
 

@@ -156,7 +156,7 @@ const bundleSize = formatSize(
     <a
       href={bundleHref}
       download
-      class="select-none shrink-0 flex items-center gap-2 bg-primary-500 hover:bg-primary-600 transition-colors rounded-2xl px-4 py-2 text-sm font-medium text-white"
+      class="select-none w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 transition-colors rounded-2xl px-4 py-2 text-sm font-medium text-white"
     >
       <PackageOpen class="size-4" />
       Baixar tudo em CSV ({bundleSize})
@@ -192,7 +192,7 @@ const bundleSize = formatSize(
               href={file.jsonHref}
               download
               title={`JSON (${file.jsonSize})`}
-              class="flex items-center gap-1 rounded-xl border border-gray-200 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+              class="select-none flex items-center gap-1 rounded-xl border border-gray-200 px-2 py-1.5 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
             >
               <Download class="size-3.5" />
               JSON
