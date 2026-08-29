@@ -66,12 +66,17 @@ function setupSexToggle(
 
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
 
+interface YearControl {
+  sync: (year: number) => void;
+  stopPlayback: () => void;
+}
+
 function setupYearControl(
   root: ParentNode,
   dimensions: Dimensions,
   initial: number,
   onChange: (year: number) => void,
-): (year: number) => void {
+): YearControl {
   const input = root.querySelector("#filter-year");
   const output = root.querySelector("#filter-year-value");
   const preliminaryBadge = root.querySelector("#filter-year-preliminary");
@@ -79,7 +84,7 @@ function setupYearControl(
   const playIcon = root.querySelector("#filter-year-icon-play");
   const pauseIcon = root.querySelector("#filter-year-icon-pause");
   if (!(input instanceof HTMLInputElement) || !output || !preliminaryBadge)
-    return () => {};
+    return { sync: () => {}, stopPlayback: () => {} };
 
   const years = dimensions.years;
   const minYear = Math.min(...years);
@@ -97,6 +102,8 @@ function setupYearControl(
 
   input.addEventListener("input", () => onChange(Number(input.value)));
 
+  let stopPlayback = (): void => {};
+
   if (toggleButton instanceof HTMLButtonElement && playIcon && pauseIcon) {
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -110,6 +117,7 @@ function setupYearControl(
       pauseIcon.toggleAttribute("hidden", true);
       input.disabled = false;
     };
+    stopPlayback = stop;
 
     const start = (): void => {
       toggleButton.setAttribute("aria-pressed", "true");
@@ -117,9 +125,14 @@ function setupYearControl(
       playIcon.toggleAttribute("hidden", true);
       pauseIcon.toggleAttribute("hidden", false);
       input.disabled = true;
+      if (Number(input.value) >= maxYear) onChange(minYear);
       intervalId = setInterval(() => {
         const nextYear = Number(input.value) + 1;
-        onChange(nextYear > maxYear ? minYear : nextYear);
+        if (nextYear > maxYear) {
+          stop();
+          return;
+        }
+        onChange(nextYear);
       }, YEAR_PLAYBACK_INTERVAL_MS);
     };
 
@@ -129,7 +142,7 @@ function setupYearControl(
     });
   }
 
-  return sync;
+  return { sync, stopPlayback };
 }
 
 function setupCauseFilters(
@@ -212,7 +225,10 @@ function setupCauseFilters(
   store.subscribe(syncControls);
 }
 
-function setupChartTabs(root: ParentNode): (target: string) => void {
+function setupChartTabs(
+  root: ParentNode,
+  stopYearPlayback: () => void,
+): (target: string) => void {
   const tabs = [
     ...root.querySelectorAll<HTMLButtonElement>("[data-chart-tab]"),
   ];
@@ -249,7 +265,9 @@ function setupChartTabs(root: ParentNode): (target: string) => void {
       }
     }
 
-    yearWrap?.toggleAttribute("hidden", target === "evolution");
+    const isEvolution = target === "evolution";
+    yearWrap?.toggleAttribute("hidden", isEvolution);
+    if (isEvolution) stopYearPlayback();
   }
 
   for (const tab of tabs) {
@@ -322,14 +340,12 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     store.get().sex,
     (sex) => store.setSex(sex),
   );
-  const syncYearControl = setupYearControl(
-    root,
-    dimensions,
-    store.get().year,
-    (year) => store.setYear(year),
-  );
+  const { sync: syncYearControl, stopPlayback: stopYearPlayback } =
+    setupYearControl(root, dimensions, store.get().year, (year) =>
+      store.setYear(year),
+    );
   setupCauseFilters(root, dimensions, store);
-  const activateChartTab = setupChartTabs(root);
+  const activateChartTab = setupChartTabs(root, stopYearPlayback);
   const chartNames = Object.keys(CHART_LOADERS);
   activateChartTab(
     chartNames[Math.floor(Math.random() * chartNames.length)] ?? "map",
