@@ -22,6 +22,10 @@ type Measure = "deaths" | "rate" | "contribution";
 
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
+const DEATHS_AXIS_MAX = 300000;
+const DEATHS_AXIS_INTERVAL = 100000;
+const RATE_AXIS_MAX = 15000;
+const RATE_AXIS_INTERVAL = 5000;
 
 function niceCeil(value: number): number {
   if (value <= 0) return 1;
@@ -125,7 +129,18 @@ export function init(
           ? womenRate
           : womenContribution;
 
-    const maxAbs = niceCeil(Math.max(...menValues, ...womenValues, 1));
+    const maxAbs =
+      measure === "deaths"
+        ? DEATHS_AXIS_MAX
+        : measure === "rate"
+          ? RATE_AXIS_MAX
+          : niceCeil(Math.max(...menValues, ...womenValues, 1));
+    const axisInterval =
+      measure === "deaths"
+        ? DEATHS_AXIS_INTERVAL
+        : measure === "rate"
+          ? RATE_AXIS_INTERVAL
+          : undefined;
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
 
@@ -165,6 +180,7 @@ export function init(
           type: "value",
           min: 0,
           max: maxAbs,
+          interval: axisInterval,
           inverse: true,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
@@ -173,6 +189,7 @@ export function init(
           type: "value",
           min: 0,
           max: maxAbs,
+          interval: axisInterval,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
         {
