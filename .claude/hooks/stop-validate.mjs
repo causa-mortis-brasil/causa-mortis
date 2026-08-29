@@ -47,6 +47,12 @@ function checkFormatting() {
   return `Arquivos não formatados com Prettier (npm run format para corrigir):\n${result.output.trim()}`;
 }
 
+function checkLint() {
+  const result = run("npm run lint --silent");
+  if (result.ok) return null;
+  return `Erros de ESLint encontrados (npm run lint:fix para corrigir):\n${result.output.trim()}`;
+}
+
 function checkComments() {
   const diffResult = run("git diff HEAD --unified=0 --no-color");
   if (!diffResult.ok && !diffResult.output) return null;
@@ -76,9 +82,12 @@ function checkComments() {
   return `Comentários adicionados ao código (proibidos pelo CLAUDE.md):\n${violations.join("\n")}`;
 }
 
-const failures = [checkTypeScript(), checkFormatting(), checkComments()].filter(
-  Boolean,
-);
+const failures = [
+  checkTypeScript(),
+  checkFormatting(),
+  checkLint(),
+  checkComments(),
+].filter(Boolean);
 
 if (failures.length > 0) {
   console.log(

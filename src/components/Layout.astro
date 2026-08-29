@@ -3,7 +3,7 @@ import { Font } from "astro:assets";
 import "../styles/global.css";
 ---
 
-<html lang="pt-BR" class="scroll-smooth scroll-pt-14">
+<html lang="pt-BR" class="scroll-pt-14 scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -14,7 +14,7 @@ import "../styles/global.css";
     <Font cssVariable="--font-poppins" preload />
   </head>
 
-  <body class="flex flex-col w-full text-gray-900 relative overflow-x-hidden">
+  <body class="relative flex w-full flex-col overflow-x-hidden text-gray-900">
     <slot />
   </body>
 </html>

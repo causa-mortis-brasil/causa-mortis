@@ -3,11 +3,11 @@ const year = new Date().getFullYear();
 ---
 
 <div class="center w-full border-t border-gray-200 bg-white">
-  <footer class="app-content-col gap-6 py-8 sm:py-10 px-4">
+  <footer class="app-content-col gap-6 px-4 py-8 sm:py-10">
     <div class="flex flex-wrap items-center justify-between gap-6">
-      <a href="/" class="flex gap-3 items-center">
+      <a href="/" class="flex items-center gap-3">
         <img src="/logo.svg" alt="" class="w-10" />
-        <div class="text-base flex flex-col gap-0 *:leading-none">
+        <div class="flex flex-col gap-0 text-base *:leading-none">
           <span>Causa</span>
           <span class="font-bold">Mortis</span>
         </div>
@@ -16,23 +16,23 @@ const year = new Date().getFullYear();
       <nav aria-label="Navegação do rodapé" class="flex flex-col gap-3">
         <ul class="flex flex-wrap gap-6 text-sm text-gray-600">
           <li>
-            <a href="#app-charts" class="hover:text-gray-900 transition-colors"
+            <a href="#app-charts" class="transition-colors hover:text-gray-900"
               >Dados</a
             >
           </li>
           <li>
-            <a href="#app-sobre" class="hover:text-gray-900 transition-colors"
+            <a href="#app-sobre" class="transition-colors hover:text-gray-900"
               >Sobre</a
             >
           </li>
           <li>
             <a
               href="#app-download"
-              class="hover:text-gray-900 transition-colors">Baixar</a
+              class="transition-colors hover:text-gray-900">Baixar</a
             >
           </li>
           <li>
-            <a href="#app-fontes" class="hover:text-gray-900 transition-colors"
+            <a href="#app-fontes" class="transition-colors hover:text-gray-900"
               >Fontes</a
             >
           </li>
@@ -42,7 +42,7 @@ const year = new Date().getFullYear();
               href="https://github.com/causa-mortis-brasil"
               target="_blank"
               rel="noopener noreferrer"
-              class="flex items-center gap-1 self-end text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              class="flex items-center gap-1 self-end text-sm text-gray-600 transition-colors hover:text-gray-900"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -61,7 +61,7 @@ const year = new Date().getFullYear();
       </nav>
     </div>
 
-    <p class="text-sm text-gray-600 max-w-140">
+    <p class="max-w-140 text-sm text-gray-600">
       Painel de infográficos sobre mortalidade no Brasil, construído a partir
       dos microdados do SIM/DATASUS e das projeções populacionais do IBGE.
       Finalidade didática e de divulgação.

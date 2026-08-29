@@ -12,10 +12,10 @@ import Pattern from "../components/Pattern.astro";
 
   <main class="center-col gap-4">
     <div
-      class="center w-full bg-primary-50 border border-gray-200 relative overflow-hidden"
+      class="center relative w-full overflow-hidden border border-gray-200 bg-primary-50"
     >
       <div
-        class="flex flex-wrap absolute right-0 opacity-0 items-center justify-center z-0"
+        class="absolute right-0 z-0 flex flex-wrap items-center justify-center opacity-0"
       >
         {
           Array.from({ length: 400 }).map(() => {
@@ -27,41 +27,41 @@ import Pattern from "../components/Pattern.astro";
             ];
             const randomClass = rotations[Math.floor(Math.random() * 4)];
 
-            return <Pattern class={`w-20 h-20 ${randomClass}`} />;
+            return <Pattern class={`size-20 ${randomClass}`} />;
           })
         }
       </div>
 
       <section
-        class="app-content-col center-col gap-6 text-center py-12 sm:py-20 px-4 z-1"
+        class="app-content-col center-col z-1 gap-6 px-4 py-12 text-center sm:py-20"
       >
         <span
-          class="text-primary-500 font-medium bg-primary-100 rounded-2xl text-sm px-3 py-1"
+          class="rounded-2xl bg-primary-100 px-3 py-1 text-sm font-medium text-primary-500"
         >
           SIM/DATASUS · IBGE · 2000–2025
         </span>
 
-        <h1 class="text-4xl sm:text-5xl font-extrabold max-w-140 text-gray-800">
+        <h1 class="max-w-140 text-4xl font-extrabold text-gray-800 sm:text-5xl">
           Do que morremos?
         </h1>
 
-        <p class="text-lg max-w-160 text-gray-600">
+        <p class="max-w-160 text-lg text-gray-600">
           Morrem mais brasileiros a cada ano, e o risco de morrer a cada idade
           não para de cair. As duas frases são verdadeiras: a diferença entre a
           taxa bruta e a padronizada por idade é o que separa uma da outra.
         </p>
 
-        <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+        <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <a
             href="#app-charts"
-            class="select-none bg-primary-500 hover:bg-primary-600 transition-colors duration-200 rounded-2xl flex items-center justify-center px-8 min-h-12 text-white font-medium"
+            class="flex min-h-12 items-center justify-center rounded-2xl bg-primary-500 px-8 font-medium text-white transition-colors duration-200 select-none hover:bg-primary-600"
           >
             Explorar dados
           </a>
 
           <a
             href="#app-fontes"
-            class="select-none bg-white hover:bg-gray-50 transition-colors duration-200 border border-gray-200 rounded-2xl flex items-center justify-center px-8 min-h-12 font-medium"
+            class="flex min-h-12 items-center justify-center rounded-2xl border border-gray-200 bg-white px-8 font-medium transition-colors duration-200 select-none hover:bg-gray-50"
           >
             Fontes
           </a>
@@ -69,9 +69,9 @@ import Pattern from "../components/Pattern.astro";
       </section>
     </div>
 
-    <section id="app-charts" class="app-content-col py-6 gap-2 px-4">
+    <section id="app-charts" class="app-content-col gap-2 px-4 py-6">
       <h2 class="text-2xl font-bold">Explore os dados</h2>
-      <p class="text-gray-600 mb-4">
+      <p class="mb-4 text-gray-600">
         Filtre por território, sexo, ano e causa para ver como a mortalidade no
         Brasil muda em cada recorte.
       </p>
@@ -80,10 +80,10 @@ import Pattern from "../components/Pattern.astro";
 
     <div
       id="app-sobre"
-      class="center w-full bg-primary-50 border border-gray-200"
+      class="center w-full border border-gray-200 bg-primary-50"
     >
-      <section class="app-content-col gap-4 py-12 sm:py-16 px-4">
-        <h3 class="text-gray-800 text-2xl font-bold">Sobre o painel</h3>
+      <section class="app-content-col gap-4 px-4 py-12 sm:py-16">
+        <h3 class="text-2xl font-bold text-gray-800">Sobre o painel</h3>
 
         <p class="text-gray-800">
           Este painel tem finalidade <strong>didática e de divulgação</strong>.
@@ -96,30 +96,30 @@ import Pattern from "../components/Pattern.astro";
     </div>
 
     <div id="app-download" class="center w-full bg-white">
-      <section class="app-content-col gap-6 py-12 sm:py-16 px-4">
+      <section class="app-content-col gap-6 px-4 py-12 sm:py-16">
         <DataDownloads />
       </section>
     </div>
 
     <div id="app-fontes" class="center w-full bg-primary-600/80">
-      <section class="app-content-col gap-6 py-12 sm:py-16 px-4 text-white">
+      <section class="app-content-col gap-6 px-4 py-12 text-white sm:py-16">
         <div class="flex flex-col gap-4">
           <h3 class="text-2xl font-bold">De onde vêm os números</h3>
 
-          <p class="text-primary-50/90 max-w-180">
+          <p class="max-w-180 text-primary-50/90">
             Todo valor foi calculado a partir de microdados públicos e conferido
             contra as fichas de qualificação da RIPSA. Nada foi estimado,
             interpolado ou suavizado.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
           <div
-            class="bg-white/10 border border-white/20 rounded-2xl p-6 flex flex-col gap-3"
+            class="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/10 p-6"
           >
             <h3 class="font-bold">Fontes</h3>
             <ul
-              class="flex flex-col gap-2 text-primary-50/90 text-sm list-disc pl-4"
+              class="flex list-disc flex-col gap-2 pl-4 text-sm text-primary-50/90"
             >
               <li>
                 <strong class="text-white">Óbitos:</strong> SIM, microdados do Portal
@@ -146,11 +146,11 @@ import Pattern from "../components/Pattern.astro";
           </div>
 
           <div
-            class="bg-white/10 border border-white/20 rounded-2xl p-6 flex flex-col gap-3"
+            class="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/10 p-6"
           >
             <h3 class="font-bold">Conferências e limitações</h3>
             <ul
-              class="flex flex-col gap-2 text-primary-50/90 text-sm list-disc pl-4"
+              class="flex list-disc flex-col gap-2 pl-4 text-sm text-primary-50/90"
             >
               <li>
                 Neoplasias malignas 2023: 249.942 — idêntico à ficha MRT.5.02.

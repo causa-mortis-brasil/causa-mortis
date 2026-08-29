@@ -14,9 +14,9 @@ const navLinks = [
     id="app-header"
     class="app-content items-center justify-between gap-4 px-4"
   >
-    <a href="/" class="shrink-0 flex gap-3 items-center">
+    <a href="/" class="flex shrink-0 items-center gap-3">
       <img src="/logo.svg" alt="" class="w-10 sm:w-12" />
-      <div class="text-base sm:text-lg flex flex-col gap-0 *:leading-none">
+      <div class="flex flex-col gap-0 text-base *:leading-none sm:text-lg">
         <span>Causa</span>
         <span class="font-bold">Mortis</span>
       </div>
@@ -29,7 +29,7 @@ const navLinks = [
             <li>
               <a
                 href={link.href}
-                class="hover:text-primary-600 transition-colors"
+                class="transition-colors hover:text-primary-600"
               >
                 {link.label}
               </a>
@@ -62,11 +62,11 @@ const navLinks = [
 <div
   id="app-header-mini"
   inert
-  class="fixed inset-x-0 top-0 z-20 -translate-y-full border-b border-gray-200 bg-white/95 backdrop-blur transition-transform duration-200 data-[visible]:translate-y-0"
+  class="fixed inset-x-0 top-0 z-20 -translate-y-full border-b border-gray-200 bg-white/95 backdrop-blur-sm transition-transform duration-200 data-visible:translate-y-0"
 >
   <div class="center w-full">
     <div class="app-content items-center justify-between gap-4 px-4 py-2">
-      <a href="/" class="shrink-0 flex gap-2 items-center">
+      <a href="/" class="flex shrink-0 items-center gap-2">
         <img src="/logo.svg" alt="" class="w-7" />
         <span class="text-sm">Causa <span class="font-bold">Mortis</span></span>
       </a>
@@ -78,7 +78,7 @@ const navLinks = [
               <li>
                 <a
                   href={link.href}
-                  class="hover:text-primary-600 transition-colors"
+                  class="transition-colors hover:text-primary-600"
                 >
                   {link.label}
                 </a>
