@@ -11,6 +11,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
+import { setupChartFullscreen } from "../chart-fullscreen";
 import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
@@ -318,6 +319,8 @@ export function init(
     getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
+
+  setupChartFullscreen(card, container);
 
   store.subscribe(() => void render().then(() => syncZoom(store.get())));
 }

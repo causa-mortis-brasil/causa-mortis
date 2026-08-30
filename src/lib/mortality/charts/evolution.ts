@@ -6,6 +6,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
+import { setupChartFullscreen } from "../chart-fullscreen";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
@@ -132,6 +133,8 @@ export function init(
     getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
+
+  setupChartFullscreen(card, container);
 
   store.subscribe(() => void render());
 }

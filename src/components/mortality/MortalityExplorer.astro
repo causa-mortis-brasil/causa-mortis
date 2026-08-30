@@ -240,6 +240,7 @@ const charts = [
         chartId="chart-evolution"
         chartName="evolution"
         height="h-64 md:h-80"
+        fullscreenToggle
       />
 
       <ChartCard
@@ -247,6 +248,7 @@ const charts = [
         chartId="chart-causes"
         chartName="causes"
         height="h-96 md:h-120 md:max-w-2xl md:mx-auto"
+        fullscreenToggle
       />
 
       <ChartCard
@@ -254,6 +256,7 @@ const charts = [
         chartId="chart-age-composition"
         chartName="age-composition"
         height="h-108 md:h-128"
+        fullscreenToggle
       >
         <p
           slot="notice"
@@ -272,6 +275,7 @@ const charts = [
         chartId="chart-pyramid"
         chartName="pyramid"
         height="h-96 md:h-120"
+        fullscreenToggle
       >
         <select
           slot="controls"
@@ -356,7 +360,8 @@ const charts = [
 
       const observer = new IntersectionObserver(
         ([entry]) => {
-          const shouldBeVisible = !entry.isIntersecting;
+          const shouldBeVisible =
+            !entry.isIntersecting && entry.boundingClientRect.top < offset;
           if (shouldBeVisible === visible) return;
           visible = shouldBeVisible;
 

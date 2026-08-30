@@ -8,6 +8,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
+import { setupChartFullscreen } from "../chart-fullscreen";
 import { fetchPopulationByAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
@@ -298,6 +299,8 @@ export function init(
     getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
+
+  setupChartFullscreen(card, container);
 
   store.subscribe(() => void render());
 }
