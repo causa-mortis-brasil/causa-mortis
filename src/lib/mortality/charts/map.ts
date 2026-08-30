@@ -7,6 +7,7 @@ import {
   type ChartExportRows,
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
+import { subscribeWhenVisible } from "../chart-visibility";
 import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { fetchBrazilStatesGeoJson } from "../data";
 import { indexOf } from "../dimensions";
@@ -202,5 +203,5 @@ export function init(
 
   setupChartFullscreen(card, container);
 
-  store.subscribe(() => void render());
+  subscribeWhenVisible(card, store, render);
 }

@@ -12,6 +12,7 @@ import {
   type ChartExportRows,
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
+import { subscribeWhenVisible } from "../chart-visibility";
 import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
@@ -293,6 +294,7 @@ export function init(
 
     currentOption = option;
     chart.setOption(option, { notMerge: true });
+    lastCauseKey = "";
 
     exportRows = {
       headers: [
@@ -322,5 +324,7 @@ export function init(
 
   setupChartFullscreen(card, container);
 
-  store.subscribe(() => void render().then(() => syncZoom(store.get())));
+  subscribeWhenVisible(card, store, () =>
+    render().then(() => syncZoom(store.get())),
+  );
 }
