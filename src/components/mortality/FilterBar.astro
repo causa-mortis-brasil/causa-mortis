@@ -1,0 +1,74 @@
+---
+import CustomSelect from "./CustomSelect.astro";
+import YearControl from "./YearControl.astro";
+
+interface Props {
+  idSuffix?: string;
+  compact?: boolean;
+}
+
+const { idSuffix = "", compact = false } = Astro.props;
+
+const selectWidthClass = compact ? "shrink-0" : "w-full sm:w-auto";
+---
+
+<div
+  class:list={[
+    "flex items-center gap-2",
+    compact ? "flex-nowrap" : "w-full flex-wrap sm:w-auto",
+  ]}
+>
+  <CustomSelect
+    id={`filter-location${idSuffix}`}
+    name="Território"
+    class={selectWidthClass}
+    compact={compact}
+  />
+  <CustomSelect
+    id={`filter-cause-group${idSuffix}`}
+    name="Grupo de causas"
+    class={selectWidthClass}
+    compact={compact}
+  />
+
+  {
+    [
+      { id: "filter-detail", name: "Detalhe" },
+      { id: "filter-external", name: "Tipo de causa externa" },
+      { id: "filter-assault", name: "Meio utilizado" },
+    ].map(({ id, name }) => (
+      <div id={`${id}-wrap${idSuffix}`} hidden class={selectWidthClass}>
+        <CustomSelect
+          id={`${id}${idSuffix}`}
+          name={name}
+          class="w-full"
+          compact={compact}
+        />
+      </div>
+    ))
+  }
+
+  <div id={`filter-sex-wrap${idSuffix}`} class={selectWidthClass}>
+    <CustomSelect
+      id={`filter-sex${idSuffix}`}
+      name="Sexo"
+      class="w-full"
+      compact={compact}
+    />
+  </div>
+
+  <div
+    id={`filter-pyramid-measure-wrap${idSuffix}`}
+    hidden
+    class={selectWidthClass}
+  >
+    <CustomSelect
+      id={`filter-pyramid-measure${idSuffix}`}
+      name="Medida"
+      class="w-full"
+      compact={compact}
+    />
+  </div>
+</div>
+
+{compact && <YearControl idSuffix={idSuffix} compact={compact} />}

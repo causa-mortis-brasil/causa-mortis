@@ -1,4 +1,4 @@
-import type { Filters, Sex } from "./types";
+import type { Filters, PyramidMeasure, Sex } from "./types";
 
 type Listener = (filters: Filters) => void;
 
@@ -59,5 +59,9 @@ export class FiltersStore {
 
   setAssaultMeans(assaultMeans: string | null): void {
     this.#set({ ...this.#filters, assaultMeans });
+  }
+
+  setPyramidMeasure(pyramidMeasure: PyramidMeasure): void {
+    this.#set({ ...this.#filters, pyramidMeasure });
   }
 }

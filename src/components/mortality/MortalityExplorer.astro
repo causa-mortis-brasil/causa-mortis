@@ -4,15 +4,13 @@ import {
   ChartColumnStacked,
   ChartLine,
   Hash,
-  Pause,
-  Play,
   Pyramid,
-  SlidersHorizontal,
 } from "@lucide/astro";
 import BrazilIcon from "../icons/BrazilIcon.astro";
 import ChartCard from "./ChartCard.astro";
-import CustomSelect from "./CustomSelect.astro";
+import FilterBar from "./FilterBar.astro";
 import SummaryStat from "./SummaryStat.astro";
+import YearControl from "./YearControl.astro";
 
 const charts = [
   { name: "map", label: "Mapa", icon: BrazilIcon },
@@ -35,69 +33,12 @@ const charts = [
         id="filters-row"
         class="app-content flex-wrap items-center justify-between gap-x-1 gap-y-2 p-4"
       >
-        <div
-          class="flex w-full flex-wrap items-center gap-x-1 gap-y-2 sm:w-auto"
-        >
-          <CustomSelect
-            id="filter-location"
-            name="Território"
-            class="w-full sm:w-auto"
-          />
-          <CustomSelect
-            id="filter-cause-group"
-            name="Grupo de causas"
-            class="w-full sm:w-auto"
-          />
-
-          {
-            [
-              { id: "filter-detail", name: "Detalhe" },
-              { id: "filter-external", name: "Tipo de causa externa" },
-              { id: "filter-assault", name: "Meio utilizado" },
-            ].map(({ id, name }) => (
-              <div id={`${id}-wrap`} hidden class="w-full sm:w-auto">
-                <CustomSelect id={id} name={name} class="w-full" />
-              </div>
-            ))
-          }
-
-          <div id="filter-sex-wrap" class="w-full sm:w-auto">
-            <CustomSelect id="filter-sex" name="Sexo" class="w-full" />
-          </div>
-        </div>
-
-        <div
-          id="filter-year-wrap"
-          class="flex h-10 w-full items-center gap-3 sm:w-72"
-        >
-          <button
-            type="button"
-            id="filter-year-toggle"
-            aria-pressed="false"
-            aria-label="Reproduzir evolução dos anos"
-            class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-2xl bg-white text-gray-600 transition-colors hover:bg-gray-50"
-          >
-            <span id="filter-year-icon-play"><Play class="size-4" /></span>
-            <span id="filter-year-icon-pause" hidden
-              ><Pause class="size-4" /></span
-            >
-          </button>
-          <input
-            type="range"
-            id="filter-year"
-            class="w-full accent-primary-500"
-          />
-          <output
-            id="filter-year-value"
-            for="filter-year"
-            class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
-            >2025</output
-          >
-        </div>
+        <FilterBar />
       </div>
     </div>
   </div>
-  <div id="filters-sentinel" aria-hidden="true" class="h-px w-full -mt-4"></div>
+  <YearControl />
+  <div id="filters-sentinel" aria-hidden="true" class="-mt-4 h-px w-full"></div>
 
   <div class="flex flex-col items-start gap-4 md:flex-row">
     <nav
@@ -117,7 +58,7 @@ const charts = [
             aria-controls={`panel-${name}`}
             aria-label={label}
             title={label}
-            class="p-6 aria-selected:bg-primary-50 aria-selected:text-primary-600 focus-visible:outline-primary-500 flex size-11 shrink-0 cursor-pointer items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 rounded-2xl border border-gray-200 bg-white"
+            class="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-gray-200 bg-white p-6 text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 aria-selected:bg-primary-50 aria-selected:text-primary-600"
           >
             <Icon class="size-5 shrink-0" />
           </button>
@@ -137,8 +78,8 @@ const charts = [
         aria-labelledby="tab-stats"
         hidden
       >
-        <h3 class="text-lg font-bold">Resumo</h3>
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+        <h3 class="text-center text-lg font-bold uppercase">Resumo</h3>
+        <div class="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
           <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
           <SummaryStat
             label="Taxa padronizada"
@@ -209,17 +150,7 @@ const charts = [
         chartName="pyramid"
         height="h-96 md:h-120"
         fullscreenToggle
-      >
-        <select
-          slot="controls"
-          id="pyramid-measure"
-          aria-label="Medida"
-          class="cursor-pointer rounded-2xl border border-gray-200 px-2 py-1 text-sm"
-        >
-          <option value="deaths">Óbitos absolutos</option>
-          <option value="rate" selected>Taxa relativa</option>
-        </select>
-      </ChartCard>
+      />
     </div>
   </div>
 
@@ -306,123 +237,17 @@ const charts = [
       );
       observer.observe(filtersSentinel);
     }
-
-    const filtersPanel = document.getElementById("filters-panel");
-    document
-      .getElementById("filters-floating-open")
-      ?.addEventListener("click", () => {
-        filtersPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-
-    const yearInput = document.getElementById("filter-year");
-    const yearOutput = document.getElementById("filter-year-value");
-    const yearToggle = document.getElementById("filter-year-toggle");
-    const floatingInput = document.getElementById("filter-year-floating");
-    const floatingOutput = document.getElementById(
-      "filter-year-floating-value",
-    );
-    const floatingToggle = document.getElementById(
-      "filter-year-floating-toggle",
-    );
-    const floatingPlayIcon = document.getElementById(
-      "filter-year-floating-icon-play",
-    );
-    const floatingPauseIcon = document.getElementById(
-      "filter-year-floating-icon-pause",
-    );
-
-    if (
-      yearInput instanceof HTMLInputElement &&
-      yearOutput &&
-      yearToggle instanceof HTMLButtonElement &&
-      floatingInput instanceof HTMLInputElement &&
-      floatingOutput &&
-      floatingToggle instanceof HTMLButtonElement &&
-      floatingPlayIcon &&
-      floatingPauseIcon
-    ) {
-      const syncFromOriginal = () => {
-        floatingInput.min = yearInput.min;
-        floatingInput.max = yearInput.max;
-        floatingInput.step = yearInput.step;
-        floatingInput.value = yearInput.value;
-        floatingInput.disabled = yearInput.disabled;
-        floatingOutput.textContent = yearOutput.textContent;
-
-        const playing = yearToggle.getAttribute("aria-pressed") === "true";
-        floatingToggle.setAttribute("aria-pressed", String(playing));
-        floatingToggle.setAttribute(
-          "aria-label",
-          yearToggle.getAttribute("aria-label") ?? "",
-        );
-        floatingPlayIcon.toggleAttribute("hidden", playing);
-        floatingPauseIcon.toggleAttribute("hidden", !playing);
-      };
-
-      syncFromOriginal();
-      new MutationObserver(syncFromOriginal).observe(yearOutput, {
-        characterData: true,
-        childList: true,
-        subtree: true,
-      });
-      new MutationObserver(syncFromOriginal).observe(yearToggle, {
-        attributes: true,
-        attributeFilter: ["aria-pressed"],
-      });
-      new MutationObserver(syncFromOriginal).observe(yearInput, {
-        attributes: true,
-        attributeFilter: ["disabled"],
-      });
-
-      floatingInput.addEventListener("input", () => {
-        yearInput.value = floatingInput.value;
-        yearInput.dispatchEvent(new Event("input", { bubbles: true }));
-      });
-
-      floatingToggle.addEventListener("click", () => yearToggle.click());
-    }
   </script>
 </section>
 
 <div
   id="filters-floating"
   inert
-  class="fixed inset-x-0 top-0 z-10 border-b border-gray-200 bg-white/95 backdrop-blur-sm"
+  class="fixed inset-x-0 top-0 z-10 hidden border-b border-gray-200 bg-primary-100 md:block"
 >
   <div class="center w-full">
-    <div class="app-content items-center gap-3 px-4 py-2">
-      <button
-        type="button"
-        id="filter-year-floating-toggle"
-        aria-pressed="false"
-        aria-label="Reproduzir evolução dos anos"
-        class="grid size-7 shrink-0 cursor-pointer place-items-center rounded-lg border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100"
-      >
-        <span id="filter-year-floating-icon-play"><Play class="size-3" /></span>
-        <span id="filter-year-floating-icon-pause" hidden
-          ><Pause class="size-3" /></span
-        >
-      </button>
-      <input
-        type="range"
-        id="filter-year-floating"
-        aria-label="Ano"
-        class="w-full accent-primary-500"
-      />
-      <output
-        id="filter-year-floating-value"
-        for="filter-year-floating"
-        class="shrink-0 text-sm font-medium text-gray-600 tabular-nums"
-        >2025</output
-      >
-      <button
-        type="button"
-        id="filters-floating-open"
-        aria-label="Ver todos os filtros"
-        class="chart-export-trigger shrink-0"
-      >
-        <SlidersHorizontal class="size-4" />
-      </button>
+    <div class="app-content items-center justify-between gap-x-3 px-4 py-1.5">
+      <FilterBar idSuffix="-floating" compact />
     </div>
   </div>
 </div>

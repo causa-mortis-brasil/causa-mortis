@@ -13,6 +13,7 @@ import { evolutionChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
+import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 export function init(
@@ -59,14 +60,10 @@ export function init(
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
-        data: [...dimensions.years.map(String), String(maxYear + 1)],
+        data: dimensions.years.map(String),
         boundaryGap: false,
         axisLabel: {
-          interval: (index: number, value: string) =>
-            index < dimensions.years.length && Number(value) % 5 === 0,
-        },
-        axisTick: {
-          interval: (index: number) => index < dimensions.years.length,
+          interval: (_index: number, value: string) => Number(value) % 5 === 0,
         },
       },
       yAxis: { type: "value", name: "Taxa (por 100 mil hab.)", min: 0 },
@@ -99,10 +96,10 @@ export function init(
               [
                 {
                   name: "preliminar",
-                  xAxis: String(maxYear),
+                  xAxis: String(maxYear - 1),
                   label: { position: "insideTopLeft" },
                 },
-                { xAxis: String(maxYear + 1) },
+                { xAxis: String(maxYear) },
               ],
             ],
           },
@@ -157,6 +154,7 @@ export function init(
   });
 
   setupChartFullscreen(card, container);
+  setupChartShare(card, store);
 
   subscribeWhenVisible(card, store, render);
 }

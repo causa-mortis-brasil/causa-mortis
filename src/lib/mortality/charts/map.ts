@@ -15,6 +15,7 @@ import { echarts } from "../echarts-core";
 import { formatRate, formatRateLabel } from "../format";
 import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
+import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 const MAP_NAME = "brazil-states";
@@ -183,6 +184,7 @@ export function init(
   });
 
   setupChartFullscreen(card, container);
+  setupChartShare(card, store);
 
   subscribeWhenVisible(card, store, render);
 }

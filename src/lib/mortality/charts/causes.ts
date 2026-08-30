@@ -25,6 +25,7 @@ import { echarts } from "../echarts-core";
 import { causeGroupColor } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
 import type { FiltersStore } from "../filters";
+import { setupChartShare } from "../share";
 import type { CauseFilter, Dimensions } from "../types";
 
 interface CauseNode {
@@ -319,6 +320,7 @@ export function init(
   });
 
   setupChartFullscreen(card, container);
+  setupChartShare(card, store);
 
   subscribeWhenVisible(card, store, () =>
     render().then(() => syncZoom(store.get())),

@@ -2,8 +2,9 @@ import { sexLabel } from "./chart-titles";
 import { createCustomSelect, type CustomSelect } from "./custom-select";
 import { fetchDimensions } from "./dimensions";
 import { FiltersStore } from "./filters";
+import { parseSharedState } from "./share";
 import { initSummaryStats } from "./summary-stats";
-import type { Dimensions, Filters, Sex } from "./types";
+import type { Dimensions, Filters, PyramidMeasure, Sex } from "./types";
 
 interface ChartModule {
   init(
@@ -21,113 +22,167 @@ const CHART_LOADERS: Record<string, () => Promise<ChartModule>> = {
   pyramid: () => import("./charts/pyramid"),
 };
 
+const FILTER_ID_SUFFIXES = ["", "-floating"] as const;
+
 function customSelect(
-  root: ParentNode,
+  scope: ParentNode,
   selector: string,
   onChange: (value: string) => void,
 ): CustomSelect {
-  const el = root.querySelector(selector);
+  const el = scope.querySelector(selector);
   if (!(el instanceof HTMLElement))
     throw new Error(`Select "${selector}" não encontrado.`);
   return createCustomSelect(el, onChange);
 }
 
-function setupSexSelect(
-  root: ParentNode,
+function setupLocationSelect(
+  scope: ParentNode,
   dimensions: Dimensions,
-  initial: Sex,
-  onChange: (sex: Sex) => void,
-): (sex: Sex) => void {
-  const sexSelect = customSelect(root, "#filter-sex", (value) =>
-    onChange(value as Sex),
+  store: FiltersStore,
+  suffix: string,
+): void {
+  const select = customSelect(scope, `#filter-location${suffix}`, (value) =>
+    store.setLocation(value),
   );
-  sexSelect.setOptions(
+  select.setOptions(
+    dimensions.locations.map((location) => ({
+      value: location,
+      label: dimensions.location_names[location] ?? location,
+    })),
+  );
+  store.subscribe((filters) => select.setValue(filters.location));
+}
+
+function setupSexSelect(
+  scope: ParentNode,
+  dimensions: Dimensions,
+  store: FiltersStore,
+  suffix: string,
+): void {
+  const select = customSelect(scope, `#filter-sex${suffix}`, (value) =>
+    store.setSex(value as Sex),
+  );
+  select.setOptions(
     dimensions.sexes.map((sex) => ({
       value: sex,
       label: sexLabel(sex as Sex),
     })),
   );
-  sexSelect.setValue(initial);
-  return (sex: Sex) => sexSelect.setValue(sex);
+  store.subscribe((filters) => select.setValue(filters.sex));
+}
+
+function setupPyramidMeasureSelect(
+  scope: ParentNode,
+  store: FiltersStore,
+  suffix: string,
+): void {
+  const select = customSelect(
+    scope,
+    `#filter-pyramid-measure${suffix}`,
+    (value) => store.setPyramidMeasure(value as PyramidMeasure),
+  );
+  select.setOptions([
+    { value: "rate", label: "Taxa relativa" },
+    { value: "deaths", label: "Óbitos absolutos" },
+  ]);
+  store.subscribe((filters) => select.setValue(filters.pyramidMeasure));
 }
 
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
 
-interface YearControl {
-  sync: (year: number) => void;
-  stopPlayback: () => void;
+interface YearPlayback {
+  toggle: () => void;
+  stop: () => void;
+  subscribe: (listener: (playing: boolean) => void) => void;
+}
+
+function createYearPlayback(
+  dimensions: Dimensions,
+  store: FiltersStore,
+): YearPlayback {
+  const minYear = Math.min(...dimensions.years);
+  const maxYear = Math.max(...dimensions.years);
+  let intervalId: ReturnType<typeof setInterval> | null = null;
+  const listeners = new Set<(playing: boolean) => void>();
+
+  function notify(playing: boolean): void {
+    for (const listener of listeners) listener(playing);
+  }
+
+  function stop(): void {
+    if (intervalId === null) return;
+    clearInterval(intervalId);
+    intervalId = null;
+    notify(false);
+  }
+
+  function start(): void {
+    if (store.get().year >= maxYear) store.setYear(minYear);
+    intervalId = setInterval(() => {
+      const nextYear = store.get().year + 1;
+      if (nextYear > maxYear) {
+        stop();
+        return;
+      }
+      store.setYear(nextYear);
+    }, YEAR_PLAYBACK_INTERVAL_MS);
+    notify(true);
+  }
+
+  return {
+    toggle(): void {
+      if (intervalId === null) start();
+      else stop();
+    },
+    stop,
+    subscribe(listener): void {
+      listeners.add(listener);
+      listener(intervalId !== null);
+    },
+  };
 }
 
 function setupYearControl(
-  root: ParentNode,
+  scope: ParentNode,
   dimensions: Dimensions,
-  initial: number,
-  onChange: (year: number) => void,
-): YearControl {
-  const input = root.querySelector("#filter-year");
-  const output = root.querySelector("#filter-year-value");
-  const toggleButton = root.querySelector("#filter-year-toggle");
-  const playIcon = root.querySelector("#filter-year-icon-play");
-  const pauseIcon = root.querySelector("#filter-year-icon-pause");
-  if (!(input instanceof HTMLInputElement) || !output)
-    return { sync: () => {}, stopPlayback: () => {} };
+  store: FiltersStore,
+  playback: YearPlayback,
+  suffix: string,
+): void {
+  const input = scope.querySelector(`#filter-year${suffix}`);
+  const output = scope.querySelector(`#filter-year-value${suffix}`);
+  const toggleButton = scope.querySelector(`#filter-year-toggle${suffix}`);
+  const playIcon = scope.querySelector(`#filter-year-icon-play${suffix}`);
+  const pauseIcon = scope.querySelector(`#filter-year-icon-pause${suffix}`);
+  if (!(input instanceof HTMLInputElement) || !output) return;
 
   const years = dimensions.years;
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  input.min = String(minYear);
-  input.max = String(maxYear);
+  input.min = String(Math.min(...years));
+  input.max = String(Math.max(...years));
   input.step = "1";
 
   const sync = (year: number): void => {
     input.value = String(year);
     output.textContent = String(year);
   };
-  sync(initial);
+  sync(store.get().year);
+  store.subscribe((filters) => sync(filters.year));
 
-  input.addEventListener("input", () => onChange(Number(input.value)));
-
-  let stopPlayback = (): void => {};
+  input.addEventListener("input", () => store.setYear(Number(input.value)));
 
   if (toggleButton instanceof HTMLButtonElement && playIcon && pauseIcon) {
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-
-    const stop = (): void => {
-      if (intervalId === null) return;
-      clearInterval(intervalId);
-      intervalId = null;
-      toggleButton.setAttribute("aria-pressed", "false");
-      toggleButton.setAttribute("aria-label", "Reproduzir evolução dos anos");
-      playIcon.toggleAttribute("hidden", false);
-      pauseIcon.toggleAttribute("hidden", true);
-      input.disabled = false;
-    };
-    stopPlayback = stop;
-
-    const start = (): void => {
-      toggleButton.setAttribute("aria-pressed", "true");
-      toggleButton.setAttribute("aria-label", "Pausar evolução dos anos");
-      playIcon.toggleAttribute("hidden", true);
-      pauseIcon.toggleAttribute("hidden", false);
-      input.disabled = true;
-      if (Number(input.value) >= maxYear) onChange(minYear);
-      intervalId = setInterval(() => {
-        const nextYear = Number(input.value) + 1;
-        if (nextYear > maxYear) {
-          stop();
-          return;
-        }
-        onChange(nextYear);
-      }, YEAR_PLAYBACK_INTERVAL_MS);
-    };
-
-    toggleButton.addEventListener("click", () => {
-      if (intervalId === null) start();
-      else stop();
+    playback.subscribe((playing) => {
+      toggleButton.setAttribute("aria-pressed", String(playing));
+      toggleButton.setAttribute(
+        "aria-label",
+        playing ? "Pausar evolução dos anos" : "Reproduzir evolução dos anos",
+      );
+      playIcon.toggleAttribute("hidden", playing);
+      pauseIcon.toggleAttribute("hidden", !playing);
+      input.disabled = playing;
     });
+    toggleButton.addEventListener("click", () => playback.toggle());
   }
-
-  return { sync, stopPlayback };
 }
 
 interface CauseFilters {
@@ -135,24 +190,31 @@ interface CauseFilters {
 }
 
 function setupCauseFilters(
-  root: ParentNode,
+  scope: ParentNode,
   dimensions: Dimensions,
   store: FiltersStore,
+  suffix: string,
 ): CauseFilters {
-  const causeGroupSelect = customSelect(root, "#filter-cause-group", (value) =>
-    store.setCauseGroup(value || null),
+  const causeGroupSelect = customSelect(
+    scope,
+    `#filter-cause-group${suffix}`,
+    (value) => store.setCauseGroup(value || null),
   );
-  const detailWrap = root.querySelector("#filter-detail-wrap");
-  const detailSelect = customSelect(root, "#filter-detail", (value) =>
+  const detailWrap = scope.querySelector(`#filter-detail-wrap${suffix}`);
+  const detailSelect = customSelect(scope, `#filter-detail${suffix}`, (value) =>
     store.setDetailedSubgroup(value || null),
   );
-  const externalWrap = root.querySelector("#filter-external-wrap");
-  const externalSelect = customSelect(root, "#filter-external", (value) =>
-    store.setExternalCauseType(value || null),
+  const externalWrap = scope.querySelector(`#filter-external-wrap${suffix}`);
+  const externalSelect = customSelect(
+    scope,
+    `#filter-external${suffix}`,
+    (value) => store.setExternalCauseType(value || null),
   );
-  const assaultWrap = root.querySelector("#filter-assault-wrap");
-  const assaultSelect = customSelect(root, "#filter-assault", (value) =>
-    store.setAssaultMeans(value || null),
+  const assaultWrap = scope.querySelector(`#filter-assault-wrap${suffix}`);
+  const assaultSelect = customSelect(
+    scope,
+    `#filter-assault${suffix}`,
+    (value) => store.setAssaultMeans(value || null),
   );
 
   causeGroupSelect.setOptions([
@@ -234,8 +296,17 @@ function setupChartTabs(
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
-  const yearWrap = root.querySelector("#filter-year-wrap");
-  const sexWrap = root.querySelector("#filter-sex-wrap");
+  const yearWraps = [
+    ...document.querySelectorAll<HTMLElement>('[id^="filter-year-wrap"]'),
+  ];
+  const sexWraps = [
+    ...document.querySelectorAll<HTMLElement>('[id^="filter-sex-wrap"]'),
+  ];
+  const pyramidMeasureWraps = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[id^="filter-pyramid-measure-wrap"]',
+    ),
+  ];
 
   function activate(target: string): void {
     for (const tab of tabs)
@@ -267,10 +338,13 @@ function setupChartTabs(
     }
 
     const hidesYear = target === "evolution" || target === "age-composition";
-    yearWrap?.toggleAttribute("hidden", hidesYear);
+    for (const wrap of yearWraps) wrap.toggleAttribute("hidden", hidesYear);
     if (hidesYear) stopYearPlayback();
 
-    sexWrap?.toggleAttribute("hidden", target === "pyramid");
+    for (const wrap of sexWraps)
+      wrap.toggleAttribute("hidden", target === "pyramid");
+    for (const wrap of pyramidMeasureWraps)
+      wrap.toggleAttribute("hidden", target !== "pyramid");
     setDetailFiltersEnabled(target !== "age-composition");
   }
 
@@ -314,58 +388,48 @@ function observeChartCards(
 export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   const dimensions = await fetchDimensions();
   const maxYear = Math.max(...dimensions.years);
-
-  const store = new FiltersStore({
-    location: "BR",
-    sex: "Ambos",
-    year: maxYear,
-    causeGroup: null,
-    detailedSubgroup: null,
-    externalCauseType: null,
-    assaultMeans: null,
-  });
-
-  const locationSelect = customSelect(root, "#filter-location", (value) =>
-    store.setLocation(value),
-  );
-  locationSelect.setOptions(
-    dimensions.locations.map((location) => ({
-      value: location,
-      label: dimensions.location_names[location] ?? location,
-    })),
-  );
-  locationSelect.setValue(store.get().location);
-
-  const syncSexSelect = setupSexSelect(
-    root,
+  const { filters: initialFilters, tab: sharedTab } = parseSharedState(
+    window.location.search,
     dimensions,
-    store.get().sex,
-    (sex) => store.setSex(sex),
+    maxYear,
   );
-  const { sync: syncYearControl, stopPlayback: stopYearPlayback } =
-    setupYearControl(root, dimensions, store.get().year, (year) =>
-      store.setYear(year),
+
+  const store = new FiltersStore(initialFilters);
+
+  const playback = createYearPlayback(dimensions, store);
+  const causeFilterControllers: CauseFilters[] = [];
+
+  for (const suffix of FILTER_ID_SUFFIXES) {
+    const scope: ParentNode = suffix ? document : root;
+    setupLocationSelect(scope, dimensions, store, suffix);
+    setupSexSelect(scope, dimensions, store, suffix);
+    setupPyramidMeasureSelect(scope, store, suffix);
+    setupYearControl(scope, dimensions, store, playback, suffix);
+    causeFilterControllers.push(
+      setupCauseFilters(scope, dimensions, store, suffix),
     );
-  const { setDetailFiltersEnabled } = setupCauseFilters(
-    root,
-    dimensions,
-    store,
-  );
+  }
+
+  const setDetailFiltersEnabled = (enabled: boolean): void => {
+    for (const controller of causeFilterControllers)
+      controller.setDetailFiltersEnabled(enabled);
+  };
+
   const activateChartTab = setupChartTabs(
     root,
-    stopYearPlayback,
+    playback.stop,
     setDetailFiltersEnabled,
   );
   const chartNames = Object.keys(CHART_LOADERS);
+  const validSharedTab =
+    sharedTab && ["stats", ...chartNames].includes(sharedTab)
+      ? sharedTab
+      : null;
   activateChartTab(
-    chartNames[Math.floor(Math.random() * chartNames.length)] ?? "map",
+    validSharedTab ??
+      chartNames[Math.floor(Math.random() * chartNames.length)] ??
+      "map",
   );
   observeChartCards(root, store, dimensions);
   initSummaryStats(root, store, dimensions);
-
-  store.subscribe((filters) => {
-    locationSelect.setValue(filters.location);
-    syncSexSelect(filters.sex);
-    syncYearControl(filters.year);
-  });
 }

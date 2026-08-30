@@ -1,12 +1,13 @@
 ---
 import {
-  ChevronDown,
+  Check,
   Download,
   FileSpreadsheet,
   FileText,
   Image,
   Maximize2,
   Minimize2,
+  Share2,
 } from "@lucide/astro";
 
 interface Props {
@@ -87,15 +88,10 @@ const {
     </div>
 
     <div class="flex items-center gap-3">
-      <span>Do que morremos</span>
-
       <details data-chart-export class="group relative">
         <summary class="chart-export-trigger">
           <Download class="size-4" />
           Exportar
-          <ChevronDown
-            class="size-3.5 transition-transform group-open:rotate-180"
-          />
         </summary>
         <div class="chart-export-menu">
           <button
@@ -124,6 +120,20 @@ const {
           </button>
         </div>
       </details>
+
+      <button
+        type="button"
+        data-chart-share
+        class="chart-export-trigger shrink-0"
+      >
+        <span data-chart-share-icon-default>
+          <Share2 class="size-4" />
+        </span>
+        <span data-chart-share-icon-success hidden>
+          <Check class="size-4" />
+        </span>
+        <span data-chart-share-label>Compartilhar</span>
+      </button>
 
       {
         fullscreenToggle && (

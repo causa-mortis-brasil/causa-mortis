@@ -16,9 +16,8 @@ import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
+import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
-
-type Measure = "deaths" | "rate";
 
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
@@ -42,24 +41,6 @@ export function init(
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
   const subtitleEl = card.querySelector("[data-chart-subtitle]");
-  const measureSelect = card.querySelector("#pyramid-measure");
-  let measure: Measure = "rate";
-
-  function syncSubtitle(): void {
-    if (!subtitleEl) return;
-    subtitleEl.textContent =
-      measure === "rate" ? "Taxa/100 mil habitantes" : "Óbitos absolutos";
-  }
-
-  if (measureSelect instanceof HTMLSelectElement) {
-    measure = measureSelect.value as Measure;
-    measureSelect.addEventListener("change", () => {
-      measure = measureSelect.value as Measure;
-      syncSubtitle();
-      void render();
-    });
-  }
-  syncSubtitle();
 
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
@@ -76,6 +57,10 @@ export function init(
     if (token !== renderToken) return;
 
     if (titleEl) titleEl.textContent = pyramidChartTitle(filters, dimensions);
+    const measure = filters.pyramidMeasure;
+    if (subtitleEl)
+      subtitleEl.textContent =
+        measure === "rate" ? "Taxa/100 mil habitantes" : "Óbitos absolutos";
 
     const yearIndex = indexOf(dimensions.years, filters.year);
     const menIndex = indexOf(dimensions.sexes, "Homens");
@@ -302,6 +287,7 @@ export function init(
   });
 
   setupChartFullscreen(card, container);
+  setupChartShare(card, store);
 
   subscribeWhenVisible(card, store, render);
 }

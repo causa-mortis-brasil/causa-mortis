@@ -15,6 +15,7 @@ import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
 import { causeGroupColor } from "../palette";
 import type { FiltersStore } from "../filters";
+import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 export function init(
@@ -186,6 +187,7 @@ export function init(
   });
 
   setupChartFullscreen(card, container);
+  setupChartShare(card, store);
 
   subscribeWhenVisible(card, store, render);
 }
