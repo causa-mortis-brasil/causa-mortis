@@ -1,4 +1,4 @@
-import type { CauseFilter, Dimensions, Sex } from "./types";
+import type { CauseFilter, Dimensions, Filters, Sex } from "./types";
 
 export function causePathLabel(filters: CauseFilter): string {
   const parts = [
@@ -20,4 +20,36 @@ export function locationLabel(
   location: string,
 ): string {
   return dimensions.location_names[location] ?? location;
+}
+
+export function mapChartTitle(filters: Filters): string {
+  return `Onde se morre mais por ${causePathLabel(filters)} · ano ${filters.year} · sexo ${filters.sex}`;
+}
+
+export function evolutionChartTitle(
+  filters: Filters,
+  dimensions: Dimensions,
+): string {
+  return `Histórico de óbitos por ${causePathLabel(filters)} · sexo ${filters.sex} · ${locationLabel(dimensions, filters.location)}`;
+}
+
+export function causesChartTitle(
+  filters: Filters,
+  dimensions: Dimensions,
+): string {
+  return `Composição dos óbitos por ${causePathLabel(filters)} · ano ${filters.year} · sexo ${filters.sex} · ${locationLabel(dimensions, filters.location)}`;
+}
+
+export function ageCompositionChartTitle(
+  filters: Filters,
+  dimensions: Dimensions,
+): string {
+  return `Composição dos óbitos por faixa etária · ano ${filters.year} · sexo ${filters.sex} · ${locationLabel(dimensions, filters.location)}`;
+}
+
+export function pyramidChartTitle(
+  filters: Filters,
+  dimensions: Dimensions,
+): string {
+  return `Pirâmide de mortalidade por ${causePathLabel(filters)} · ano ${filters.year} · ${locationLabel(dimensions, filters.location)}`;
 }

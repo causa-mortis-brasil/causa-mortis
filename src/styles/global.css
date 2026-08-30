@@ -54,7 +54,7 @@
   }
 
   .chart-tab-button {
-    @apply aria-selected:bg-primary-50 aria-selected:text-primary-600 focus-visible:outline-primary-500 flex cursor-pointer items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2;
+    @apply aria-selected:bg-primary-50 aria-selected:text-primary-600 focus-visible:outline-primary-500 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2;
   }
 
   .chart-export-trigger {

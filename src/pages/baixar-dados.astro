@@ -1,0 +1,23 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import Layout from "../components/Layout.astro";
+import DataDownloads from "../components/mortality/DataDownloads.astro";
+---
+
+<Layout
+  title="Baixar dados — Do que morremos"
+  description="Baixe os microdados de mortalidade do Brasil (SIM/DATASUS e projeções do IBGE) em CSV ou JSON, por recorte."
+>
+  <Header />
+
+  <main class="center-col gap-4">
+    <div id="app-download" class="center w-full bg-white">
+      <section class="app-content-col gap-6 px-4 py-12 sm:py-16">
+        <DataDownloads />
+      </section>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

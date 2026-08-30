@@ -2,73 +2,13 @@
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import Layout from "../components/Layout.astro";
-import DataDownloads from "../components/mortality/DataDownloads.astro";
 import MortalityExplorer from "../components/mortality/MortalityExplorer.astro";
-import Pattern from "../components/Pattern.astro";
 ---
 
 <Layout>
   <Header />
 
   <main class="center-col gap-4">
-    <div
-      class="center relative w-full overflow-hidden border border-gray-200 bg-primary-50"
-    >
-      <div
-        class="absolute right-0 z-0 flex flex-wrap items-center justify-center opacity-0"
-      >
-        {
-          Array.from({ length: 400 }).map(() => {
-            const rotations = [
-              "rotate-0",
-              "rotate-90",
-              "rotate-180",
-              "rotate-270",
-            ];
-            const randomClass = rotations[Math.floor(Math.random() * 4)];
-
-            return <Pattern class={`size-20 ${randomClass}`} />;
-          })
-        }
-      </div>
-
-      <section
-        class="app-content-col center-col z-1 gap-6 px-4 py-12 text-center sm:py-20"
-      >
-        <span
-          class="rounded-2xl bg-primary-100 px-3 py-1 text-sm font-medium text-primary-600"
-        >
-          SIM/DATASUS · IBGE · 2000–2025
-        </span>
-
-        <h1 class="max-w-140 text-4xl font-extrabold text-gray-800 sm:text-5xl">
-          Do que morremos?
-        </h1>
-
-        <p class="max-w-160 text-lg text-gray-600">
-          Morrem mais brasileiros a cada ano, e o risco de morrer a cada idade
-          não para de cair. As duas frases são verdadeiras: a diferença entre a
-          taxa bruta e a padronizada por idade é o que separa uma da outra.
-        </p>
-
-        <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <a
-            href="#app-charts"
-            class="flex min-h-12 items-center justify-center rounded-2xl bg-primary-500 px-8 font-medium text-white transition-colors duration-200 select-none hover:bg-primary-600"
-          >
-            Explorar dados
-          </a>
-
-          <a
-            href="#app-fontes"
-            class="flex min-h-12 items-center justify-center rounded-2xl border border-gray-200 bg-white px-8 font-medium transition-colors duration-200 select-none hover:bg-gray-50"
-          >
-            Fontes
-          </a>
-        </div>
-      </section>
-    </div>
-
     <section id="app-charts" class="app-content-col gap-2 px-4 py-6">
       <h2 class="text-2xl font-bold">Explore os dados</h2>
       <p class="mb-4 text-gray-600">
@@ -92,91 +32,6 @@ import Pattern from "../components/Pattern.astro";
           populacionais do IBGE), onde estão disponíveis os microdados
           completos, as revisões posteriores e as notas técnicas de cada base.
         </p>
-      </section>
-    </div>
-
-    <div id="app-download" class="center w-full bg-white">
-      <section class="app-content-col gap-6 px-4 py-12 sm:py-16">
-        <DataDownloads />
-      </section>
-    </div>
-
-    <div id="app-fontes" class="center w-full bg-primary-600">
-      <section class="app-content-col gap-6 px-4 py-12 text-white sm:py-16">
-        <div class="flex flex-col gap-4">
-          <h3 class="text-2xl font-bold">De onde vêm os números</h3>
-
-          <p class="max-w-180 text-primary-50">
-            Todo valor foi calculado a partir de microdados públicos e conferido
-            contra as fichas de qualificação da RIPSA. Nada foi estimado,
-            interpolado ou suavizado.
-          </p>
-        </div>
-
-        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-          <div
-            class="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/10 p-6"
-          >
-            <h3 class="font-bold">Fontes</h3>
-            <ul
-              class="flex list-disc flex-col gap-2 pl-4 text-sm text-primary-50"
-            >
-              <li>
-                <strong class="text-white">Óbitos:</strong> SIM, microdados do Portal
-                de Dados Abertos do SUS, integridade de cada arquivo anual verificada
-                por SHA-256.
-              </li>
-              <li>
-                <strong class="text-white">População:</strong> IBGE, projeções revisão
-                2024.
-              </li>
-              <li>
-                <strong class="text-white">Cobertura do SIM:</strong> indicador DEM.4.02
-                da RIPSA.
-              </li>
-              <li>
-                <strong class="text-white">Padronização:</strong> NT nº 51/2025-CGIAE
-                — direta, 18 faixas, população-padrão Brasil 2022.
-              </li>
-              <li>
-                <strong class="text-white">Causas:</strong> fichas MRT.3.01, MRT.4.01–04,
-                MRT.5.02 e MRT.5.04.
-              </li>
-            </ul>
-          </div>
-
-          <div
-            class="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/10 p-6"
-          >
-            <h3 class="font-bold">Conferências e limitações</h3>
-            <ul
-              class="flex list-disc flex-col gap-2 pl-4 text-sm text-primary-50"
-            >
-              <li>
-                Neoplasias malignas 2023: 249.942 — idêntico à ficha MRT.5.02.
-              </li>
-              <li>
-                Causas externas por tipo e meios da agressão: totais idênticos
-                às fichas MRT.4.01–04.
-              </li>
-              <li>
-                Escopo temporal 2000 em diante: as projeções do IBGE,
-                denominador das taxas, começam nesse ano.
-              </li>
-              <li>
-                2025 é preliminar (Portaria MS nº 116/2009); 2024 já foi
-                consolidado. A cobertura do SIM é publicada até 2023, então os
-                dois últimos anos seguem sem verificação independente de
-                sub-registro.
-              </li>
-              <li>
-                Sub-registro declarado, não corrigido. Segundo nível de causa
-                disponível onde a RIPSA o normatiza: neoplasias,
-                cardiovasculares e causas externas.
-              </li>
-            </ul>
-          </div>
-        </div>
       </section>
     </div>
   </main>

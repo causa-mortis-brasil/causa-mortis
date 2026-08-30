@@ -10,7 +10,7 @@ As regras deste documento têm prioridade sobre preferências pessoais de implem
 
 ## Sobre o projeto
 
-Causa Mortis é um site de infográficos sobre mortalidade no Brasil, construído com Astro. Ele apresenta dados oficiais de óbitos (SIM/DATASUS e projeções do IBGE) através de visualizações interativas — evolução de taxas, causas de morte, distribuição geográfica, composição por idade e pirâmide de mortalidade por sexo.
+Do que morremos é um site de infográficos sobre mortalidade no Brasil, construído com Astro. Ele apresenta dados oficiais de óbitos (SIM/DATASUS e projeções do IBGE) através de visualizações interativas — evolução de taxas, causas de morte, distribuição geográfica, composição por idade e pirâmide de mortalidade por sexo.
 
 ---
 

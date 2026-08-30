@@ -1,5 +1,5 @@
 import { getCauseGroupAgeSeries } from "../access";
-import { locationLabel, sexLabel } from "../chart-titles";
+import { ageCompositionChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
   buildFilterContext,
@@ -13,7 +13,7 @@ import { fetchDeathsByCauseGroupAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { formatPercent } from "../format";
+import { formatPercent, formatPercentInteger } from "../format";
 import { causeGroupColor } from "../palette";
 import type { FiltersStore } from "../filters";
 import type { Dimensions } from "../types";
@@ -27,7 +27,7 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
-  const context = card.querySelector("[data-chart-context]");
+  const titleEl = card.querySelector("[data-chart-title]");
   const warning = card.querySelector("#age-composition-warning");
   let exportRows: ChartExportRows = { headers: [], rows: [] };
   let seriesOrder: string[] = [];
@@ -56,9 +56,8 @@ export function init(
 
   async function render(): Promise<void> {
     const filters = store.get();
-    if (context) {
-      context.textContent = `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
-    }
+    if (titleEl)
+      titleEl.textContent = ageCompositionChartTitle(filters, dimensions);
     warning?.toggleAttribute(
       "hidden",
       !(
@@ -84,7 +83,6 @@ export function init(
         0,
       ),
     );
-    const totalOverall = totalByAge.reduce((sum, value) => sum + value, 0);
 
     const includedIndices = dimensions.cause_groups
       .map((_, causeGroupIndex) => causeGroupIndex)
@@ -106,6 +104,8 @@ export function init(
         return total > 0 ? deaths / total : 0;
       });
 
+      const color = causeGroupColor(causeGroupIndex);
+
       return {
         name: causeGroup,
         type: "line" as const,
@@ -117,49 +117,32 @@ export function init(
           width: 1,
           opacity: isHighlighted ? 1 : 0.25,
         },
-        color: causeGroupColor(causeGroupIndex),
+        color,
+        endLabel: {
+          show: isHighlighted,
+          formatter: () => causeGroup,
+          color,
+          fontSize: 10,
+          fontWeight: 600,
+        },
         data: shares,
       };
     });
-
-    const percentByGroup = new Map(
-      includedIndices.map((causeGroupIndex) => {
-        const causeGroup = dimensions.cause_groups[causeGroupIndex];
-        const total =
-          deathsByCauseGroup[causeGroupIndex]?.reduce(
-            (sum: number, v: number | null) => sum + (v ?? 0),
-            0,
-          ) ?? 0;
-        return [causeGroup, totalOverall > 0 ? total / totalOverall : 0];
-      }),
-    );
 
     const isNarrow = container.clientWidth < 480;
 
     const option: EChartsCoreOption = {
       grid: {
         left: isNarrow ? 36 : 48,
-        right: 12,
+        right: isNarrow ? 88 : 120,
         top: 16,
-        bottom: isNarrow ? 216 : 152,
+        bottom: isNarrow ? 40 : 48,
       },
       tooltip: {
         trigger: "axis",
         order: "seriesDesc",
         valueFormatter: (value: number | string) =>
           formatPercent(Number(value)),
-      },
-      legend: {
-        bottom: 8,
-        icon: "circle",
-        itemGap: isNarrow ? 8 : 16,
-        itemWidth: isNarrow ? 10 : 14,
-        textStyle: { fontSize: isNarrow ? 10 : 12 },
-        data: includedIndices.map(
-          (causeGroupIndex) => dimensions.cause_groups[causeGroupIndex],
-        ),
-        formatter: (name: string) =>
-          `${name} ${formatPercent(percentByGroup.get(name) ?? 0)}`,
       },
       xAxis: {
         type: "category",
@@ -177,7 +160,9 @@ export function init(
       yAxis: {
         type: "value",
         max: 1,
-        axisLabel: { formatter: (value: number) => formatPercent(value) },
+        axisLabel: {
+          formatter: (value: number) => formatPercentInteger(value),
+        },
       },
       series,
     };

@@ -8,6 +8,10 @@ const percentFormatter = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
+const percentIntegerFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "percent",
+  maximumFractionDigits: 0,
+});
 const compactFormatter = new Intl.NumberFormat("pt-BR", {
   notation: "compact",
   maximumFractionDigits: 0,
@@ -21,8 +25,18 @@ export function formatRate(value: number): string {
   return rateFormatter.format(value);
 }
 
+export function formatRateLabel(value: number): string {
+  return Math.abs(value) > 10
+    ? integerFormatter.format(Math.round(value))
+    : rateFormatter.format(value);
+}
+
 export function formatPercent(fraction: number): string {
   return percentFormatter.format(fraction);
+}
+
+export function formatPercentInteger(fraction: number): string {
+  return percentIntegerFormatter.format(fraction);
 }
 
 export function formatSignedPercent(fraction: number): string {

@@ -8,20 +8,17 @@ import {
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
-import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
+import { mapChartTitle } from "../chart-titles";
 import { fetchBrazilStatesGeoJson } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { formatRate } from "../format";
-import { createPillToggle } from "../pill-toggle";
+import { formatRate, formatRateLabel } from "../format";
 import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
 import type { Dimensions } from "../types";
 
 const MAP_NAME = "brazil-states";
-
-type ScaleType = "stepped" | "continuous";
 
 export function init(
   container: HTMLElement,
@@ -32,31 +29,18 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
-  const context = card.querySelector("[data-chart-context]");
+  const titleEl = card.querySelector("[data-chart-title]");
+  const subtitleEl = card.querySelector("[data-chart-subtitle]");
   const stableScaleCheckbox = card.querySelector("#map-scale-stable");
-  const scaleTypeWrap = card.querySelector("#map-scale-type");
 
-  let scaleType: ScaleType = "continuous";
+  if (subtitleEl)
+    subtitleEl.textContent =
+      "índice/100 mil habitantes (padronizado por idade)";
+
   let stableScale = true;
   let mapRegistered = false;
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
-
-  if (scaleTypeWrap) {
-    createPillToggle(
-      scaleTypeWrap,
-      "map-scale-type",
-      [
-        { value: "stepped", label: "Em etapas" },
-        { value: "continuous", label: "Contínuo" },
-      ],
-      scaleType,
-      (value) => {
-        scaleType = value as ScaleType;
-        void render();
-      },
-    );
-  }
 
   if (stableScaleCheckbox instanceof HTMLInputElement) {
     stableScaleCheckbox.addEventListener("change", () => {
@@ -86,9 +70,7 @@ export function init(
     const pointGetter = await loadRatePointGetter(level, dimensions);
     if (token !== renderToken) return;
 
-    if (context) {
-      context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)} · ${filters.year}`;
-    }
+    if (titleEl) titleEl.textContent = mapChartTitle(filters);
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);
@@ -120,13 +102,13 @@ export function init(
       tooltip: {
         formatter: (params: { name: string; value: number }) => {
           const { name, value } = params;
-          return `${dimensions.location_names[name] ?? name}<br/>${formatRate(value)} por 100 mil hab. (padronizada)`;
+          return `${dimensions.location_names[name] ?? name}<br/>${formatRate(value)} por 100 mil hab. (padronizada por idade)`;
         },
       },
       visualMap: {
         min,
         max,
-        type: scaleType === "stepped" ? "piecewise" : "continuous",
+        type: "continuous",
         splitNumber: MAP_SCALE_STEPS,
         itemGap: 2,
         inRange: { color: mapScaleSteps() },
@@ -165,7 +147,8 @@ export function init(
           },
           label: {
             show: true,
-            formatter: (params: { value: number }) => formatRate(params.value),
+            formatter: (params: { value: number }) =>
+              formatRateLabel(params.value),
             fontSize: 10,
             fontWeight: 600,
             color: "#fff",

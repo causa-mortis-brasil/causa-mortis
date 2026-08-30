@@ -38,13 +38,11 @@ const {
   aria-labelledby={`tab-${chartName}`}
   hidden={!active}
 >
-  <div
-    class="flex flex-col justify-between gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:gap-4"
-  >
-    <div class="flex flex-col gap-1">
-      <h3 data-chart-title class="text-lg font-bold">{title}</h3>
+  <div class="flex flex-col items-center gap-3">
+    <div class="flex flex-col items-center gap-1 text-center">
+      <h3 data-chart-title class="text-lg font-bold uppercase">{title}</h3>
       <p
-        data-chart-context
+        data-chart-subtitle
         class="text-sm font-medium text-primary-600 empty:hidden"
       >
       </p>
@@ -58,7 +56,9 @@ const {
         )
       }
     </div>
-    <div class="flex flex-wrap items-center gap-3 sm:text-nowrap">
+    <div
+      class="flex flex-wrap items-center justify-end gap-3 self-end sm:text-nowrap"
+    >
       <slot name="controls" />
       {
         fullscreenToggle && (
@@ -98,13 +98,13 @@ const {
   >
     <div class="flex flex-col gap-0.5">
       <span>Fonte: SIM/DATASUS · IBGE</span>
-      <a href="#app-fontes" class="text-primary-600 hover:underline">
+      <a href="/fontes" class="text-primary-600 hover:underline">
         Notas técnicas e metodologia
       </a>
     </div>
 
     <div class="flex items-center gap-3">
-      <span>Causa Mortis</span>
+      <span>Do que morremos</span>
 
       <details data-chart-export class="group relative">
         <summary class="chart-export-trigger">

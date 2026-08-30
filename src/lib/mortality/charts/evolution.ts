@@ -10,7 +10,7 @@ import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
+import { evolutionChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
@@ -25,7 +25,9 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
-  const context = card.querySelector("[data-chart-context]");
+  const titleEl = card.querySelector("[data-chart-title]");
+  const subtitleEl = card.querySelector("[data-chart-subtitle]");
+  if (subtitleEl) subtitleEl.textContent = "taxa/100 mil habitantes";
   const maxYear = Math.max(...dimensions.years);
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
@@ -41,9 +43,7 @@ export function init(
     );
     if (token !== renderToken) return;
 
-    if (context) {
-      context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
-    }
+    if (titleEl) titleEl.textContent = evolutionChartTitle(filters, dimensions);
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
 
@@ -56,9 +56,8 @@ export function init(
     }
 
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 40, top: 24, bottom: 56 },
+      grid: { left: 48, right: 132, top: 24, bottom: 32 },
       tooltip: { trigger: "axis" },
-      legend: { bottom: 4, data: ["Padronizada por idade", "Bruta"] },
       xAxis: {
         type: "category",
         data: dimensions.years.map(String),
@@ -75,6 +74,14 @@ export function init(
           data: standardized,
           color: themeColor("--color-primary-500"),
           symbolSize: 5,
+          emphasis: { disabled: true },
+          endLabel: {
+            show: true,
+            formatter: "Padronizada por idade",
+            color: themeColor("--color-primary-500"),
+            fontSize: 11,
+            fontWeight: 600,
+          },
           markArea: {
             silent: true,
             itemStyle: { color: "rgba(0, 0, 0, 0.04)" },
@@ -87,7 +94,7 @@ export function init(
             data: [
               [{ name: "pandemia", xAxis: "2020" }, { xAxis: "2023" }],
               [
-                { name: "preliminar", xAxis: String(maxYear) },
+                { name: "preliminar", xAxis: String(maxYear - 1) },
                 { xAxis: String(maxYear) },
               ],
             ],
@@ -109,6 +116,14 @@ export function init(
           data: crude,
           color: themeColor("--color-gray-400"),
           symbolSize: 5,
+          emphasis: { disabled: true },
+          endLabel: {
+            show: true,
+            formatter: "Bruta",
+            color: themeColor("--color-gray-400"),
+            fontSize: 11,
+            fontWeight: 600,
+          },
         },
       ],
     };

@@ -13,7 +13,7 @@ import {
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
-import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
+import { causesChartTitle } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
   fetchDeathsByAssaultMeansForLocation,
@@ -137,16 +137,14 @@ export function init(
   });
 
   const card = container.closest(".chart-card") ?? document;
-  const context = card.querySelector("[data-chart-context]");
+  const titleEl = card.querySelector("[data-chart-title]");
   let renderKey = "";
   let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   async function render(): Promise<void> {
     const filters = store.get();
 
-    if (context) {
-      context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
-    }
+    if (titleEl) titleEl.textContent = causesChartTitle(filters, dimensions);
 
     const key = `${filters.location}|${filters.sex}|${filters.year}`;
     if (key === renderKey) return;

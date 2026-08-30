@@ -95,7 +95,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-const EXPORT_SOURCE_LABEL = "Causa Mortis · SIM/DATASUS · IBGE";
+const EXPORT_SOURCE_LABEL = "Do que morremos · SIM/DATASUS · IBGE";
 
 export async function exportChartImage(
   chart: EChartsType,
@@ -315,15 +315,15 @@ export function setupChartExport(
     });
   }
 
-  const title =
-    card.querySelector("[data-chart-title]")?.textContent?.trim() ?? "";
-  const description =
-    card.querySelector("[data-chart-description]")?.textContent?.trim() ?? "";
-
   for (const button of details.querySelectorAll<HTMLButtonElement>(
     "[data-export-format]",
   )) {
     button.addEventListener("click", () => {
+      const title =
+        card.querySelector("[data-chart-title]")?.textContent?.trim() ?? "";
+      const description =
+        card.querySelector("[data-chart-description]")?.textContent?.trim() ??
+        "";
       const filenameBase = source.getFilenameBase();
       const format = button.dataset.exportFormat;
       if (format === "png") {

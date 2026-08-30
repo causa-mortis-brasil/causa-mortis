@@ -266,9 +266,9 @@ function setupChartTabs(
       }
     }
 
-    const isEvolution = target === "evolution";
-    yearWrap?.toggleAttribute("hidden", isEvolution);
-    if (isEvolution) stopYearPlayback();
+    const hidesYear = target === "evolution" || target === "age-composition";
+    yearWrap?.toggleAttribute("hidden", hidesYear);
+    if (hidesYear) stopYearPlayback();
 
     sexWrap?.toggleAttribute("hidden", target === "pyramid");
   }

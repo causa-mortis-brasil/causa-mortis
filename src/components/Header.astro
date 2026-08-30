@@ -2,10 +2,10 @@
 import { Menu } from "@lucide/astro";
 
 const navLinks = [
-  { href: "#app-charts", label: "Dados" },
-  { href: "#app-sobre", label: "Sobre" },
-  { href: "#app-download", label: "Baixar" },
-  { href: "#app-fontes", label: "Fontes" },
+  { href: "/#app-charts", label: "Dados" },
+  { href: "/#app-sobre", label: "Sobre" },
+  { href: "/baixar-dados", label: "Baixar" },
+  { href: "/fontes", label: "Fontes" },
 ];
 ---
 
@@ -17,8 +17,8 @@ const navLinks = [
     <a href="/" class="flex shrink-0 items-center gap-3">
       <img src="/logo.svg" alt="" width="40" height="40" class="w-10 sm:w-12" />
       <div class="flex flex-col gap-0 text-base *:leading-none sm:text-lg">
-        <span>Causa</span>
-        <span class="font-bold">Mortis</span>
+        <span>Do que</span>
+        <span class="font-bold">morremos</span>
       </div>
     </a>
 
@@ -68,7 +68,9 @@ const navLinks = [
     <div class="app-content items-center justify-between gap-4 px-4 py-2">
       <a href="/" class="flex shrink-0 items-center gap-2">
         <img src="/logo.svg" alt="" width="28" height="28" class="w-7" />
-        <span class="text-sm">Causa <span class="font-bold">Mortis</span></span>
+        <span class="text-sm"
+          >Do que <span class="font-bold">morremos</span></span
+        >
       </a>
 
       <nav aria-label="Navegação principal" class="hidden sm:block">

@@ -1,6 +1,6 @@
 import { loadDeathsByAgeGetter, resolveCauseLevel } from "../cause-level";
 import { getAgeSeries } from "../access";
-import { causePathLabel, locationLabel } from "../chart-titles";
+import { pyramidChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
   buildFilterContext,
@@ -16,11 +16,10 @@ import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
-import { standardizedContributionByAge } from "../rate";
 import type { FiltersStore } from "../filters";
 import type { Dimensions } from "../types";
 
-type Measure = "deaths" | "rate" | "contribution";
+type Measure = "deaths" | "rate";
 
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
@@ -28,16 +27,6 @@ const DEATHS_AXIS_MAX = 300000;
 const DEATHS_AXIS_INTERVAL = 100000;
 const RATE_AXIS_MAX = 15000;
 const RATE_AXIS_INTERVAL = 5000;
-
-function niceCeil(value: number): number {
-  if (value <= 0) return 1;
-  const exponent = Math.floor(Math.log10(value));
-  const base = 10 ** exponent;
-  const fraction = value / base;
-  const niceFraction =
-    fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
-  return niceFraction * base;
-}
 
 export function init(
   container: HTMLElement,
@@ -48,24 +37,29 @@ export function init(
   new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
-  const context = card.querySelector("[data-chart-context]");
+  const titleEl = card.querySelector("[data-chart-title]");
+  const subtitleEl = card.querySelector("[data-chart-subtitle]");
   const measureSelect = card.querySelector("#pyramid-measure");
   let measure: Measure = "rate";
+
+  function syncSubtitle(): void {
+    if (!subtitleEl) return;
+    subtitleEl.textContent =
+      measure === "rate" ? "taxa/100 mil habitantes" : "óbitos absolutos";
+  }
 
   if (measureSelect instanceof HTMLSelectElement) {
     measure = measureSelect.value as Measure;
     measureSelect.addEventListener("change", () => {
       measure = measureSelect.value as Measure;
+      syncSubtitle();
       void render();
     });
   }
+  syncSubtitle();
 
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
-  const totalWeight = dimensions.standard_population_weights.reduce(
-    (sum, w) => sum + w,
-    0,
-  );
 
   async function render(): Promise<void> {
     const token = ++renderToken;
@@ -78,9 +72,7 @@ export function init(
     ]);
     if (token !== renderToken) return;
 
-    if (context) {
-      context.textContent = `${causePathLabel(filters)} · ${filters.year} · ${locationLabel(dimensions, filters.location)}`;
-    }
+    if (titleEl) titleEl.textContent = pyramidChartTitle(filters, dimensions);
 
     const yearIndex = indexOf(dimensions.years, filters.year);
     const menIndex = indexOf(dimensions.sexes, "Homens");
@@ -106,44 +98,20 @@ export function init(
       rateAt(womenDeaths[i], womenPopulation[i]),
     );
 
-    const menContribution = standardizedContributionByAge(
-      menDeaths,
-      menPopulation,
-      dimensions.standard_population_weights,
-    ).map((v) => (totalWeight > 0 ? (v / totalWeight) * 100000 : 0));
-    const womenContribution = standardizedContributionByAge(
-      womenDeaths,
-      womenPopulation,
-      dimensions.standard_population_weights,
-    ).map((v) => (totalWeight > 0 ? (v / totalWeight) * 100000 : 0));
-
     const menValues =
-      measure === "deaths"
-        ? menDeaths.map((v) => v ?? 0)
-        : measure === "rate"
-          ? menRate
-          : menContribution;
+      measure === "deaths" ? menDeaths.map((v) => v ?? 0) : menRate;
     const womenValues =
-      measure === "deaths"
-        ? womenDeaths.map((v) => v ?? 0)
-        : measure === "rate"
-          ? womenRate
-          : womenContribution;
+      measure === "deaths" ? womenDeaths.map((v) => v ?? 0) : womenRate;
 
-    const maxAbs =
-      measure === "deaths"
-        ? DEATHS_AXIS_MAX
-        : measure === "rate"
-          ? RATE_AXIS_MAX
-          : niceCeil(Math.max(...menValues, ...womenValues, 1));
+    const maxAbs = measure === "deaths" ? DEATHS_AXIS_MAX : RATE_AXIS_MAX;
     const axisInterval =
-      measure === "deaths"
-        ? DEATHS_AXIS_INTERVAL
-        : measure === "rate"
-          ? RATE_AXIS_INTERVAL
-          : undefined;
+      measure === "deaths" ? DEATHS_AXIS_INTERVAL : RATE_AXIS_INTERVAL;
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
+    const dataLabelFormatter = (value: number): string =>
+      measure === "deaths"
+        ? formatInteger(value)
+        : `${formatRate(value)} por 100 mil`;
 
     const option: EChartsCoreOption = {
       grid: [
@@ -235,6 +203,14 @@ export function init(
           yAxisIndex: 0,
           data: menValues,
           color: MEN_COLOR,
+          label: {
+            show: true,
+            position: "left",
+            formatter: (params: { value: number }) =>
+              params.value > 0 ? dataLabelFormatter(params.value) : "",
+            color: themeColor("--color-gray-700"),
+            fontSize: 10,
+          },
         },
         {
           name: "Mulheres",
@@ -243,6 +219,14 @@ export function init(
           yAxisIndex: 1,
           data: womenValues,
           color: WOMEN_COLOR,
+          label: {
+            show: true,
+            position: "right",
+            formatter: (params: { value: number }) =>
+              params.value > 0 ? dataLabelFormatter(params.value) : "",
+            color: themeColor("--color-gray-700"),
+            fontSize: 10,
+          },
         },
         {
           name: "Faixa etária",
@@ -272,11 +256,7 @@ export function init(
     chart.setOption(option, { notMerge: true });
 
     const measureLabel =
-      measure === "deaths"
-        ? "Óbitos"
-        : measure === "rate"
-          ? "Taxa por faixa (por 100 mil hab.)"
-          : "Contribuição para taxa padronizada (por 100 mil hab.)";
+      measure === "deaths" ? "Óbitos" : "Taxa por faixa (por 100 mil hab.)";
     exportRows = {
       headers: [
         "Faixa etária",
