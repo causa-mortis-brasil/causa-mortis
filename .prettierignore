@@ -4,3 +4,4 @@ dist
 node_modules
 public/data
 data/br-states-simplified.geojson
+vercel.json
