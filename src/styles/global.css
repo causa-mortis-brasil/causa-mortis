@@ -70,10 +70,6 @@
     @apply focus-visible:outline-primary-500 flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2;
   }
 
-  #filters-floating {
-    transform: translateY(-100%);
-  }
-
   .custom-select {
     @apply relative;
   }
@@ -91,11 +87,7 @@
   }
 
   .custom-select-chevron {
-    @apply text-primary-600 shrink-0 transition-transform;
-  }
-
-  .custom-select[data-open] .custom-select-chevron {
-    transform: rotate(180deg);
+    @apply text-primary-600 shrink-0 transition-transform group-data-open:rotate-180;
   }
 
   .custom-select-listbox {

@@ -16,18 +16,32 @@ import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
+import { crudeRate } from "../rate";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
 
-function niceAxisMax(value: number): number {
+const AXIS_SPLIT_COUNT = 5;
+
+function niceStep(roughStep: number): number {
+  if (roughStep <= 0) return 1;
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const fraction = roughStep / magnitude;
+  const niceFraction =
+    fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+  return niceFraction * magnitude;
+}
+
+function niceAxisScale(value: number): { max: number; interval: number } {
   const padded = value * 1.2;
-  if (padded <= 0) return 10;
-  if (padded <= 100) return Math.ceil(padded / 10) * 10;
-  if (padded <= 1000) return Math.ceil(padded / 100) * 100;
-  return Math.ceil(padded / 1000) * 1000;
+  if (padded <= 0) return { max: 10, interval: 2 };
+  let interval = niceStep(padded / AXIS_SPLIT_COUNT);
+  if (padded >= 1000)
+    interval = Math.max(1000, Math.ceil(interval / 1000) * 1000);
+  const max = Math.ceil(padded / interval) * interval;
+  return { max, interval };
 }
 
 export function init(
@@ -80,10 +94,10 @@ export function init(
       dimensions.age_groups.map(() => 0);
 
     const menRate = dimensions.age_groups.map((_, i) =>
-      rateAt(menDeaths[i], menPopulation[i]),
+      crudeRate(menDeaths[i] ?? 0, menPopulation[i] ?? 0),
     );
     const womenRate = dimensions.age_groups.map((_, i) =>
-      rateAt(womenDeaths[i], womenPopulation[i]),
+      crudeRate(womenDeaths[i] ?? 0, womenPopulation[i] ?? 0),
     );
 
     const menValues =
@@ -104,13 +118,14 @@ export function init(
           for (let i = 0; i < deathsByAge.length; i++) {
             maxAcrossYears = Math.max(
               maxAcrossYears,
-              rateAt(deathsByAge[i], populationByAge[i]),
+              crudeRate(deathsByAge[i] ?? 0, populationByAge[i] ?? 0),
             );
           }
         }
       }
     }
-    const maxAbs = niceAxisMax(maxAcrossYears);
+    const { max: maxAbs, interval: axisInterval } =
+      niceAxisScale(maxAcrossYears);
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
     const dataLabelFormatter = (value: number): string =>
@@ -157,6 +172,7 @@ export function init(
           type: "value",
           min: 0,
           max: maxAbs,
+          interval: axisInterval,
           inverse: true,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
@@ -165,6 +181,7 @@ export function init(
           type: "value",
           min: 0,
           max: maxAbs,
+          interval: axisInterval,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
         {
@@ -290,12 +307,4 @@ export function init(
   setupChartShare(card, store);
 
   subscribeWhenVisible(card, store, render);
-}
-
-function rateAt(
-  deaths: number | null | undefined,
-  population: number | null | undefined,
-): number {
-  if (!deaths || !population) return 0;
-  return (deaths / population) * 100000;
 }

@@ -5,9 +5,12 @@ const DIMENSIONS_URL = "/data/mortality/dimensions.json";
 let dimensionsPromise: Promise<Dimensions> | null = null;
 
 export function fetchDimensions(): Promise<Dimensions> {
-  dimensionsPromise ??= fetch(DIMENSIONS_URL).then(
-    (response) => response.json() as Promise<Dimensions>,
-  );
+  dimensionsPromise ??= fetch(DIMENSIONS_URL)
+    .then((response) => response.json() as Promise<Dimensions>)
+    .catch((error: unknown) => {
+      dimensionsPromise = null;
+      throw error;
+    });
   return dimensionsPromise;
 }
 

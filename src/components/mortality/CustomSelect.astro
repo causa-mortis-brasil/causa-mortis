@@ -14,7 +14,7 @@ const { id, name, class: className, compact = false } = Astro.props;
 <div
   id={id}
   data-compact={compact ? "" : undefined}
-  class:list={["custom-select", className]}
+  class:list={["custom-select group", className]}
 >
   <button
     type="button"

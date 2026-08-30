@@ -337,7 +337,7 @@ function setupChartTabs(
       }
     }
 
-    const hidesYear = target === "evolution" || target === "age-composition";
+    const hidesYear = target === "evolution";
     for (const wrap of yearWraps) wrap.toggleAttribute("hidden", hidesYear);
     if (hidesYear) stopYearPlayback();
 

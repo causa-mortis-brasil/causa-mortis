@@ -1,5 +1,6 @@
 import { getCoverage } from "./access";
 import { loadLocationRatePointGetter, resolveCauseLevel } from "./cause-level";
+import { subscribeWhenVisible } from "./chart-visibility";
 import { fetchCoverage } from "./data";
 import { indexOf } from "./dimensions";
 import type { FiltersStore } from "./filters";
@@ -86,5 +87,6 @@ export function initSummaryStats(
     }
   }
 
-  store.subscribe(() => void render());
+  const panel = root.querySelector("#panel-stats") ?? root;
+  subscribeWhenVisible(panel, store, render);
 }

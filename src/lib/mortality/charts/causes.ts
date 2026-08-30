@@ -78,12 +78,14 @@ function applyCauseSelection(store: FiltersStore, names: string[]): void {
     store.setCauseGroup(null);
     return;
   }
-  store.setCauseGroup(causeGroup);
   if (causeGroup === "Causas externas") {
-    if (subLevel) store.setExternalCauseType(subLevel);
-    if (assaultMeans) store.setAssaultMeans(assaultMeans);
-  } else if (subLevel) {
-    store.setDetailedSubgroup(subLevel);
+    store.setCauseSelection({
+      causeGroup,
+      externalCauseType: subLevel,
+      assaultMeans,
+    });
+  } else {
+    store.setCauseSelection({ causeGroup, detailedSubgroup: subLevel });
   }
 }
 

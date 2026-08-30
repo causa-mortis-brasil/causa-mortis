@@ -1,4 +1,6 @@
 ---
+import fs from "node:fs";
+import path from "node:path";
 import { Pause, Play } from "@lucide/astro";
 
 interface Props {
@@ -7,6 +9,16 @@ interface Props {
 }
 
 const { idSuffix = "", compact = false } = Astro.props;
+
+const dimensionsPath = path.join(
+  process.cwd(),
+  "public/data/mortality/dimensions.json",
+);
+const { years } = JSON.parse(fs.readFileSync(dimensionsPath, "utf-8")) as {
+  years: number[];
+};
+const minYear = Math.min(...years);
+const maxYear = Math.max(...years);
 ---
 
 <div
@@ -36,11 +48,16 @@ const { idSuffix = "", compact = false } = Astro.props;
   <input
     type="range"
     id={`filter-year${idSuffix}`}
+    min={minYear}
+    max={maxYear}
+    step="1"
+    value={maxYear}
     class:list={["accent-primary-500/90", compact ? "w-48" : "w-full"]}
   />
   <output
     id={`filter-year-value${idSuffix}`}
     for={`filter-year${idSuffix}`}
-    class="shrink-0 text-sm font-medium text-gray-700 tabular-nums">2025</output
+    class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
+    >{maxYear}</output
   >
 </div>

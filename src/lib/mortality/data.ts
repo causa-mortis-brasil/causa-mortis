@@ -28,7 +28,12 @@ const cache = new Map<string, Promise<unknown>>();
 function fetchJson<T>(url: string, cacheKey: string): Promise<T> {
   let cached = cache.get(cacheKey) as Promise<T> | undefined;
   if (!cached) {
-    cached = fetch(url).then((response) => response.json() as Promise<T>);
+    cached = fetch(url)
+      .then((response) => response.json() as Promise<T>)
+      .catch((error: unknown) => {
+        cache.delete(cacheKey);
+        throw error;
+      });
     cache.set(cacheKey, cached);
   }
   return cached;
@@ -111,8 +116,11 @@ export const fetchPopulationByAgeForLocation = (
 let geoJsonPromise: Promise<FeatureCollection> | null = null;
 
 export function fetchBrazilStatesGeoJson(): Promise<FeatureCollection> {
-  geoJsonPromise ??= fetch(`/data/geo/${manifest.geoFile}`).then(
-    (response) => response.json() as Promise<FeatureCollection>,
-  );
+  geoJsonPromise ??= fetch(`/data/geo/${manifest.geoFile}`)
+    .then((response) => response.json() as Promise<FeatureCollection>)
+    .catch((error: unknown) => {
+      geoJsonPromise = null;
+      throw error;
+    });
   return geoJsonPromise;
 }

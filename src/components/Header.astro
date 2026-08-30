@@ -45,15 +45,19 @@ const navLinks = [
       >
         <Menu class="size-5" />
       </summary>
-      <div class="chart-export-menu right-0">
-        {
-          navLinks.map((link) => (
-            <a href={link.href} class="chart-export-item">
-              {link.label}
-            </a>
-          ))
-        }
-      </div>
+      <nav aria-label="Menu de navegação" class="chart-export-menu right-0">
+        <ul class="flex flex-col gap-1">
+          {
+            navLinks.map((link) => (
+              <li>
+                <a href={link.href} class="chart-export-item block">
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </details>
   </header>
 </div>
@@ -96,15 +100,19 @@ const navLinks = [
         >
           <Menu class="size-4" />
         </summary>
-        <div class="chart-export-menu right-0">
-          {
-            navLinks.map((link) => (
-              <a href={link.href} class="chart-export-item">
-                {link.label}
-              </a>
-            ))
-          }
-        </div>
+        <nav aria-label="Menu de navegação" class="chart-export-menu right-0">
+          <ul class="flex flex-col gap-1">
+            {
+              navLinks.map((link) => (
+                <li>
+                  <a href={link.href} class="chart-export-item block">
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
       </details>
     </div>
   </div>

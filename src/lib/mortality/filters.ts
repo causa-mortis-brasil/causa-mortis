@@ -49,6 +49,21 @@ export class FiltersStore {
     });
   }
 
+  setCauseSelection(selection: {
+    causeGroup: string;
+    detailedSubgroup?: string | null;
+    externalCauseType?: string | null;
+    assaultMeans?: string | null;
+  }): void {
+    this.#set({
+      ...this.#filters,
+      causeGroup: selection.causeGroup,
+      detailedSubgroup: selection.detailedSubgroup ?? null,
+      externalCauseType: selection.externalCauseType ?? null,
+      assaultMeans: selection.assaultMeans ?? null,
+    });
+  }
+
   setDetailedSubgroup(detailedSubgroup: string | null): void {
     this.#set({ ...this.#filters, detailedSubgroup });
   }

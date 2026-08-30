@@ -96,18 +96,15 @@ export async function exportChartImage(
   if (!ctx) return;
 
   const fontFamily = getComputedStyle(document.body).fontFamily;
-  const titleColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-gray-800")
-    .trim();
-  const subtitleColor = getComputedStyle(document.documentElement)
+  const rootStyle = getComputedStyle(document.documentElement);
+  const titleColor = rootStyle.getPropertyValue("--color-gray-800").trim();
+  const subtitleColor = rootStyle
     .getPropertyValue("--color-primary-600")
     .trim();
-  const descriptionColor = getComputedStyle(document.documentElement)
+  const descriptionColor = rootStyle
     .getPropertyValue("--color-gray-600")
     .trim();
-  const footerColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-gray-500")
-    .trim();
+  const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
 
   const padding = 24 * pixelRatio;
   const width = chartImage.width;
