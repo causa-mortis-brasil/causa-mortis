@@ -2,7 +2,6 @@ import { getCauseGroupAgeSeries } from "../access";
 import { ageCompositionChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
-  buildFilterContext,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -28,7 +27,6 @@ export function init(
 
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
-  const warning = card.querySelector("#age-composition-warning");
   let exportRows: ChartExportRows = { headers: [], rows: [] };
   let seriesOrder: string[] = [];
   let sharesByAge: number[][] = [];
@@ -58,14 +56,6 @@ export function init(
     const filters = store.get();
     if (titleEl)
       titleEl.textContent = ageCompositionChartTitle(filters, dimensions);
-    warning?.toggleAttribute(
-      "hidden",
-      !(
-        filters.detailedSubgroup ||
-        filters.externalCauseType ||
-        filters.assaultMeans
-      ),
-    );
 
     const table = await fetchDeathsByCauseGroupAgeForLocation(filters.location);
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
@@ -192,7 +182,6 @@ export function init(
 
   setupChartExport(card, chart, {
     getFilenameBase: () => buildFilenameBase("composicao-etaria", store.get()),
-    getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
 

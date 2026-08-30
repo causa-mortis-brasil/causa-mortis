@@ -4,18 +4,18 @@ import {
   ChartColumnStacked,
   ChartLine,
   Hash,
-  Map,
   Pause,
   Play,
   Pyramid,
   SlidersHorizontal,
 } from "@lucide/astro";
+import BrazilIcon from "../icons/BrazilIcon.astro";
 import ChartCard from "./ChartCard.astro";
+import CustomSelect from "./CustomSelect.astro";
 import SummaryStat from "./SummaryStat.astro";
 
 const charts = [
-  { name: "stats", label: "Resumo", icon: Hash },
-  { name: "map", label: "Mapa", icon: Map },
+  { name: "map", label: "Mapa", icon: BrazilIcon },
   { name: "evolution", label: "Evolução", icon: ChartLine },
   { name: "causes", label: "Causas", icon: Blocks },
   {
@@ -24,146 +24,87 @@ const charts = [
     icon: ChartColumnStacked,
   },
   { name: "pyramid", label: "Sexo", icon: Pyramid },
+  { name: "stats", label: "Resumo", icon: Hash },
 ];
 ---
 
 <section id="mortality-explorer" class="app-content-col gap-4">
-  <div
-    id="filters-panel"
-    class="border-primary-200 w-full rounded-2xl border-2 bg-primary-50/40"
-  >
+  <div id="filters-panel" class="w-full rounded-2xl bg-primary-100">
     <div class="center w-full">
-      <div class="app-content flex-col gap-4 p-4">
-        <div id="filters-row" class="flex w-full flex-wrap items-end gap-4">
-          <div class="flex w-full flex-col gap-1 sm:w-auto">
-            <label
-              for="filter-location"
-              class="text-sm font-medium text-gray-600">Território</label
-            >
-            <select
-              id="filter-location"
-              class="h-10 w-full cursor-pointer rounded-2xl border border-gray-200 px-3 sm:min-w-40"
-            ></select>
-          </div>
+      <div
+        id="filters-row"
+        class="app-content flex-wrap items-center justify-between gap-x-1 gap-y-2 p-4"
+      >
+        <div
+          class="flex w-full flex-wrap items-center gap-x-1 gap-y-2 sm:w-auto"
+        >
+          <CustomSelect
+            id="filter-location"
+            name="Território"
+            class="w-full sm:w-auto"
+          />
+          <CustomSelect
+            id="filter-cause-group"
+            name="Grupo de causas"
+            class="w-full sm:w-auto"
+          />
 
-          <fieldset class="flex w-full flex-col gap-1 sm:w-auto">
-            <legend class="text-sm font-medium text-gray-600">Sexo</legend>
-            <div
-              id="filter-sex"
-              class="flex h-10 gap-1 rounded-2xl border border-gray-200 bg-white p-1"
-              role="radiogroup"
-              aria-label="Sexo"
-            >
-            </div>
-          </fieldset>
+          {
+            [
+              { id: "filter-detail", name: "Detalhe" },
+              { id: "filter-external", name: "Tipo de causa externa" },
+              { id: "filter-assault", name: "Meio utilizado" },
+            ].map(({ id, name }) => (
+              <div id={`${id}-wrap`} hidden class="w-full sm:w-auto">
+                <CustomSelect id={id} name={name} class="w-full" />
+              </div>
+            ))
+          }
 
-          <div class="flex w-full flex-col gap-1 sm:w-auto">
-            <label
-              for="filter-cause-group"
-              class="text-sm font-medium text-gray-600">Grupo de causas</label
-            >
-            <select
-              id="filter-cause-group"
-              class="h-10 w-full cursor-pointer rounded-2xl border border-gray-200 px-3 sm:min-w-48"
-            ></select>
-          </div>
-
-          <div
-            id="filter-detail-wrap"
-            hidden
-            class="flex w-full flex-col gap-1 sm:w-auto"
-          >
-            <label
-              id="filter-detail-label"
-              for="filter-detail"
-              class="text-sm font-medium text-gray-600">Detalhe</label
-            >
-            <select
-              id="filter-detail"
-              class="h-10 w-full cursor-pointer rounded-2xl border border-gray-200 px-3 sm:min-w-48"
-            ></select>
-          </div>
-
-          <div
-            id="filter-external-wrap"
-            hidden
-            class="flex w-full flex-col gap-1 sm:w-auto"
-          >
-            <label
-              for="filter-external"
-              class="text-sm font-medium text-gray-600"
-              >Tipo de causa externa</label
-            >
-            <select
-              id="filter-external"
-              class="h-10 w-full cursor-pointer rounded-2xl border border-gray-200 px-3 sm:min-w-48"
-            ></select>
-          </div>
-
-          <div
-            id="filter-assault-wrap"
-            hidden
-            class="flex w-full flex-col gap-1 sm:w-auto"
-          >
-            <label
-              for="filter-assault"
-              class="text-sm font-medium text-gray-600">Meio utilizado</label
-            >
-            <select
-              id="filter-assault"
-              class="h-10 w-full cursor-pointer rounded-2xl border border-gray-200 px-3 sm:min-w-48"
-            ></select>
+          <div id="filter-sex-wrap" class="w-full sm:w-auto">
+            <CustomSelect id="filter-sex" name="Sexo" class="w-full" />
           </div>
         </div>
 
-        <div id="filter-year-wrap" class="flex w-full flex-col gap-1">
-          <label for="filter-year" class="text-sm font-medium text-gray-600">
-            Ano
-            <span> </span><span
-              id="filter-year-preliminary"
-              hidden
-              class="text-primary-500"
+        <div
+          id="filter-year-wrap"
+          class="flex h-10 w-full items-center gap-3 sm:w-72"
+        >
+          <button
+            type="button"
+            id="filter-year-toggle"
+            aria-pressed="false"
+            aria-label="Reproduzir evolução dos anos"
+            class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-2xl bg-white text-gray-600 transition-colors hover:bg-gray-50"
+          >
+            <span id="filter-year-icon-play"><Play class="size-4" /></span>
+            <span id="filter-year-icon-pause" hidden
+              ><Pause class="size-4" /></span
             >
-              (preliminar)</span
-            >
-          </label>
-          <div class="flex h-10 items-center gap-3">
-            <button
-              type="button"
-              id="filter-year-toggle"
-              aria-pressed="false"
-              aria-label="Reproduzir evolução dos anos"
-              class="grid size-10 shrink-0 cursor-pointer place-items-center rounded-2xl border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-100"
-            >
-              <span id="filter-year-icon-play"><Play class="size-4" /></span>
-              <span id="filter-year-icon-pause" hidden
-                ><Pause class="size-4" /></span
-              >
-            </button>
-            <input
-              type="range"
-              id="filter-year"
-              class="w-full accent-primary-500"
-            />
-            <output
-              id="filter-year-value"
-              for="filter-year"
-              class="shrink-0 text-sm font-medium text-gray-600 tabular-nums"
-              >2025</output
-            >
-          </div>
+          </button>
+          <input
+            type="range"
+            id="filter-year"
+            class="w-full accent-primary-500"
+          />
+          <output
+            id="filter-year-value"
+            for="filter-year"
+            class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
+            >2025</output
+          >
         </div>
       </div>
     </div>
   </div>
-  <div id="filters-sentinel" aria-hidden="true" class="h-px w-full"></div>
+  <div id="filters-sentinel" aria-hidden="true" class="h-px w-full -mt-4"></div>
 
   <div class="flex flex-col items-start gap-4 md:flex-row">
     <nav
       aria-label="Selecionar gráfico"
       role="tablist"
       aria-orientation="vertical"
-      class="flex flex-row flex-wrap justify-center gap-1 md:w-auto md:shrink-0 md:flex-col md:justify-start"
+      class="flex flex-row flex-wrap justify-center gap-2 md:w-auto md:shrink-0 md:flex-col md:justify-start"
     >
       {
         charts.map(({ name, label, icon: Icon }) => (
@@ -176,9 +117,9 @@ const charts = [
             aria-controls={`panel-${name}`}
             aria-label={label}
             title={label}
-            class="chart-tab-button"
+            class="p-6 aria-selected:bg-primary-50 aria-selected:text-primary-600 focus-visible:outline-primary-500 flex size-11 shrink-0 cursor-pointer items-center justify-center text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 rounded-2xl border border-gray-200 bg-white"
           >
-            <Icon class="size-4 shrink-0" />
+            <Icon class="size-5 shrink-0" />
           </button>
         ))
       }
@@ -260,18 +201,7 @@ const charts = [
         chartName="age-composition"
         height="h-108 md:h-128"
         fullscreenToggle
-      >
-        <p
-          slot="notice"
-          id="age-composition-warning"
-          hidden
-          class="rounded-2xl bg-primary-50 px-3 py-2 text-sm text-primary-500"
-        >
-          Esta visão respeita apenas o filtro de grupo de causas — o detalhe
-          selecionado é ignorado, pois um subgrupo não particiona o total da
-          faixa etária.
-        </p>
-      </ChartCard>
+      />
 
       <ChartCard
         title="Pirâmide de mortalidade"

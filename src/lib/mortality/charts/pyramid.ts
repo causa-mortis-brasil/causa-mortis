@@ -3,7 +3,6 @@ import { getAgeSeries } from "../access";
 import { pyramidChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
-  buildFilterContext,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -23,10 +22,14 @@ type Measure = "deaths" | "rate";
 
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
-const DEATHS_AXIS_MAX = 300000;
-const DEATHS_AXIS_INTERVAL = 100000;
-const RATE_AXIS_MAX = 15000;
-const RATE_AXIS_INTERVAL = 5000;
+
+function niceAxisMax(value: number): number {
+  const padded = value * 1.2;
+  if (padded <= 0) return 10;
+  if (padded <= 100) return Math.ceil(padded / 10) * 10;
+  if (padded <= 1000) return Math.ceil(padded / 100) * 100;
+  return Math.ceil(padded / 1000) * 1000;
+}
 
 export function init(
   container: HTMLElement,
@@ -45,7 +48,7 @@ export function init(
   function syncSubtitle(): void {
     if (!subtitleEl) return;
     subtitleEl.textContent =
-      measure === "rate" ? "taxa/100 mil habitantes" : "óbitos absolutos";
+      measure === "rate" ? "Taxa/100 mil habitantes" : "Óbitos absolutos";
   }
 
   if (measureSelect instanceof HTMLSelectElement) {
@@ -103,9 +106,26 @@ export function init(
     const womenValues =
       measure === "deaths" ? womenDeaths.map((v) => v ?? 0) : womenRate;
 
-    const maxAbs = measure === "deaths" ? DEATHS_AXIS_MAX : RATE_AXIS_MAX;
-    const axisInterval =
-      measure === "deaths" ? DEATHS_AXIS_INTERVAL : RATE_AXIS_INTERVAL;
+    let maxAcrossYears = 0;
+    for (let yi = 0; yi < dimensions.years.length; yi++) {
+      for (const sexIndex of [menIndex, womenIndex]) {
+        const deathsByAge = deathsByAgeGetter(sexIndex, yi) ?? [];
+        if (measure === "deaths") {
+          for (const deaths of deathsByAge)
+            maxAcrossYears = Math.max(maxAcrossYears, deaths ?? 0);
+        } else {
+          const populationByAge =
+            getAgeSeries(populationTable, sexIndex, yi) ?? [];
+          for (let i = 0; i < deathsByAge.length; i++) {
+            maxAcrossYears = Math.max(
+              maxAcrossYears,
+              rateAt(deathsByAge[i], populationByAge[i]),
+            );
+          }
+        }
+      }
+    }
+    const maxAbs = niceAxisMax(maxAcrossYears);
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
     const dataLabelFormatter = (value: number): string =>
@@ -113,10 +133,13 @@ export function init(
         ? formatInteger(value)
         : `${formatRate(value)} por 100 mil`;
 
+    const isNarrow = container.clientWidth < 480;
+    const labelMargin = isNarrow ? 72 : 116;
+
     const option: EChartsCoreOption = {
       grid: [
-        { left: 16, right: "53%", top: 40, bottom: 32 },
-        { left: "53%", right: 64, top: 40, bottom: 32 },
+        { left: labelMargin, right: "53%", top: 40, bottom: 32 },
+        { left: "53%", right: labelMargin, top: 40, bottom: 32 },
         { left: 0, right: 0, top: 40, bottom: 32 },
       ],
       tooltip: {
@@ -149,7 +172,6 @@ export function init(
           type: "value",
           min: 0,
           max: maxAbs,
-          interval: axisInterval,
           inverse: true,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
@@ -158,7 +180,6 @@ export function init(
           type: "value",
           min: 0,
           max: maxAbs,
-          interval: axisInterval,
           axisLabel: { formatter: (value: number) => formatCompact(value) },
         },
         {
@@ -277,7 +298,6 @@ export function init(
 
   setupChartExport(card, chart, {
     getFilenameBase: () => buildFilenameBase("piramide", store.get()),
-    getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
 

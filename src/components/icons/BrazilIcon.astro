@@ -1,0 +1,35 @@
+---
+interface Props {
+  size?: number | string;
+  color?: string;
+  "stroke-width"?: number | string;
+  class?: string;
+}
+
+const {
+  size = 24,
+  color = "currentColor",
+  "stroke-width": strokeWidth = 2,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke={color}
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class:list={["lucide", className]}
+  {...rest}
+>
+  <path
+    d="M15.09 19.69 L13.02 22.14 L12.58 22.50 L12.57 22.18 L12.94 22.02 L13.01 21.64 L10.31 20.58 L12.46 18.44 L11.28 16.33 L10.12 16.22 L10.41 14.14 L9.94 13.08 L8.94 13.09 L8.78 11.76 L6.33 10.79 L6.11 9.53 L3.32 10.25 L3.39 9.40 L2.48 9.71 L1.50 8.39 L2.10 7.10 L3.67 6.64 L3.63 4.03 L4.13 3.98 L3.74 3.40 L5.06 3.12 L6.05 3.98 L7.21 3.17 L6.45 2.02 L7.44 2.38 L8.96 1.50 L9.67 3.70 L11.21 2.96 L12.84 3.16 L13.61 1.94 L14.39 4.14 L17.21 5.09 L17.48 5.67 L19.84 5.87 L22.36 7.28 L22.50 8.94 L20.37 11.46 L20.27 13.85 L19.28 16.17 L15.62 17.74 Z"
+  ></path>
+</svg>

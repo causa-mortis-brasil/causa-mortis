@@ -1,0 +1,36 @@
+---
+import { ChevronDown } from "@lucide/astro";
+
+interface Props {
+  id: string;
+  name: string;
+  class?: string;
+}
+
+const { id, name, class: className } = Astro.props;
+---
+
+<div id={id} class:list={["custom-select", className]}>
+  <button
+    type="button"
+    data-select-trigger
+    class="custom-select-trigger"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-controls={`${id}-listbox`}
+  >
+    <span class="sr-only">{name}:</span>
+    <span data-select-value class="custom-select-value"></span>
+    <ChevronDown class="custom-select-chevron size-4" />
+  </button>
+  <ul
+    id={`${id}-listbox`}
+    data-select-listbox
+    role="listbox"
+    tabindex="-1"
+    aria-label={name}
+    hidden
+    class="custom-select-listbox"
+  >
+  </ul>
+</div>

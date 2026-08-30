@@ -1,7 +1,6 @@
 import { loadRatePointGetter, resolveCauseLevel } from "../cause-level";
 import {
   buildFilenameBase,
-  buildFilterContext,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -35,7 +34,7 @@ export function init(
 
   if (subtitleEl)
     subtitleEl.textContent =
-      "índice/100 mil habitantes (padronizado por idade)";
+      "Índice/100 mil habitantes (padronizado por idade)";
 
   let stableScale = true;
   let mapRegistered = false;
@@ -70,7 +69,7 @@ export function init(
     const pointGetter = await loadRatePointGetter(level, dimensions);
     if (token !== renderToken) return;
 
-    if (titleEl) titleEl.textContent = mapChartTitle(filters);
+    if (titleEl) titleEl.textContent = mapChartTitle(filters, dimensions);
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);
@@ -180,7 +179,6 @@ export function init(
 
   setupChartExport(card, chart, {
     getFilenameBase: () => buildFilenameBase("mapa", store.get()),
-    getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
 

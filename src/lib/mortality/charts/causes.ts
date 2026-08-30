@@ -6,7 +6,6 @@ import {
 } from "../access";
 import {
   buildFilenameBase,
-  buildFilterContext,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -262,7 +261,7 @@ export function init(
       tooltip: {
         formatter: (params: { data: CauseNode }) => {
           const node = params.data;
-          return `${node.name}<br/>${formatInteger(node.value)} óbitos · ${formatPercent(node.percent / 100)} do nível · taxa padronizada ${formatRate(node.stdRate)}`;
+          return `${node.name}<br/>${formatInteger(node.value)} óbitos · ${formatPercent(node.percent / 100)} do nível · Taxa padronizada ${formatRate(node.stdRate)}`;
         },
       },
       series: [
@@ -316,7 +315,6 @@ export function init(
 
   setupChartExport(card, chart, {
     getFilenameBase: () => buildFilenameBase("causas", store.get()),
-    getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
 

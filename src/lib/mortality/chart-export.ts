@@ -1,5 +1,5 @@
 import type { EChartsType } from "./echarts-core";
-import type { Dimensions, Filters } from "./types";
+import type { Filters } from "./types";
 import { buildZip } from "./zip";
 
 export interface ChartExportRows {
@@ -9,24 +9,7 @@ export interface ChartExportRows {
 
 export interface ChartExportSource {
   getFilenameBase: () => string;
-  getContext: () => string;
   getRows: () => ChartExportRows;
-}
-
-export function buildFilterContext(
-  dimensions: Dimensions,
-  filters: Filters,
-): string {
-  const parts = [
-    dimensions.location_names[filters.location] ?? filters.location,
-    filters.sex,
-    String(filters.year),
-  ];
-  if (filters.causeGroup) parts.push(filters.causeGroup);
-  if (filters.detailedSubgroup) parts.push(filters.detailedSubgroup);
-  if (filters.externalCauseType) parts.push(filters.externalCauseType);
-  if (filters.assaultMeans) parts.push(filters.assaultMeans);
-  return parts.join(" · ");
 }
 
 export function roundTo(value: number, decimals: number): number {
@@ -95,16 +78,15 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-const EXPORT_SOURCE_LABEL = "Do que morremos · SIM/DATASUS · IBGE";
-
 export async function exportChartImage(
   chart: EChartsType,
   title: string,
-  context: string,
+  subtitle: string,
   description: string,
   filenameBase: string,
 ): Promise<void> {
-  const pixelRatio = 3;
+  const pixelRatio = 4;
+  await document.fonts.ready;
   const chartImage = await loadImage(
     chart.getDataURL({ type: "png", pixelRatio, backgroundColor: "#fff" }),
   );
@@ -117,7 +99,7 @@ export async function exportChartImage(
   const titleColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--color-gray-800")
     .trim();
-  const contextColor = getComputedStyle(document.documentElement)
+  const subtitleColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--color-primary-600")
     .trim();
   const descriptionColor = getComputedStyle(document.documentElement)
@@ -129,24 +111,29 @@ export async function exportChartImage(
 
   const padding = 24 * pixelRatio;
   const width = chartImage.width;
-  const titleFontSize = 22 * pixelRatio;
-  const contextFontSize = 14 * pixelRatio;
+  const contentWidth = width - padding * 2;
+  const titleFontSize = 18 * pixelRatio;
+  const subtitleFontSize = 14 * pixelRatio;
   const descriptionFontSize = 14 * pixelRatio;
   const footerFontSize = 12 * pixelRatio;
   const lineGap = 6 * pixelRatio;
+  const blockGap = 4 * pixelRatio;
+
+  ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
+  const titleLines = wrapText(ctx, title.toUpperCase(), contentWidth);
 
   ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
   const descriptionLines = description
-    ? wrapText(ctx, description, width - padding * 2)
+    ? wrapText(ctx, description, contentWidth)
     : [];
 
-  const titleHeight = titleFontSize + lineGap;
-  const contextHeight = context ? contextFontSize + lineGap * 2 : 0;
+  const titleHeight = titleLines.length * (titleFontSize + lineGap);
+  const subtitleHeight = subtitle ? subtitleFontSize + lineGap + blockGap : 0;
   const descriptionHeight = descriptionLines.length
-    ? descriptionLines.length * (descriptionFontSize + lineGap)
-    : -lineGap;
+    ? descriptionLines.length * (descriptionFontSize + lineGap) + blockGap
+    : 0;
   const headerHeight =
-    padding + titleHeight + contextHeight + descriptionHeight + padding;
+    padding + titleHeight + subtitleHeight + descriptionHeight + padding;
   const footerHeight = footerFontSize + padding * 1.5;
 
   canvas.width = width;
@@ -155,36 +142,45 @@ export async function exportChartImage(
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  const centerX = width / 2;
   ctx.textBaseline = "top";
+  ctx.textAlign = "center";
+
+  let y = padding;
   ctx.fillStyle = titleColor || "#1f2937";
   ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-  ctx.fillText(title, padding, padding);
-
-  let y = padding + titleHeight;
-  if (context) {
-    ctx.fillStyle = contextColor || "#0156d5";
-    ctx.font = `600 ${contextFontSize}px ${fontFamily}`;
-    ctx.fillText(context, padding, y);
-    y += contextHeight;
+  for (const line of titleLines) {
+    ctx.fillText(line, centerX, y);
+    y += titleFontSize + lineGap;
   }
 
-  ctx.fillStyle = descriptionColor || "#4b5563";
-  ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
-  for (const line of descriptionLines) {
-    ctx.fillText(line, padding, y);
-    y += descriptionFontSize + lineGap;
+  if (subtitle) {
+    y += blockGap;
+    ctx.fillStyle = subtitleColor || "#0156d5";
+    ctx.font = `500 ${subtitleFontSize}px ${fontFamily}`;
+    ctx.fillText(subtitle, centerX, y);
+    y += subtitleFontSize + lineGap;
+  }
+
+  if (descriptionLines.length) {
+    y += blockGap;
+    ctx.fillStyle = descriptionColor || "#4b5563";
+    ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
+    for (const line of descriptionLines) {
+      ctx.fillText(line, centerX, y);
+      y += descriptionFontSize + lineGap;
+    }
   }
 
   ctx.drawImage(chartImage, 0, headerHeight);
 
+  const footerY = headerHeight + chartImage.height + padding / 2;
   ctx.fillStyle = footerColor || "#6b7280";
   ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
+  ctx.textAlign = "left";
+  ctx.fillText("Fonte: SIM/DATASUS · IBGE", padding, footerY);
   ctx.textAlign = "right";
-  ctx.fillText(
-    EXPORT_SOURCE_LABEL,
-    width - padding,
-    headerHeight + chartImage.height + padding / 2,
-  );
+  ctx.fillText("Do que morremos", width - padding, footerY);
   ctx.textAlign = "left";
 
   const blob = await new Promise<Blob | null>((resolve) =>
@@ -321,6 +317,8 @@ export function setupChartExport(
     button.addEventListener("click", () => {
       const title =
         card.querySelector("[data-chart-title]")?.textContent?.trim() ?? "";
+      const subtitle =
+        card.querySelector("[data-chart-subtitle]")?.textContent?.trim() ?? "";
       const description =
         card.querySelector("[data-chart-description]")?.textContent?.trim() ??
         "";
@@ -330,7 +328,7 @@ export function setupChartExport(
         void exportChartImage(
           chart,
           title,
-          source.getContext(),
+          subtitle,
           description,
           filenameBase,
         );

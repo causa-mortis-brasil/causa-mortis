@@ -10,9 +10,14 @@ export function causePathLabel(filters: CauseFilter): string {
 }
 
 export function sexLabel(sex: Sex): string {
-  if (sex === "Homens") return "Sexo masculino";
-  if (sex === "Mulheres") return "Sexo feminino";
-  return "Ambos os sexos";
+  if (sex === "Homens") return "Homens";
+  if (sex === "Mulheres") return "Mulheres";
+  return "Homens e Mulheres";
+}
+
+export function yearLabel(year: number, dimensions: Dimensions): string {
+  const maxYear = Math.max(...dimensions.years);
+  return year === maxYear ? `${year} (preliminar)` : String(year);
 }
 
 export function locationLabel(
@@ -22,34 +27,37 @@ export function locationLabel(
   return dimensions.location_names[location] ?? location;
 }
 
-export function mapChartTitle(filters: Filters): string {
-  return `Onde se morre mais por ${causePathLabel(filters)} · ano ${filters.year} · sexo ${filters.sex}`;
+export function mapChartTitle(
+  filters: Filters,
+  dimensions: Dimensions,
+): string {
+  return `Onde se morre mais por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)}`;
 }
 
 export function evolutionChartTitle(
   filters: Filters,
   dimensions: Dimensions,
 ): string {
-  return `Histórico de óbitos por ${causePathLabel(filters)} · sexo ${filters.sex} · ${locationLabel(dimensions, filters.location)}`;
+  return `Histórico de óbitos por ${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
 }
 
 export function causesChartTitle(
   filters: Filters,
   dimensions: Dimensions,
 ): string {
-  return `Composição dos óbitos por ${causePathLabel(filters)} · ano ${filters.year} · sexo ${filters.sex} · ${locationLabel(dimensions, filters.location)}`;
+  return `Composição dos óbitos por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
 }
 
 export function ageCompositionChartTitle(
   filters: Filters,
   dimensions: Dimensions,
 ): string {
-  return `Composição dos óbitos por faixa etária · ano ${filters.year} · sexo ${filters.sex} · ${locationLabel(dimensions, filters.location)}`;
+  return `Composição dos óbitos por faixa etária · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
 }
 
 export function pyramidChartTitle(
   filters: Filters,
   dimensions: Dimensions,
 ): string {
-  return `Pirâmide de mortalidade por ${causePathLabel(filters)} · ano ${filters.year} · ${locationLabel(dimensions, filters.location)}`;
+  return `Pirâmide de mortalidade por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${locationLabel(dimensions, filters.location)}`;
 }

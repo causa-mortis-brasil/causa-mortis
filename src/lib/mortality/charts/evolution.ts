@@ -1,7 +1,6 @@
 import { loadLocationRatePointGetter, resolveCauseLevel } from "../cause-level";
 import {
   buildFilenameBase,
-  buildFilterContext,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -27,7 +26,7 @@ export function init(
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
   const subtitleEl = card.querySelector("[data-chart-subtitle]");
-  if (subtitleEl) subtitleEl.textContent = "taxa/100 mil habitantes";
+  if (subtitleEl) subtitleEl.textContent = "Taxa/100 mil habitantes";
   const maxYear = Math.max(...dimensions.years);
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
@@ -60,10 +59,14 @@ export function init(
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
-        data: dimensions.years.map(String),
+        data: [...dimensions.years.map(String), String(maxYear + 1)],
         boundaryGap: false,
         axisLabel: {
-          interval: (_index: number, value: string) => Number(value) % 5 === 0,
+          interval: (index: number, value: string) =>
+            index < dimensions.years.length && Number(value) % 5 === 0,
+        },
+        axisTick: {
+          interval: (index: number) => index < dimensions.years.length,
         },
       },
       yAxis: { type: "value", name: "Taxa (por 100 mil hab.)", min: 0 },
@@ -94,8 +97,12 @@ export function init(
             data: [
               [{ name: "pandemia", xAxis: "2020" }, { xAxis: "2023" }],
               [
-                { name: "preliminar", xAxis: String(maxYear - 1) },
-                { xAxis: String(maxYear) },
+                {
+                  name: "preliminar",
+                  xAxis: String(maxYear),
+                  label: { position: "insideTopLeft" },
+                },
+                { xAxis: String(maxYear + 1) },
               ],
             ],
           },
@@ -146,7 +153,6 @@ export function init(
 
   setupChartExport(card, chart, {
     getFilenameBase: () => buildFilenameBase("evolucao", store.get()),
-    getContext: () => buildFilterContext(dimensions, store.get()),
     getRows: () => exportRows,
   });
 

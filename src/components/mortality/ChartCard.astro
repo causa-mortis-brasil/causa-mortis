@@ -56,31 +56,14 @@ const {
         )
       }
     </div>
-    <div
-      class="flex flex-wrap items-center justify-end gap-3 self-end sm:text-nowrap"
-    >
-      <slot name="controls" />
-      {
-        fullscreenToggle && (
-          <button
-            type="button"
-            data-chart-fullscreen-toggle
-            aria-pressed="false"
-            aria-label="Ver em tela cheia"
-            class="chart-export-trigger shrink-0"
-          >
-            <span data-icon-enter>
-              <Maximize2 class="size-4" />
-            </span>
-            <span data-icon-exit hidden>
-              <Minimize2 class="size-4" />
-            </span>
-          </button>
-        )
-      }
-    </div>
+    {
+      Astro.slots.has("controls") && (
+        <div class="flex flex-wrap items-center justify-end gap-3 self-end sm:text-nowrap">
+          <slot name="controls" />
+        </div>
+      )
+    }
   </div>
-  <slot name="notice" />
   <div
     id={chartId}
     class={`relative w-full landscape:max-h-[70vh] ${height}`}
@@ -141,6 +124,25 @@ const {
           </button>
         </div>
       </details>
+
+      {
+        fullscreenToggle && (
+          <button
+            type="button"
+            data-chart-fullscreen-toggle
+            aria-pressed="false"
+            aria-label="Ver em tela cheia"
+            class="chart-export-trigger shrink-0"
+          >
+            <span data-icon-enter>
+              <Maximize2 class="size-4" />
+            </span>
+            <span data-icon-exit hidden>
+              <Minimize2 class="size-4" />
+            </span>
+          </button>
+        )
+      }
     </div>
   </div>
 </div>

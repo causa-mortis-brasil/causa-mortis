@@ -1,6 +1,7 @@
+import { sexLabel } from "./chart-titles";
+import { createCustomSelect, type CustomSelect } from "./custom-select";
 import { fetchDimensions } from "./dimensions";
 import { FiltersStore } from "./filters";
-import { createPillToggle } from "./pill-toggle";
 import { initSummaryStats } from "./summary-stats";
 import type { Dimensions, Filters, Sex } from "./types";
 
@@ -20,48 +21,34 @@ const CHART_LOADERS: Record<string, () => Promise<ChartModule>> = {
   pyramid: () => import("./charts/pyramid"),
 };
 
-function selectEl(root: ParentNode, selector: string): HTMLSelectElement {
+function customSelect(
+  root: ParentNode,
+  selector: string,
+  onChange: (value: string) => void,
+): CustomSelect {
   const el = root.querySelector(selector);
-  if (!(el instanceof HTMLSelectElement))
+  if (!(el instanceof HTMLElement))
     throw new Error(`Select "${selector}" não encontrado.`);
-  return el;
+  return createCustomSelect(el, onChange);
 }
 
-function fillOptions(
-  select: HTMLSelectElement,
-  options: { value: string; label: string }[],
-): void {
-  select.replaceChildren(
-    ...options.map((option) => {
-      const el = document.createElement("option");
-      el.value = option.value;
-      el.textContent = option.label;
-      return el;
-    }),
-  );
-}
-
-function setupSexToggle(
+function setupSexSelect(
   root: ParentNode,
   dimensions: Dimensions,
   initial: Sex,
   onChange: (sex: Sex) => void,
 ): (sex: Sex) => void {
-  const wrap = root.querySelector("#filter-sex");
-  if (!wrap) return () => {};
-  createPillToggle(
-    wrap,
-    "sex",
-    dimensions.sexes.map((sex) => ({ value: sex, label: sex })),
-    initial,
-    (value) => onChange(value as Sex),
+  const sexSelect = customSelect(root, "#filter-sex", (value) =>
+    onChange(value as Sex),
   );
-  return (sex: Sex) => {
-    for (const input of wrap.querySelectorAll("input")) {
-      if (input instanceof HTMLInputElement)
-        input.checked = input.value === sex;
-    }
-  };
+  sexSelect.setOptions(
+    dimensions.sexes.map((sex) => ({
+      value: sex,
+      label: sexLabel(sex as Sex),
+    })),
+  );
+  sexSelect.setValue(initial);
+  return (sex: Sex) => sexSelect.setValue(sex);
 }
 
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
@@ -79,11 +66,10 @@ function setupYearControl(
 ): YearControl {
   const input = root.querySelector("#filter-year");
   const output = root.querySelector("#filter-year-value");
-  const preliminaryBadge = root.querySelector("#filter-year-preliminary");
   const toggleButton = root.querySelector("#filter-year-toggle");
   const playIcon = root.querySelector("#filter-year-icon-play");
   const pauseIcon = root.querySelector("#filter-year-icon-pause");
-  if (!(input instanceof HTMLInputElement) || !output || !preliminaryBadge)
+  if (!(input instanceof HTMLInputElement) || !output)
     return { sync: () => {}, stopPlayback: () => {} };
 
   const years = dimensions.years;
@@ -96,7 +82,6 @@ function setupYearControl(
   const sync = (year: number): void => {
     input.value = String(year);
     output.textContent = String(year);
-    preliminaryBadge.toggleAttribute("hidden", year !== maxYear);
   };
   sync(initial);
 
@@ -145,40 +130,57 @@ function setupYearControl(
   return { sync, stopPlayback };
 }
 
+interface CauseFilters {
+  setDetailFiltersEnabled: (enabled: boolean) => void;
+}
+
 function setupCauseFilters(
   root: ParentNode,
   dimensions: Dimensions,
   store: FiltersStore,
-): void {
-  const causeGroupSelect = selectEl(root, "#filter-cause-group");
+): CauseFilters {
+  const causeGroupSelect = customSelect(root, "#filter-cause-group", (value) =>
+    store.setCauseGroup(value || null),
+  );
   const detailWrap = root.querySelector("#filter-detail-wrap");
-  const detailSelect = selectEl(root, "#filter-detail");
+  const detailSelect = customSelect(root, "#filter-detail", (value) =>
+    store.setDetailedSubgroup(value || null),
+  );
   const externalWrap = root.querySelector("#filter-external-wrap");
-  const externalSelect = selectEl(root, "#filter-external");
+  const externalSelect = customSelect(root, "#filter-external", (value) =>
+    store.setExternalCauseType(value || null),
+  );
   const assaultWrap = root.querySelector("#filter-assault-wrap");
-  const assaultSelect = selectEl(root, "#filter-assault");
+  const assaultSelect = customSelect(root, "#filter-assault", (value) =>
+    store.setAssaultMeans(value || null),
+  );
 
-  fillOptions(causeGroupSelect, [
+  causeGroupSelect.setOptions([
     { value: "", label: "Todas as causas" },
     ...dimensions.cause_groups.map((causeGroup) => ({
       value: causeGroup,
       label: causeGroup,
     })),
   ]);
-  fillOptions(
-    externalSelect,
-    dimensions.external_cause_types.map((type) => ({
+  externalSelect.setOptions([
+    { value: "", label: "Todos os tipos" },
+    ...dimensions.external_cause_types.map((type) => ({
       value: type,
       label: type,
     })),
-  );
-  fillOptions(
-    assaultSelect,
-    dimensions.assault_means.map((means) => ({ value: means, label: means })),
-  );
+  ]);
+  assaultSelect.setOptions([
+    { value: "", label: "Todos os meios" },
+    ...dimensions.assault_means.map((means) => ({
+      value: means,
+      label: means,
+    })),
+  ]);
+
+  let detailFiltersEnabled = true;
 
   function syncControls(filters: Filters): void {
-    causeGroupSelect.value = filters.causeGroup ?? "";
+    causeGroupSelect.setValue(filters.causeGroup ?? "");
 
     const causeGroupIndex = dimensions.cause_groups.indexOf(
       filters.causeGroup ?? "",
@@ -186,8 +188,10 @@ function setupCauseFilters(
     const detailedSubgroupIndices =
       dimensions.detailed_subgroups_by_cause_group[String(causeGroupIndex)] ??
       [];
-    const showDetail = detailedSubgroupIndices.length > 0;
-    const showExternal = filters.causeGroup === "Causas externas";
+    const showDetail =
+      detailFiltersEnabled && detailedSubgroupIndices.length > 0;
+    const showExternal =
+      detailFiltersEnabled && filters.causeGroup === "Causas externas";
     const showAssault =
       showExternal && filters.externalCauseType === "Agressão";
 
@@ -196,38 +200,34 @@ function setupCauseFilters(
     assaultWrap?.toggleAttribute("hidden", !showAssault);
 
     if (showDetail) {
-      fillOptions(
-        detailSelect,
-        detailedSubgroupIndices.map((i) => ({
+      detailSelect.setOptions([
+        { value: "", label: "Todos os detalhes" },
+        ...detailedSubgroupIndices.map((i) => ({
           value: dimensions.detailed_subgroups[i],
           label: dimensions.detailed_subgroups[i],
         })),
-      );
-      detailSelect.value = filters.detailedSubgroup ?? "";
+      ]);
+      detailSelect.setValue(filters.detailedSubgroup ?? "");
     }
-    if (showExternal) externalSelect.value = filters.externalCauseType ?? "";
-    if (showAssault) assaultSelect.value = filters.assaultMeans ?? "";
+    if (showExternal) externalSelect.setValue(filters.externalCauseType ?? "");
+    if (showAssault) assaultSelect.setValue(filters.assaultMeans ?? "");
   }
 
-  causeGroupSelect.addEventListener("change", () =>
-    store.setCauseGroup(causeGroupSelect.value || null),
-  );
-  detailSelect.addEventListener("change", () =>
-    store.setDetailedSubgroup(detailSelect.value || null),
-  );
-  externalSelect.addEventListener("change", () =>
-    store.setExternalCauseType(externalSelect.value || null),
-  );
-  assaultSelect.addEventListener("change", () =>
-    store.setAssaultMeans(assaultSelect.value || null),
-  );
-
   store.subscribe(syncControls);
+
+  return {
+    setDetailFiltersEnabled(enabled: boolean): void {
+      if (detailFiltersEnabled === enabled) return;
+      detailFiltersEnabled = enabled;
+      syncControls(store.get());
+    },
+  };
 }
 
 function setupChartTabs(
   root: ParentNode,
   stopYearPlayback: () => void,
+  setDetailFiltersEnabled: (enabled: boolean) => void,
 ): (target: string) => void {
   const tabs = [
     ...root.querySelectorAll<HTMLButtonElement>("[data-chart-tab]"),
@@ -235,7 +235,7 @@ function setupChartTabs(
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
   const yearWrap = root.querySelector("#filter-year-wrap");
-  const sexWrap = root.querySelector("#filter-sex")?.closest("fieldset");
+  const sexWrap = root.querySelector("#filter-sex-wrap");
 
   function activate(target: string): void {
     for (const tab of tabs)
@@ -271,6 +271,7 @@ function setupChartTabs(
     if (hidesYear) stopYearPlayback();
 
     sexWrap?.toggleAttribute("hidden", target === "pyramid");
+    setDetailFiltersEnabled(target !== "age-composition");
   }
 
   for (const tab of tabs) {
@@ -324,20 +325,18 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     assaultMeans: null,
   });
 
-  const locationSelect = selectEl(root, "#filter-location");
-  fillOptions(
-    locationSelect,
+  const locationSelect = customSelect(root, "#filter-location", (value) =>
+    store.setLocation(value),
+  );
+  locationSelect.setOptions(
     dimensions.locations.map((location) => ({
       value: location,
       label: dimensions.location_names[location] ?? location,
     })),
   );
-  locationSelect.value = store.get().location;
-  locationSelect.addEventListener("change", () =>
-    store.setLocation(locationSelect.value),
-  );
+  locationSelect.setValue(store.get().location);
 
-  const syncSexToggle = setupSexToggle(
+  const syncSexSelect = setupSexSelect(
     root,
     dimensions,
     store.get().sex,
@@ -347,8 +346,16 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     setupYearControl(root, dimensions, store.get().year, (year) =>
       store.setYear(year),
     );
-  setupCauseFilters(root, dimensions, store);
-  const activateChartTab = setupChartTabs(root, stopYearPlayback);
+  const { setDetailFiltersEnabled } = setupCauseFilters(
+    root,
+    dimensions,
+    store,
+  );
+  const activateChartTab = setupChartTabs(
+    root,
+    stopYearPlayback,
+    setDetailFiltersEnabled,
+  );
   const chartNames = Object.keys(CHART_LOADERS);
   activateChartTab(
     chartNames[Math.floor(Math.random() * chartNames.length)] ?? "map",
@@ -357,8 +364,8 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   initSummaryStats(root, store, dimensions);
 
   store.subscribe((filters) => {
-    locationSelect.value = filters.location;
-    syncSexToggle(filters.sex);
+    locationSelect.setValue(filters.location);
+    syncSexSelect(filters.sex);
     syncYearControl(filters.year);
   });
 }
