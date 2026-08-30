@@ -1,6 +1,20 @@
 ---
 import { Font } from "astro:assets";
 import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const defaultDescription =
+  "Infográficos interativos sobre mortalidade no Brasil com dados oficiais do SIM/DATASUS e do IBGE: evolução de taxas, causas de morte, distribuição geográfica e pirâmide de mortalidade por sexo e idade.";
+
+const { title = "Causa Mortis", description = defaultDescription } =
+  Astro.props;
+
+const socialImage = new URL("/logo.svg", Astro.site);
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="pt-BR" class="scroll-pt-14 scroll-smooth">
@@ -10,7 +24,24 @@ import "../styles/global.css";
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Causa Mortis</title>
+    <meta name="theme-color" content="#0165fa" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <title>{title}</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Causa Mortis" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImage} />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+
     <Font cssVariable="--font-poppins" preload />
   </head>
 

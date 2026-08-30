@@ -5,6 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://causa-mortis.vercel.app",
+  build: {
+    inlineStylesheets: "always",
+  },
   vite: {
     plugins: [tailwindcss()],
   },
@@ -13,7 +17,8 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: "Poppins",
       cssVariable: "--font-poppins",
-      weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+      weights: [400, 500, 700, 800],
+      styles: ["normal"],
     },
   ],
 });
