@@ -1,12 +1,7 @@
 ---
-import {
-  Blocks,
-  ChartColumnStacked,
-  ChartLine,
-  Hash,
-  Pyramid,
-} from "@lucide/astro";
+import { Blocks, ChartColumnStacked, ChartLine, Pyramid } from "@lucide/astro";
 import BrazilIcon from "../icons/BrazilIcon.astro";
+import OneTwoThreeIcon from "../icons/OneTwoThreeIcon.astro";
 import ChartCard from "./ChartCard.astro";
 import FilterBar from "./FilterBar.astro";
 import SummaryStat from "./SummaryStat.astro";
@@ -22,7 +17,7 @@ const charts = [
     icon: ChartColumnStacked,
   },
   { name: "pyramid", label: "Sexo", icon: Pyramid },
-  { name: "stats", label: "Resumo", icon: Hash },
+  { name: "stats", label: "Resumo", icon: OneTwoThreeIcon },
 ];
 ---
 
@@ -68,18 +63,22 @@ const charts = [
 
     <div
       data-chart-panels
-      class="flex min-w-0 grow flex-col gap-4 transition-[height] duration-300 ease-in-out motion-reduce:transition-none"
+      class="w-full flex min-w-0 grow flex-col gap-4 transition-[height] duration-300 ease-in-out motion-reduce:transition-none"
     >
       <div
         id="panel-stats"
-        class="chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4"
+        class="w-full chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4"
         data-chart-panel="stats"
         role="tabpanel"
         aria-labelledby="tab-stats"
         hidden
       >
-        <h2 class="text-center text-lg font-bold uppercase">Resumo</h2>
-        <div class="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+        <h2 data-chart-title class="text-center text-lg font-bold uppercase">
+          Resumo
+        </h2>
+        <div
+          class="grid grid-cols-1 gap-3 sm:gap-4 lg:h-96 lg:auto-rows-fr lg:grid-cols-2"
+        >
           <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
           <SummaryStat
             label="Taxa padronizada"

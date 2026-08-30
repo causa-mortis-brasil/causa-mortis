@@ -1,0 +1,43 @@
+---
+interface Props {
+  size?: number | string;
+  color?: string;
+  "stroke-width"?: number | string;
+  class?: string;
+}
+
+const {
+  size = 24,
+  color = "currentColor",
+  "stroke-width": strokeWidth = 2,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke={color}
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class:list={["lucide", className]}
+  {...rest}
+>
+  <text
+    x="12"
+    y="17"
+    text-anchor="middle"
+    font-size="14"
+    font-weight="900"
+    letter-spacing="-0.5"
+    stroke="none"
+    fill={color}
+    font-family="system-ui, sans-serif">123</text
+  >
+</svg>

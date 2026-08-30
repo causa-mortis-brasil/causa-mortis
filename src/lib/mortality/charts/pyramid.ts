@@ -24,24 +24,42 @@ const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
 
 const AXIS_SPLIT_COUNT = 5;
+const NICE_FRACTIONS = [1, 2, 5, 10];
 
-function niceStep(roughStep: number): number {
-  if (roughStep <= 0) return 1;
+function niceStepBounds(roughStep: number): { down: number; up: number } {
   const magnitude = 10 ** Math.floor(Math.log10(roughStep));
-  const fraction = roughStep / magnitude;
-  const niceFraction =
-    fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
-  return niceFraction * magnitude;
+  let down = magnitude;
+  let up = 10 * magnitude;
+  for (const fraction of NICE_FRACTIONS) {
+    const step = fraction * magnitude;
+    if (step <= roughStep) down = step;
+    if (step >= roughStep) {
+      up = step;
+      break;
+    }
+  }
+  return { down, up };
+}
+
+function safeInterval(step: number, padded: number): number {
+  if (padded < 1000) return step;
+  return Math.max(1000, Math.ceil(step / 1000) * 1000);
 }
 
 function niceAxisScale(value: number): { max: number; interval: number } {
   const padded = value * 1.2;
   if (padded <= 0) return { max: 10, interval: 2 };
-  let interval = niceStep(padded / AXIS_SPLIT_COUNT);
-  if (padded >= 1000)
-    interval = Math.max(1000, Math.ceil(interval / 1000) * 1000);
-  const max = Math.ceil(padded / interval) * interval;
-  return { max, interval };
+
+  const roughStep = padded / AXIS_SPLIT_COUNT;
+  const { down, up } = niceStepBounds(roughStep);
+  const downInterval = safeInterval(down, padded);
+  const upInterval = safeInterval(up, padded);
+  const downMax = Math.ceil(value / downInterval) * downInterval;
+  const upMax = Math.ceil(value / upInterval) * upInterval;
+
+  return Math.abs(downMax - padded) <= Math.abs(upMax - padded)
+    ? { max: downMax, interval: downInterval }
+    : { max: upMax, interval: upInterval };
 }
 
 export function init(

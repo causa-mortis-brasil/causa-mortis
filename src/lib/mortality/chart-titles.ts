@@ -48,6 +48,13 @@ export function causesChartTitle(
   return `Composição dos óbitos por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
 }
 
+export function statsChartTitle(
+  filters: Filters,
+  dimensions: Dimensions,
+): string {
+  return `Resumo · ${yearLabel(filters.year, dimensions)}`;
+}
+
 export function ageCompositionChartTitle(
   filters: Filters,
   dimensions: Dimensions,

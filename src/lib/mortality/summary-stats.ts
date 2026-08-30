@@ -1,6 +1,7 @@
 import { getCoverage } from "./access";
 import { loadLocationRatePointGetter, resolveCauseLevel } from "./cause-level";
 import { subscribeWhenVisible } from "./chart-visibility";
+import { statsChartTitle } from "./chart-titles";
 import { fetchCoverage } from "./data";
 import { indexOf } from "./dimensions";
 import type { FiltersStore } from "./filters";
@@ -39,6 +40,8 @@ export function initSummaryStats(
   const crudeRateDelta = textEl(root, "stat-crude-rate-delta");
   const coverageValue = textEl(root, "stat-coverage-value");
   const coverageSubtitle = textEl(root, "stat-coverage-subtitle");
+  const panel = root.querySelector("#panel-stats") ?? root;
+  const titleEl = panel.querySelector("[data-chart-title]");
 
   let renderToken = 0;
 
@@ -61,6 +64,7 @@ export function initSummaryStats(
     const previousPoint =
       previousYearIndex >= 0 ? pointGetter(sexIndex, previousYearIndex) : null;
 
+    if (titleEl) titleEl.textContent = statsChartTitle(filters, dimensions);
     if (deathsValue) deathsValue.textContent = formatInteger(point.deaths);
     renderRate(
       stdRateValue,
@@ -87,6 +91,5 @@ export function initSummaryStats(
     }
   }
 
-  const panel = root.querySelector("#panel-stats") ?? root;
   subscribeWhenVisible(panel, store, render);
 }
