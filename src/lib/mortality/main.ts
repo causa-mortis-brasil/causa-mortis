@@ -286,6 +286,27 @@ function setupCauseFilters(
   };
 }
 
+function setYearWrapsHidden(wraps: HTMLElement[], shouldHide: boolean): void {
+  for (const wrap of wraps) {
+    if (shouldHide) {
+      if (wrap.hidden || wrap.hasAttribute("data-hiding")) continue;
+      wrap.setAttribute("data-hiding", "");
+      wrap.addEventListener(
+        "transitionend",
+        () => {
+          if (wrap.hasAttribute("data-hiding")) wrap.hidden = true;
+        },
+        { once: true },
+      );
+    } else {
+      if (!wrap.hidden && !wrap.hasAttribute("data-hiding")) continue;
+      wrap.hidden = false;
+      void wrap.offsetWidth;
+      wrap.removeAttribute("data-hiding");
+    }
+  }
+}
+
 function setupChartTabs(
   root: ParentNode,
   stopYearPlayback: () => void,
@@ -338,7 +359,7 @@ function setupChartTabs(
     }
 
     const hidesYear = target === "evolution";
-    for (const wrap of yearWraps) wrap.toggleAttribute("hidden", hidesYear);
+    setYearWrapsHidden(yearWraps, hidesYear);
     if (hidesYear) stopYearPlayback();
 
     for (const wrap of sexWraps)

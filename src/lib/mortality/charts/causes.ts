@@ -47,13 +47,12 @@ function withPercent(nodes: Omit<CauseNode, "id" | "percent">[]): CauseNode[] {
   }));
 }
 
-function targetNodeId(filters: CauseFilter): string | null {
-  return (
-    filters.assaultMeans ??
-    filters.externalCauseType ??
-    filters.detailedSubgroup ??
-    filters.causeGroup
-  );
+function causePath(filters: CauseFilter): string[] {
+  return [
+    filters.causeGroup,
+    filters.externalCauseType ?? filters.detailedSubgroup,
+    filters.assaultMeans,
+  ].filter((value): value is string => value != null);
 }
 
 interface TreePathEntry {
@@ -119,12 +118,17 @@ export function init(
   let currentOption: EChartsCoreOption | null = null;
 
   function syncZoom(filters: CauseFilter): void {
-    const target = targetNodeId(filters);
-    const key = target ?? "";
+    const path = causePath(filters);
+    const key = path.join(">");
     if (key === lastCauseKey) return;
     lastCauseKey = key;
-    if (target) {
-      chart.dispatchAction({ type: "treemapRootToNode", targetNode: target });
+    if (path.length > 0) {
+      for (const nodeId of path) {
+        chart.dispatchAction(
+          { type: "treemapRootToNode", targetNode: nodeId },
+          { flush: true },
+        );
+      }
     } else if (currentOption) {
       chart.setOption(currentOption, { notMerge: true });
     }
@@ -134,7 +138,7 @@ export function init(
     const treePathInfo: unknown = params.treePathInfo;
     if (!isTreePathInfo(treePathInfo)) return;
     const names = treePathInfo.slice(1).map((entry) => entry.name);
-    lastCauseKey = names[names.length - 1] ?? "";
+    lastCauseKey = names.join(">");
     applyCauseSelection(store, names);
   });
 

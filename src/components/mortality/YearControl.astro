@@ -24,39 +24,51 @@ const maxYear = Math.max(...years);
 <div
   id={`filter-year-wrap${idSuffix}`}
   class:list={[
-    "flex items-center gap-3",
-    compact
-      ? "h-9 w-auto shrink-0"
-      : "w-full rounded-2xl bg-primary-100 p-2 pr-4",
+    "grid grid-rows-[1fr] transition-[grid-template-rows,opacity,margin-bottom] duration-200 ease-in-out data-hiding:grid-rows-[0fr] data-hiding:opacity-0 motion-reduce:transition-none",
+    compact ? "w-auto shrink-0" : "w-full data-hiding:-mb-4",
   ]}
 >
-  <button
-    type="button"
-    id={`filter-year-toggle${idSuffix}`}
-    aria-pressed="false"
-    aria-label="Reproduzir evolução dos anos"
-    class:list={[
-      "grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-gray-600 transition-colors hover:bg-gray-50",
-    ]}
-  >
-    <span id={`filter-year-icon-play${idSuffix}`}><Play class="size-4" /></span>
-    <span id={`filter-year-icon-pause${idSuffix}`} hidden
-      ><Pause class="size-4" /></span
+  <div class="overflow-hidden">
+    <div
+      class:list={[
+        "flex items-center gap-3",
+        compact
+          ? "h-9 w-auto shrink-0"
+          : "w-full rounded-2xl bg-primary-100 p-2 pr-4",
+      ]}
     >
-  </button>
-  <input
-    type="range"
-    id={`filter-year${idSuffix}`}
-    min={minYear}
-    max={maxYear}
-    step="1"
-    value={maxYear}
-    class:list={["accent-primary-500/90", compact ? "w-48" : "w-full"]}
-  />
-  <output
-    id={`filter-year-value${idSuffix}`}
-    for={`filter-year${idSuffix}`}
-    class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
-    >{maxYear}</output
-  >
+      <button
+        type="button"
+        id={`filter-year-toggle${idSuffix}`}
+        aria-pressed="false"
+        aria-label="Reproduzir evolução dos anos"
+        class:list={[
+          "grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-gray-600 transition-colors hover:bg-gray-50",
+        ]}
+      >
+        <span id={`filter-year-icon-play${idSuffix}`}
+          ><Play class="size-4" /></span
+        >
+        <span id={`filter-year-icon-pause${idSuffix}`} hidden
+          ><Pause class="size-4" /></span
+        >
+      </button>
+      <label for={`filter-year${idSuffix}`} class="sr-only">Ano</label>
+      <input
+        type="range"
+        id={`filter-year${idSuffix}`}
+        min={minYear}
+        max={maxYear}
+        step="1"
+        value={maxYear}
+        class:list={["accent-primary-500/90", compact ? "w-48" : "w-full"]}
+      />
+      <output
+        id={`filter-year-value${idSuffix}`}
+        for={`filter-year${idSuffix}`}
+        class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
+        >{maxYear}</output
+      >
+    </div>
+  </div>
 </div>
