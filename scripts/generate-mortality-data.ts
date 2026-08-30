@@ -1,4 +1,11 @@
-import { readFileSync, writeFileSync, mkdirSync, statSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  statSync,
+} from "node:fs";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { buildZip } from "../src/lib/mortality/zip.ts";
@@ -15,16 +22,35 @@ import type {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SRC_INDEXED = path.join(HERE, "..", "data", "mortality-indexed.json");
+const SRC_GEO_SIMPLIFIED = path.join(
+  HERE,
+  "..",
+  "data",
+  "br-states-simplified.geojson",
+);
 const JSON_OUT_DIR = path.join(HERE, "..", "public", "data", "mortality");
 const CSV_OUT_DIR = path.join(HERE, "..", "public", "data", "mortality-csv");
+const GEO_OUT_DIR = path.join(HERE, "..", "public", "data", "geo");
+const BY_LOCATION_OUT_DIR = path.join(JSON_OUT_DIR, "by-location");
+const MANIFEST_OUT_FILE = path.join(
+  HERE,
+  "..",
+  "src",
+  "lib",
+  "mortality",
+  "data-manifest.json",
+);
 
 mkdirSync(JSON_OUT_DIR, { recursive: true });
 mkdirSync(CSV_OUT_DIR, { recursive: true });
 
-const indexed: MortalityIndexed = JSON.parse(
-  readFileSync(SRC_INDEXED, "utf-8"),
-);
+const indexedRaw = readFileSync(SRC_INDEXED, "utf-8");
+const indexed: MortalityIndexed = JSON.parse(indexedRaw);
 const dimensions = indexed.dimensions;
+
+function shortHash(content: string | Buffer): string {
+  return createHash("sha256").update(content).digest("hex").slice(0, 10);
+}
 
 const JSON_TABLES = [
   "dimensions",
@@ -317,3 +343,64 @@ for (const s of csvStats) {
 console.log(
   `  ${bundleFile.replace(`${HERE}/../`, "")} ${(statSync(bundleFile).size / 1e6).toFixed(2)} MB`,
 );
+
+// Fatias por território: cada gráfico que só olha para um território de
+// cada vez (todos menos o mapa) busca só o arquivo abaixo em vez da tabela
+// inteira. O nome da tabela completa acima continua existindo, sem mudanças,
+// para a seção de download do site.
+const LOCATION_SHARDED_TABLES = JSON_TABLES.filter(
+  (table) => table !== "dimensions" && table !== "coverage",
+);
+
+const mortalityVersion = shortHash(indexedRaw);
+const versionDir = path.join(BY_LOCATION_OUT_DIR, mortalityVersion);
+rmSync(BY_LOCATION_OUT_DIR, { recursive: true, force: true });
+
+let shardCount = 0;
+let shardBytes = 0;
+for (const table of LOCATION_SHARDED_TABLES) {
+  const tableDir = path.join(versionDir, table);
+  mkdirSync(tableDir, { recursive: true });
+  const fullTable = indexed[table] as unknown[];
+  dimensions.locations.forEach((location, locationIndex) => {
+    const file = path.join(tableDir, `${location}.json`);
+    writeFileSync(file, JSON.stringify(fullTable[locationIndex] ?? []));
+    shardCount += 1;
+    shardBytes += statSync(file).size;
+  });
+}
+
+console.log(
+  `OK — data/mortality-indexed.json -> public/data/mortality/by-location/${mortalityVersion}/`,
+);
+console.log(
+  `  ${LOCATION_SHARDED_TABLES.length} tabelas × ${dimensions.locations.length} territórios = ${shardCount} arquivos, ${(shardBytes / 1e6).toFixed(2)} MB total`,
+);
+
+// Malha dos estados: a versão original de alta precisão continua em
+// public/data/geo/br-states.geojson para a seção de download. O mapa do site
+// usa uma cópia simplificada (gerada uma vez com mapshaper a partir de
+// data/br-states-simplified.geojson), guardada num diretório versionado por
+// hash para poder ser cacheada de forma imutável sem risco de ficar
+// desatualizada.
+mkdirSync(GEO_OUT_DIR, { recursive: true });
+const geoVersionedDir = path.join(GEO_OUT_DIR, "versioned");
+rmSync(geoVersionedDir, { recursive: true, force: true });
+const geoSimplifiedRaw = readFileSync(SRC_GEO_SIMPLIFIED, "utf-8");
+const geoHash = shortHash(geoSimplifiedRaw);
+mkdirSync(path.join(geoVersionedDir, geoHash), { recursive: true });
+const geoFile = `versioned/${geoHash}/br-states.geojson`;
+writeFileSync(path.join(GEO_OUT_DIR, geoFile), geoSimplifiedRaw);
+
+console.log(
+  `OK — data/br-states-simplified.geojson -> public/data/geo/${geoFile}`,
+);
+console.log(
+  `  ${(Buffer.byteLength(geoSimplifiedRaw) / 1e3).toFixed(1)} KB (original: ${(statSync(path.join(GEO_OUT_DIR, "br-states.geojson")).size / 1e6).toFixed(2)} MB, mantido para download)`,
+);
+
+writeFileSync(
+  MANIFEST_OUT_FILE,
+  JSON.stringify({ mortalityVersion, geoFile }, null, 2) + "\n",
+);
+console.log(`OK — src/lib/mortality/data-manifest.json atualizado`);

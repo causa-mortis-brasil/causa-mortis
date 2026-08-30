@@ -5,6 +5,8 @@ import {
   FileSpreadsheet,
   FileText,
   Image,
+  Maximize2,
+  Minimize2,
 } from "@lucide/astro";
 
 interface Props {
@@ -14,6 +16,7 @@ interface Props {
   chartName: string;
   height: string;
   active?: boolean;
+  fullscreenToggle?: boolean;
 }
 
 const {
@@ -23,6 +26,7 @@ const {
   chartName,
   height,
   active = false,
+  fullscreenToggle = false,
 } = Astro.props;
 ---
 
@@ -54,8 +58,26 @@ const {
         )
       }
     </div>
-    <div class="sm:text-nowrap">
+    <div class="flex flex-wrap items-center gap-3 sm:text-nowrap">
       <slot name="controls" />
+      {
+        fullscreenToggle && (
+          <button
+            type="button"
+            data-chart-fullscreen-toggle
+            aria-pressed="false"
+            aria-label="Ver em tela cheia"
+            class="chart-export-trigger shrink-0"
+          >
+            <span data-icon-enter>
+              <Maximize2 class="size-4" />
+            </span>
+            <span data-icon-exit hidden>
+              <Minimize2 class="size-4" />
+            </span>
+          </button>
+        )
+      }
     </div>
   </div>
   <slot name="notice" />

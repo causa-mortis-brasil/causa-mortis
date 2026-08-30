@@ -8,7 +8,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
-import { fetchPopulationByAge } from "../data";
+import { fetchPopulationByAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
@@ -71,8 +71,8 @@ export function init(
     const level = resolveCauseLevel(filters);
 
     const [deathsByAgeGetter, populationTable] = await Promise.all([
-      loadDeathsByAgeGetter(level, dimensions),
-      fetchPopulationByAge(),
+      loadDeathsByAgeGetter(level, dimensions, filters.location),
+      fetchPopulationByAgeForLocation(filters.location),
     ]);
     if (token !== renderToken) return;
 
@@ -80,22 +80,21 @@ export function init(
       context.textContent = `${causePathLabel(filters)} · ${filters.year} · ${locationLabel(dimensions, filters.location)}`;
     }
 
-    const locationIndex = indexOf(dimensions.locations, filters.location);
     const yearIndex = indexOf(dimensions.years, filters.year);
     const menIndex = indexOf(dimensions.sexes, "Homens");
     const womenIndex = indexOf(dimensions.sexes, "Mulheres");
 
     const menDeaths =
-      deathsByAgeGetter(locationIndex, menIndex, yearIndex) ??
+      deathsByAgeGetter(menIndex, yearIndex) ??
       dimensions.age_groups.map(() => 0);
     const womenDeaths =
-      deathsByAgeGetter(locationIndex, womenIndex, yearIndex) ??
+      deathsByAgeGetter(womenIndex, yearIndex) ??
       dimensions.age_groups.map(() => 0);
     const menPopulation =
-      getAgeSeries(populationTable, locationIndex, menIndex, yearIndex) ??
+      getAgeSeries(populationTable, menIndex, yearIndex) ??
       dimensions.age_groups.map(() => 0);
     const womenPopulation =
-      getAgeSeries(populationTable, locationIndex, womenIndex, yearIndex) ??
+      getAgeSeries(populationTable, womenIndex, yearIndex) ??
       dimensions.age_groups.map(() => 0);
 
     const menRate = dimensions.age_groups.map((_, i) =>

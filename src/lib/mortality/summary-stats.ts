@@ -1,5 +1,5 @@
 import { getCoverage } from "./access";
-import { loadRatePointGetter, resolveCauseLevel } from "./cause-level";
+import { loadLocationRatePointGetter, resolveCauseLevel } from "./cause-level";
 import { fetchCoverage } from "./data";
 import { indexOf } from "./dimensions";
 import type { FiltersStore } from "./filters";
@@ -46,7 +46,7 @@ export function initSummaryStats(
     const filters = store.get();
     const level = resolveCauseLevel(filters);
     const [pointGetter, coverageTable] = await Promise.all([
-      loadRatePointGetter(level, dimensions),
+      loadLocationRatePointGetter(level, dimensions, filters.location),
       fetchCoverage(),
     ]);
     if (token !== renderToken) return;
@@ -56,11 +56,9 @@ export function initSummaryStats(
     const yearIndex = indexOf(dimensions.years, filters.year);
     const previousYearIndex = yearIndex - 1;
 
-    const point = pointGetter(locationIndex, sexIndex, yearIndex);
+    const point = pointGetter(sexIndex, yearIndex);
     const previousPoint =
-      previousYearIndex >= 0
-        ? pointGetter(locationIndex, sexIndex, previousYearIndex)
-        : null;
+      previousYearIndex >= 0 ? pointGetter(sexIndex, previousYearIndex) : null;
 
     if (deathsValue) deathsValue.textContent = formatInteger(point.deaths);
     renderRate(

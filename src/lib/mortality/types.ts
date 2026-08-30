@@ -27,26 +27,63 @@ export type CauseRateEntry = [
 export type AgeSeries = (number | null)[];
 export type CoverageTable = (number | null)[][];
 
-export type OverallTable = (OverallEntry | null)[][][];
-export type DeathsByCauseGroupTable = ((CauseGroupEntry | null)[] | null)[][][];
-export type DeathsByExternalCauseTable = (
-  (CauseRateEntry | null)[] | null
-)[][][];
-export type DeathsByAssaultMeansTable = (
-  (CauseRateEntry | null)[] | null
-)[][][];
-export type DeathsByDetailedSubgroupTable = (
-  (CauseRateEntry | null)[] | null
-)[][][];
+// Tabelas "LocationTable" trazem só sexo × ano (um território), como servidas
+// por /data/mortality/by-location/. As tabelas completas ("Table") continuam
+// indexadas por território × sexo × ano e são um array dessas fatias — usadas
+// só onde todos os territórios precisam ser lidos de uma vez (mapa).
 
-export type DeathsByAgeTable = (AgeSeries | null)[][][];
-export type PopulationByAgeTable = (AgeSeries | null)[][][];
-export type DeathsByCauseGroupAgeTable = ((AgeSeries | null)[] | null)[][][];
-export type DeathsByExternalCauseAgeTable = ((AgeSeries | null)[] | null)[][][];
-export type DeathsByAssaultMeansAgeTable = ((AgeSeries | null)[] | null)[][][];
-export type DeathsByDetailedSubgroupAgeTable = (
+export type OverallLocationTable = (OverallEntry | null)[][];
+export type OverallTable = OverallLocationTable[];
+
+export type DeathsByCauseGroupLocationTable = (
+  (CauseGroupEntry | null)[] | null
+)[][];
+export type DeathsByCauseGroupTable = DeathsByCauseGroupLocationTable[];
+
+export type DeathsByExternalCauseLocationTable = (
+  (CauseRateEntry | null)[] | null
+)[][];
+export type DeathsByExternalCauseTable = DeathsByExternalCauseLocationTable[];
+
+export type DeathsByAssaultMeansLocationTable = (
+  (CauseRateEntry | null)[] | null
+)[][];
+export type DeathsByAssaultMeansTable = DeathsByAssaultMeansLocationTable[];
+
+export type DeathsByDetailedSubgroupLocationTable = (
+  (CauseRateEntry | null)[] | null
+)[][];
+export type DeathsByDetailedSubgroupTable =
+  DeathsByDetailedSubgroupLocationTable[];
+
+export type DeathsByAgeLocationTable = (AgeSeries | null)[][];
+export type DeathsByAgeTable = DeathsByAgeLocationTable[];
+
+export type PopulationByAgeLocationTable = (AgeSeries | null)[][];
+export type PopulationByAgeTable = PopulationByAgeLocationTable[];
+
+export type DeathsByCauseGroupAgeLocationTable = (
   (AgeSeries | null)[] | null
-)[][][];
+)[][];
+export type DeathsByCauseGroupAgeTable = DeathsByCauseGroupAgeLocationTable[];
+
+export type DeathsByExternalCauseAgeLocationTable = (
+  (AgeSeries | null)[] | null
+)[][];
+export type DeathsByExternalCauseAgeTable =
+  DeathsByExternalCauseAgeLocationTable[];
+
+export type DeathsByAssaultMeansAgeLocationTable = (
+  (AgeSeries | null)[] | null
+)[][];
+export type DeathsByAssaultMeansAgeTable =
+  DeathsByAssaultMeansAgeLocationTable[];
+
+export type DeathsByDetailedSubgroupAgeLocationTable = (
+  (AgeSeries | null)[] | null
+)[][];
+export type DeathsByDetailedSubgroupAgeTable =
+  DeathsByDetailedSubgroupAgeLocationTable[];
 
 export interface MortalityIndexed {
   dimensions: Dimensions;

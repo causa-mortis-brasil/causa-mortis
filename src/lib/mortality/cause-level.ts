@@ -11,20 +11,30 @@ import {
   getOverall,
 } from "./access";
 import {
-  fetchDeathsByAge,
+  fetchDeathsByAgeForLocation,
   fetchDeathsByAssaultMeans,
-  fetchDeathsByAssaultMeansAge,
+  fetchDeathsByAssaultMeansAgeForLocation,
+  fetchDeathsByAssaultMeansForLocation,
   fetchDeathsByCauseGroup,
-  fetchDeathsByCauseGroupAge,
+  fetchDeathsByCauseGroupAgeForLocation,
+  fetchDeathsByCauseGroupForLocation,
   fetchDeathsByDetailedSubgroup,
-  fetchDeathsByDetailedSubgroupAge,
+  fetchDeathsByDetailedSubgroupAgeForLocation,
+  fetchDeathsByDetailedSubgroupForLocation,
   fetchDeathsByExternalCause,
-  fetchDeathsByExternalCauseAge,
+  fetchDeathsByExternalCauseAgeForLocation,
+  fetchDeathsByExternalCauseForLocation,
   fetchOverall,
+  fetchOverallForLocation,
 } from "./data";
 import { indexOf } from "./dimensions";
 import { crudeRate } from "./rate";
-import type { AgeSeries, CauseFilter, Dimensions } from "./types";
+import type {
+  AgeSeries,
+  CauseFilter,
+  Dimensions,
+  OverallLocationTable,
+} from "./types";
 
 export type CauseLevel =
   | { kind: "overall" }
@@ -72,7 +82,13 @@ export interface RatePoint {
 }
 
 const ZERO_POINT: RatePoint = { deaths: 0, crudeRate: 0, stdRate: 0 };
+const EMPTY_LOCATION_TABLE: OverallLocationTable = [];
 
+/**
+ * Variante "todos os territórios": só o mapa coroplético precisa comparar
+ * territórios entre si, então é o único consumidor que busca a tabela
+ * completa em vez da fatia do território ativo.
+ */
 export type RatePointGetter = (
   locationIndex: number,
   sexIndex: number,
@@ -86,7 +102,7 @@ export async function loadRatePointGetter(
   if (level.kind === "overall") {
     const table = await fetchOverall();
     return (li, si, yi) => {
-      const entry = getOverall(table, li, si, yi);
+      const entry = getOverall(table[li] ?? EMPTY_LOCATION_TABLE, si, yi);
       return entry
         ? { deaths: entry[0], crudeRate: entry[1], stdRate: entry[2] }
         : ZERO_POINT;
@@ -101,13 +117,13 @@ export async function loadRatePointGetter(
     ]);
     return (li, si, yi) => {
       const [deaths, stdRate] = getCauseGroupEntry(
-        causeGroupTable,
-        li,
+        causeGroupTable[li] ?? [],
         si,
         yi,
         causeGroupIndex,
       );
-      const population = getOverall(overallTable, li, si, yi)?.[3] ?? 0;
+      const population =
+        getOverall(overallTable[li] ?? EMPTY_LOCATION_TABLE, si, yi)?.[3] ?? 0;
       return { deaths, crudeRate: crudeRate(deaths, population), stdRate };
     };
   }
@@ -120,8 +136,7 @@ export async function loadRatePointGetter(
     const table = await fetchDeathsByDetailedSubgroup();
     return (li, si, yi) => {
       const [deaths, crude, stdRate] = getDetailedSubgroupEntry(
-        table,
-        li,
+        table[li] ?? [],
         si,
         yi,
         detailedSubgroupIndex,
@@ -138,8 +153,7 @@ export async function loadRatePointGetter(
     const table = await fetchDeathsByExternalCause();
     return (li, si, yi) => {
       const [deaths, crude, stdRate] = getExternalCauseEntry(
-        table,
-        li,
+        table[li] ?? [],
         si,
         yi,
         externalCauseTypeIndex,
@@ -155,8 +169,100 @@ export async function loadRatePointGetter(
   const table = await fetchDeathsByAssaultMeans();
   return (li, si, yi) => {
     const [deaths, crude, stdRate] = getAssaultMeansEntry(
+      table[li] ?? [],
+      si,
+      yi,
+      assaultMeansIndex,
+    );
+    return { deaths, crudeRate: crude, stdRate };
+  };
+}
+
+/**
+ * Variante "um território": usada pelos gráficos que só olham para o
+ * território ativo no filtro (evolução, resumo). Busca só a fatia daquele
+ * território em vez da tabela inteira.
+ */
+export type LocationRatePointGetter = (
+  sexIndex: number,
+  yearIndex: number,
+) => RatePoint;
+
+export async function loadLocationRatePointGetter(
+  level: CauseLevel,
+  dimensions: Dimensions,
+  location: string,
+): Promise<LocationRatePointGetter> {
+  if (level.kind === "overall") {
+    const table = await fetchOverallForLocation(location);
+    return (si, yi) => {
+      const entry = getOverall(table, si, yi);
+      return entry
+        ? { deaths: entry[0], crudeRate: entry[1], stdRate: entry[2] }
+        : ZERO_POINT;
+    };
+  }
+
+  if (level.kind === "cause_group") {
+    const causeGroupIndex = indexOf(dimensions.cause_groups, level.causeGroup);
+    const [overallTable, causeGroupTable] = await Promise.all([
+      fetchOverallForLocation(location),
+      fetchDeathsByCauseGroupForLocation(location),
+    ]);
+    return (si, yi) => {
+      const [deaths, stdRate] = getCauseGroupEntry(
+        causeGroupTable,
+        si,
+        yi,
+        causeGroupIndex,
+      );
+      const population = getOverall(overallTable, si, yi)?.[3] ?? 0;
+      return { deaths, crudeRate: crudeRate(deaths, population), stdRate };
+    };
+  }
+
+  if (level.kind === "detailed_subgroup") {
+    const detailedSubgroupIndex = indexOf(
+      dimensions.detailed_subgroups,
+      level.detailedSubgroup,
+    );
+    const table = await fetchDeathsByDetailedSubgroupForLocation(location);
+    return (si, yi) => {
+      const [deaths, crude, stdRate] = getDetailedSubgroupEntry(
+        table,
+        si,
+        yi,
+        detailedSubgroupIndex,
+      );
+      return { deaths, crudeRate: crude, stdRate };
+    };
+  }
+
+  if (level.kind === "external_cause") {
+    const externalCauseTypeIndex = indexOf(
+      dimensions.external_cause_types,
+      level.externalCauseType,
+    );
+    const table = await fetchDeathsByExternalCauseForLocation(location);
+    return (si, yi) => {
+      const [deaths, crude, stdRate] = getExternalCauseEntry(
+        table,
+        si,
+        yi,
+        externalCauseTypeIndex,
+      );
+      return { deaths, crudeRate: crude, stdRate };
+    };
+  }
+
+  const assaultMeansIndex = indexOf(
+    dimensions.assault_means,
+    level.assaultMeans,
+  );
+  const table = await fetchDeathsByAssaultMeansForLocation(location);
+  return (si, yi) => {
+    const [deaths, crude, stdRate] = getAssaultMeansEntry(
       table,
-      li,
       si,
       yi,
       assaultMeansIndex,
@@ -166,7 +272,6 @@ export async function loadRatePointGetter(
 }
 
 export type AgeSeriesGetter = (
-  locationIndex: number,
   sexIndex: number,
   yearIndex: number,
 ) => AgeSeries | null;
@@ -174,17 +279,17 @@ export type AgeSeriesGetter = (
 export async function loadDeathsByAgeGetter(
   level: CauseLevel,
   dimensions: Dimensions,
+  location: string,
 ): Promise<AgeSeriesGetter> {
   if (level.kind === "overall") {
-    const table = await fetchDeathsByAge();
-    return (li, si, yi) => getAgeSeries(table, li, si, yi);
+    const table = await fetchDeathsByAgeForLocation(location);
+    return (si, yi) => getAgeSeries(table, si, yi);
   }
 
   if (level.kind === "cause_group") {
     const causeGroupIndex = indexOf(dimensions.cause_groups, level.causeGroup);
-    const table = await fetchDeathsByCauseGroupAge();
-    return (li, si, yi) =>
-      getCauseGroupAgeSeries(table, li, si, yi, causeGroupIndex);
+    const table = await fetchDeathsByCauseGroupAgeForLocation(location);
+    return (si, yi) => getCauseGroupAgeSeries(table, si, yi, causeGroupIndex);
   }
 
   if (level.kind === "detailed_subgroup") {
@@ -192,9 +297,9 @@ export async function loadDeathsByAgeGetter(
       dimensions.detailed_subgroups,
       level.detailedSubgroup,
     );
-    const table = await fetchDeathsByDetailedSubgroupAge();
-    return (li, si, yi) =>
-      getDetailedSubgroupAgeSeries(table, li, si, yi, detailedSubgroupIndex);
+    const table = await fetchDeathsByDetailedSubgroupAgeForLocation(location);
+    return (si, yi) =>
+      getDetailedSubgroupAgeSeries(table, si, yi, detailedSubgroupIndex);
   }
 
   if (level.kind === "external_cause") {
@@ -202,16 +307,15 @@ export async function loadDeathsByAgeGetter(
       dimensions.external_cause_types,
       level.externalCauseType,
     );
-    const table = await fetchDeathsByExternalCauseAge();
-    return (li, si, yi) =>
-      getExternalCauseAgeSeries(table, li, si, yi, externalCauseTypeIndex);
+    const table = await fetchDeathsByExternalCauseAgeForLocation(location);
+    return (si, yi) =>
+      getExternalCauseAgeSeries(table, si, yi, externalCauseTypeIndex);
   }
 
   const assaultMeansIndex = indexOf(
     dimensions.assault_means,
     level.assaultMeans,
   );
-  const table = await fetchDeathsByAssaultMeansAge();
-  return (li, si, yi) =>
-    getAssaultMeansAgeSeries(table, li, si, yi, assaultMeansIndex);
+  const table = await fetchDeathsByAssaultMeansAgeForLocation(location);
+  return (si, yi) => getAssaultMeansAgeSeries(table, si, yi, assaultMeansIndex);
 }

@@ -1,69 +1,117 @@
 import type { FeatureCollection } from "geojson";
+import manifest from "./data-manifest.json";
 import type {
   OverallTable,
+  OverallLocationTable,
   DeathsByCauseGroupTable,
-  DeathsByCauseGroupAgeTable,
+  DeathsByCauseGroupLocationTable,
+  DeathsByCauseGroupAgeLocationTable,
   DeathsByExternalCauseTable,
-  DeathsByExternalCauseAgeTable,
+  DeathsByExternalCauseLocationTable,
+  DeathsByExternalCauseAgeLocationTable,
   DeathsByAssaultMeansTable,
-  DeathsByAssaultMeansAgeTable,
+  DeathsByAssaultMeansLocationTable,
+  DeathsByAssaultMeansAgeLocationTable,
   DeathsByDetailedSubgroupTable,
-  DeathsByDetailedSubgroupAgeTable,
-  DeathsByAgeTable,
-  PopulationByAgeTable,
+  DeathsByDetailedSubgroupLocationTable,
+  DeathsByDetailedSubgroupAgeLocationTable,
+  DeathsByAgeLocationTable,
+  PopulationByAgeLocationTable,
   CoverageTable,
 } from "./types";
 
 const BASE_URL = "/data/mortality";
+const BY_LOCATION_URL = `${BASE_URL}/by-location/${manifest.mortalityVersion}`;
 
-const tableCache = new Map<string, Promise<unknown>>();
+const cache = new Map<string, Promise<unknown>>();
 
-function fetchTable<T>(name: string): Promise<T> {
-  let cached = tableCache.get(name) as Promise<T> | undefined;
+function fetchJson<T>(url: string, cacheKey: string): Promise<T> {
+  let cached = cache.get(cacheKey) as Promise<T> | undefined;
   if (!cached) {
-    cached = fetch(`${BASE_URL}/${name}.json`).then(
-      (response) => response.json() as Promise<T>,
-    );
-    tableCache.set(name, cached);
+    cached = fetch(url).then((response) => response.json() as Promise<T>);
+    cache.set(cacheKey, cached);
   }
   return cached;
 }
 
+function fetchTable<T>(name: string): Promise<T> {
+  return fetchJson(`${BASE_URL}/${name}.json`, name);
+}
+
+function fetchLocationTable<T>(name: string, location: string): Promise<T> {
+  return fetchJson(
+    `${BY_LOCATION_URL}/${name}/${location}.json`,
+    `${name}:${location}`,
+  );
+}
+
+// Tabelas completas (todos os territórios) — usadas só onde é preciso
+// comparar territórios ao mesmo tempo (mapa coroplético).
 export const fetchOverall = (): Promise<OverallTable> => fetchTable("overall");
 export const fetchDeathsByCauseGroup = (): Promise<DeathsByCauseGroupTable> =>
   fetchTable("deaths_by_cause_group");
-export const fetchDeathsByCauseGroupAge =
-  (): Promise<DeathsByCauseGroupAgeTable> =>
-    fetchTable("deaths_by_cause_group_age");
 export const fetchDeathsByExternalCause =
   (): Promise<DeathsByExternalCauseTable> =>
     fetchTable("deaths_by_external_cause");
-export const fetchDeathsByExternalCauseAge =
-  (): Promise<DeathsByExternalCauseAgeTable> =>
-    fetchTable("deaths_by_external_cause_age");
 export const fetchDeathsByAssaultMeans =
   (): Promise<DeathsByAssaultMeansTable> =>
     fetchTable("deaths_by_assault_means");
-export const fetchDeathsByAssaultMeansAge =
-  (): Promise<DeathsByAssaultMeansAgeTable> =>
-    fetchTable("deaths_by_assault_means_age");
 export const fetchDeathsByDetailedSubgroup =
   (): Promise<DeathsByDetailedSubgroupTable> =>
     fetchTable("deaths_by_detailed_subgroup");
-export const fetchDeathsByDetailedSubgroupAge =
-  (): Promise<DeathsByDetailedSubgroupAgeTable> =>
-    fetchTable("deaths_by_detailed_subgroup_age");
-export const fetchDeathsByAge = (): Promise<DeathsByAgeTable> =>
-  fetchTable("deaths_by_age");
-export const fetchPopulationByAge = (): Promise<PopulationByAgeTable> =>
-  fetchTable("population_by_age");
 export const fetchCoverage = (): Promise<CoverageTable> =>
   fetchTable("coverage");
+
+// Tabelas de um único território — usadas pelos gráficos que só olham para o
+// território ativo no filtro, evitando baixar os outros 27.
+export const fetchOverallForLocation = (
+  location: string,
+): Promise<OverallLocationTable> => fetchLocationTable("overall", location);
+export const fetchDeathsByCauseGroupForLocation = (
+  location: string,
+): Promise<DeathsByCauseGroupLocationTable> =>
+  fetchLocationTable("deaths_by_cause_group", location);
+export const fetchDeathsByCauseGroupAgeForLocation = (
+  location: string,
+): Promise<DeathsByCauseGroupAgeLocationTable> =>
+  fetchLocationTable("deaths_by_cause_group_age", location);
+export const fetchDeathsByExternalCauseForLocation = (
+  location: string,
+): Promise<DeathsByExternalCauseLocationTable> =>
+  fetchLocationTable("deaths_by_external_cause", location);
+export const fetchDeathsByExternalCauseAgeForLocation = (
+  location: string,
+): Promise<DeathsByExternalCauseAgeLocationTable> =>
+  fetchLocationTable("deaths_by_external_cause_age", location);
+export const fetchDeathsByAssaultMeansForLocation = (
+  location: string,
+): Promise<DeathsByAssaultMeansLocationTable> =>
+  fetchLocationTable("deaths_by_assault_means", location);
+export const fetchDeathsByAssaultMeansAgeForLocation = (
+  location: string,
+): Promise<DeathsByAssaultMeansAgeLocationTable> =>
+  fetchLocationTable("deaths_by_assault_means_age", location);
+export const fetchDeathsByDetailedSubgroupForLocation = (
+  location: string,
+): Promise<DeathsByDetailedSubgroupLocationTable> =>
+  fetchLocationTable("deaths_by_detailed_subgroup", location);
+export const fetchDeathsByDetailedSubgroupAgeForLocation = (
+  location: string,
+): Promise<DeathsByDetailedSubgroupAgeLocationTable> =>
+  fetchLocationTable("deaths_by_detailed_subgroup_age", location);
+export const fetchDeathsByAgeForLocation = (
+  location: string,
+): Promise<DeathsByAgeLocationTable> =>
+  fetchLocationTable("deaths_by_age", location);
+export const fetchPopulationByAgeForLocation = (
+  location: string,
+): Promise<PopulationByAgeLocationTable> =>
+  fetchLocationTable("population_by_age", location);
 
 let geoJsonPromise: Promise<FeatureCollection> | null = null;
 
 export function fetchBrazilStatesGeoJson(): Promise<FeatureCollection> {
-  geoJsonPromise ??= fetch("/data/geo/br-states.geojson").then(
+  geoJsonPromise ??= fetch(`/data/geo/${manifest.geoFile}`).then(
     (response) => response.json() as Promise<FeatureCollection>,
   );
   return geoJsonPromise;

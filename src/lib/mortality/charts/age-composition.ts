@@ -7,7 +7,7 @@ import {
   setupChartExport,
   type ChartExportRows,
 } from "../chart-export";
-import { fetchDeathsByCauseGroupAge } from "../data";
+import { fetchDeathsByCauseGroupAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
@@ -66,20 +66,14 @@ export function init(
       ),
     );
 
-    const table = await fetchDeathsByCauseGroupAge();
-    const locationIndex = indexOf(dimensions.locations, filters.location);
+    const table = await fetchDeathsByCauseGroupAgeForLocation(filters.location);
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);
 
     const deathsByCauseGroup = dimensions.cause_groups.map(
       (_, causeGroupIndex) =>
-        getCauseGroupAgeSeries(
-          table,
-          locationIndex,
-          sexIndex,
-          yearIndex,
-          causeGroupIndex,
-        ) ?? [],
+        getCauseGroupAgeSeries(table, sexIndex, yearIndex, causeGroupIndex) ??
+        [],
     );
 
     const totalByAge = dimensions.age_groups.map((_, ageIndex) =>

@@ -1,4 +1,4 @@
-import { loadRatePointGetter, resolveCauseLevel } from "../cause-level";
+import { loadLocationRatePointGetter, resolveCauseLevel } from "../cause-level";
 import {
   buildFilenameBase,
   buildFilterContext,
@@ -32,20 +32,23 @@ export function init(
     const token = ++renderToken;
     const filters = store.get();
     const level = resolveCauseLevel(filters);
-    const pointGetter = await loadRatePointGetter(level, dimensions);
+    const pointGetter = await loadLocationRatePointGetter(
+      level,
+      dimensions,
+      filters.location,
+    );
     if (token !== renderToken) return;
 
     if (context) {
       context.textContent = `${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
     }
 
-    const locationIndex = indexOf(dimensions.locations, filters.location);
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
 
     const crude: number[] = [];
     const standardized: number[] = [];
     for (let yearIndex = 0; yearIndex < dimensions.years.length; yearIndex++) {
-      const point = pointGetter(locationIndex, sexIndex, yearIndex);
+      const point = pointGetter(sexIndex, yearIndex);
       crude.push(point.crudeRate);
       standardized.push(point.stdRate);
     }

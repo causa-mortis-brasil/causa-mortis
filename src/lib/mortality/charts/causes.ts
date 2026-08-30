@@ -14,10 +14,10 @@ import {
 import { causePathLabel, locationLabel, sexLabel } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
-  fetchDeathsByAssaultMeans,
-  fetchDeathsByCauseGroup,
-  fetchDeathsByDetailedSubgroup,
-  fetchDeathsByExternalCause,
+  fetchDeathsByAssaultMeansForLocation,
+  fetchDeathsByCauseGroupForLocation,
+  fetchDeathsByDetailedSubgroupForLocation,
+  fetchDeathsByExternalCauseForLocation,
 } from "../data";
 import type { ECElementEvent, EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
@@ -150,7 +150,6 @@ export function init(
     if (key === renderKey) return;
     renderKey = key;
 
-    const locationIndex = indexOf(dimensions.locations, filters.location);
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);
 
@@ -160,10 +159,10 @@ export function init(
       externalTable,
       assaultTable,
     ] = await Promise.all([
-      fetchDeathsByCauseGroup(),
-      fetchDeathsByDetailedSubgroup(),
-      fetchDeathsByExternalCause(),
-      fetchDeathsByAssaultMeans(),
+      fetchDeathsByCauseGroupForLocation(filters.location),
+      fetchDeathsByDetailedSubgroupForLocation(filters.location),
+      fetchDeathsByExternalCauseForLocation(filters.location),
+      fetchDeathsByAssaultMeansForLocation(filters.location),
     ]);
     if (key !== renderKey) return;
 
@@ -172,7 +171,6 @@ export function init(
         .map((causeGroup, causeGroupIndex) => {
           const [deaths, stdRate] = getCauseGroupEntry(
             causeGroupTable,
-            locationIndex,
             sexIndex,
             yearIndex,
             causeGroupIndex,
@@ -191,7 +189,6 @@ export function init(
                 .map((detailIndex) => {
                   const [subDeaths, , subStdRate] = getDetailedSubgroupEntry(
                     detailedSubgroupTable,
-                    locationIndex,
                     sexIndex,
                     yearIndex,
                     detailIndex,
@@ -211,7 +208,6 @@ export function init(
                 .map((externalCauseType, externalIndex) => {
                   const [extDeaths, , extStdRate] = getExternalCauseEntry(
                     externalTable,
-                    locationIndex,
                     sexIndex,
                     yearIndex,
                     externalIndex,
@@ -229,7 +225,6 @@ export function init(
                           const [meansDeaths, , meansStdRate] =
                             getAssaultMeansEntry(
                               assaultTable,
-                              locationIndex,
                               sexIndex,
                               yearIndex,
                               meansIndex,
