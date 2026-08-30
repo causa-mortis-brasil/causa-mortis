@@ -235,6 +235,7 @@ function setupChartTabs(
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
   const yearWrap = root.querySelector("#filter-year-wrap");
+  const sexWrap = root.querySelector("#filter-sex")?.closest("fieldset");
 
   function activate(target: string): void {
     for (const tab of tabs)
@@ -268,6 +269,8 @@ function setupChartTabs(
     const isEvolution = target === "evolution";
     yearWrap?.toggleAttribute("hidden", isEvolution);
     if (isEvolution) stopYearPlayback();
+
+    sexWrap?.toggleAttribute("hidden", target === "pyramid");
   }
 
   for (const tab of tabs) {
