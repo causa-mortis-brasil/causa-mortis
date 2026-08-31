@@ -16,6 +16,8 @@ import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
+const EXPORT_SIZE = { width: 760, height: 400 };
+
 export function init(
   container: HTMLElement,
   store: FiltersStore,
@@ -148,7 +150,7 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, {
+  setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("evolucao", store.get()),
     getRows: () => exportRows,
   });

@@ -10,6 +10,13 @@ export interface ChartExportRows {
 export interface ChartExportSource {
   getFilenameBase: () => string;
   getRows: () => ChartExportRows;
+  prepareExport?: () => void | Promise<void>;
+  finishExport?: () => void;
+}
+
+export interface ChartExportSize {
+  width: number;
+  height: number;
 }
 
 export function roundTo(value: number, decimals: number): number {
@@ -80,16 +87,34 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 export async function exportChartImage(
   chart: EChartsType,
+  exportSize: ChartExportSize,
   title: string,
   subtitle: string,
   description: string,
   filenameBase: string,
+  prepareExport?: () => void | Promise<void>,
+  finishExport?: () => void,
 ): Promise<void> {
-  const pixelRatio = 4;
+  const pixelRatio = 5;
   await document.fonts.ready;
-  const chartImage = await loadImage(
-    chart.getDataURL({ type: "png", pixelRatio, backgroundColor: "#fff" }),
-  );
+
+  const container = chart.getDom();
+  const originalVisibility = container.style.visibility;
+  container.style.visibility = "hidden";
+
+  await prepareExport?.();
+  chart.resize({ ...exportSize, silent: true });
+  const chartDataUrl = chart.getDataURL({
+    type: "png",
+    pixelRatio,
+    backgroundColor: "#fff",
+  });
+  chart.resize({ width: "auto", height: "auto", silent: true });
+  finishExport?.();
+
+  container.style.visibility = originalVisibility;
+
+  const chartImage = await loadImage(chartDataUrl);
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -107,8 +132,8 @@ export async function exportChartImage(
   const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
 
   const padding = 24 * pixelRatio;
-  const width = chartImage.width;
-  const contentWidth = width - padding * 2;
+  const blockWidth = chartImage.width;
+  const contentWidth = blockWidth - padding * 2;
   const titleFontSize = 18 * pixelRatio;
   const subtitleFontSize = 14 * pixelRatio;
   const descriptionFontSize = 14 * pixelRatio;
@@ -132,14 +157,21 @@ export async function exportChartImage(
   const headerHeight =
     padding + titleHeight + subtitleHeight + descriptionHeight + padding;
   const footerHeight = footerFontSize + padding * 1.5;
+  const blockHeight = headerHeight + chartImage.height + footerHeight;
 
-  canvas.width = width;
-  canvas.height = headerHeight + chartImage.height + footerHeight;
+  const squareSize = Math.max(blockWidth, blockHeight);
+  const offsetX = (squareSize - blockWidth) / 2;
+  const chartY =
+    headerHeight +
+    (squareSize - headerHeight - footerHeight - chartImage.height) / 2;
+
+  canvas.width = squareSize;
+  canvas.height = squareSize;
 
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const centerX = width / 2;
+  const centerX = offsetX + blockWidth / 2;
   ctx.textBaseline = "top";
   ctx.textAlign = "center";
 
@@ -169,15 +201,15 @@ export async function exportChartImage(
     }
   }
 
-  ctx.drawImage(chartImage, 0, headerHeight);
+  ctx.drawImage(chartImage, offsetX, chartY);
 
-  const footerY = headerHeight + chartImage.height + padding / 2;
+  const footerY = squareSize - footerHeight + padding / 2;
   ctx.fillStyle = footerColor || "#6b7280";
   ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
   ctx.textAlign = "left";
-  ctx.fillText("Fonte: SIM/DATASUS · IBGE", padding, footerY);
+  ctx.fillText("Fonte: SIM/DATASUS · IBGE", offsetX + padding, footerY);
   ctx.textAlign = "right";
-  ctx.fillText("Do que morremos", width - padding, footerY);
+  ctx.fillText("Do que morremos", offsetX + blockWidth - padding, footerY);
   ctx.textAlign = "left";
 
   const blob = await new Promise<Blob | null>((resolve) =>
@@ -295,6 +327,7 @@ export function exportXlsx(
 export function setupChartExport(
   card: ParentNode,
   chart: EChartsType,
+  exportSize: ChartExportSize,
   source: ChartExportSource,
 ): void {
   const details = card.querySelector("[data-chart-export]");
@@ -324,10 +357,13 @@ export function setupChartExport(
       if (format === "png") {
         void exportChartImage(
           chart,
+          exportSize,
           title,
           subtitle,
           description,
           filenameBase,
+          source.prepareExport,
+          source.finishExport,
         );
       } else if (format === "csv") {
         const { headers, rows } = source.getRows();

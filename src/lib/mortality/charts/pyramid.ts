@@ -25,6 +25,7 @@ const WOMEN_COLOR = "#fca5a5";
 
 const AXIS_SPLIT_COUNT = 5;
 const NICE_FRACTIONS = [1, 2, 5, 10];
+const EXPORT_SIZE = { width: 820, height: 480 };
 
 function niceStepBounds(roughStep: number): { down: number; up: number } {
   const magnitude = 10 ** Math.floor(Math.log10(roughStep));
@@ -69,6 +70,7 @@ export function init(
 
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
+  let forceWideLayout = false;
 
   async function render(): Promise<void> {
     const token = ++renderToken;
@@ -144,7 +146,7 @@ export function init(
         ? formatInteger(value)
         : `${formatRate(value)} por 100 mil`;
 
-    const isNarrow = container.clientWidth < 480;
+    const isNarrow = !forceWideLayout && container.clientWidth < 480;
     const labelMargin = isNarrow ? 72 : 116;
 
     const option: EChartsCoreOption = {
@@ -309,9 +311,17 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, {
+  setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("piramide", store.get()),
     getRows: () => exportRows,
+    prepareExport: async () => {
+      forceWideLayout = true;
+      await render();
+    },
+    finishExport: () => {
+      forceWideLayout = false;
+      void render();
+    },
   });
 
   setupChartFullscreen(card, container);

@@ -18,6 +18,9 @@ import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
+const EXPORT_SIZE = { width: 980, height: 560 };
+const MIN_ANNUAL_DEATHS_TO_INCLUDE = 20;
+
 export function init(
   container: HTMLElement,
   store: FiltersStore,
@@ -31,6 +34,7 @@ export function init(
   let exportRows: ChartExportRows = { headers: [], rows: [] };
   let seriesOrder: string[] = [];
   let sharesByAge: number[][] = [];
+  let forceWideLayout = false;
 
   chart.getZr().on("click", (event) => {
     const pixel: [number, number] = [event.offsetX, event.offsetY];
@@ -77,11 +81,13 @@ export function init(
 
     const includedIndices = dimensions.cause_groups
       .map((_, causeGroupIndex) => causeGroupIndex)
-      .filter((causeGroupIndex) =>
-        deathsByCauseGroup[causeGroupIndex]?.some(
-          (deaths) => (deaths ?? 0) > 0,
-        ),
-      );
+      .filter((causeGroupIndex) => {
+        const annualDeaths = (deathsByCauseGroup[causeGroupIndex] ?? []).reduce(
+          (sum: number, deaths) => sum + (deaths ?? 0),
+          0,
+        );
+        return annualDeaths >= MIN_ANNUAL_DEATHS_TO_INCLUDE;
+      });
 
     const stackedFromBase = [...includedIndices].reverse();
 
@@ -121,12 +127,13 @@ export function init(
       };
     });
 
-    const isNarrow = container.clientWidth < 480;
+    const isNarrow = !forceWideLayout && container.clientWidth < 480;
+    const rightMargin = forceWideLayout ? 240 : isNarrow ? 88 : 120;
 
     const option: EChartsCoreOption = {
       grid: {
         left: isNarrow ? 36 : 48,
-        right: isNarrow ? 88 : 120,
+        right: rightMargin,
         top: 16,
         bottom: isNarrow ? 40 : 48,
       },
@@ -182,9 +189,17 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, {
+  setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("composicao-etaria", store.get()),
     getRows: () => exportRows,
+    prepareExport: async () => {
+      forceWideLayout = true;
+      await render();
+    },
+    finishExport: () => {
+      forceWideLayout = false;
+      void render();
+    },
   });
 
   setupChartFullscreen(card, container);

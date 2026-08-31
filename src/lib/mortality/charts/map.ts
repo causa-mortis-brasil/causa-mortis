@@ -19,6 +19,7 @@ import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 const MAP_NAME = "brazil-states";
+const EXPORT_SIZE = { width: 760, height: 560 };
 
 export function init(
   container: HTMLElement,
@@ -178,7 +179,7 @@ export function init(
     }
   });
 
-  setupChartExport(card, chart, {
+  setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("mapa", store.get()),
     getRows: () => exportRows,
   });

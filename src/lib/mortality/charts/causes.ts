@@ -28,6 +28,8 @@ import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { CauseFilter, Dimensions } from "../types";
 
+const EXPORT_SIZE = { width: 672, height: 480 };
+
 interface CauseNode {
   id: string;
   name: string;
@@ -320,7 +322,7 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, {
+  setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("causas", store.get()),
     getRows: () => exportRows,
   });
