@@ -11,7 +11,7 @@ import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { evolutionChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
-import { formatRate } from "../format";
+import { formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
@@ -103,7 +103,14 @@ export function init(
           interval: (_index: number, value: string) => Number(value) % 5 === 0,
         },
       },
-      yAxis: { type: "value", name: "Taxa (por 100 mil hab.)", min: 0 },
+      yAxis: {
+        type: "value",
+        name: "Taxa (por 100 mil hab.)",
+        min: 0,
+        axisLabel: {
+          formatter: (value: number | string) => formatInteger(Number(value)),
+        },
+      },
       series: [
         {
           name: "Padronizada por idade",
