@@ -4,6 +4,7 @@ import {
   buildFilenameBase,
   roundTo,
   setupChartExport,
+  wrapText,
   type ChartExportRows,
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
@@ -14,12 +15,80 @@ import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
 import { causeGroupColor } from "../palette";
-import type { FiltersStore } from "../filters";
+import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
-import type { Dimensions } from "../types";
+import type { Dimensions, Filters } from "../types";
 
 const EXPORT_SIZE = { width: 980, height: 560 };
 const MIN_ANNUAL_DEATHS_TO_INCLUDE = 20;
+const LABEL_FONT_SIZE = 10;
+const LABEL_FONT_WEIGHT = 600;
+const LABEL_LINE_HEIGHT = 12;
+const LABEL_PADDING_Y = 4;
+const LABEL_LINE_STUB = 8;
+const LABEL_LINE_DY_THRESHOLD = 2;
+
+const labelMeasureContext = document.createElement("canvas").getContext("2d");
+
+function measureLabelHeight(
+  text: string,
+  maxWidth: number,
+  fontFamily: string,
+): number {
+  if (!labelMeasureContext) return LABEL_LINE_HEIGHT + LABEL_PADDING_Y * 2;
+  labelMeasureContext.font = `${LABEL_FONT_WEIGHT} ${LABEL_FONT_SIZE}px ${fontFamily}`;
+  const lineCount = wrapText(labelMeasureContext, text, maxWidth).length;
+  return lineCount * LABEL_LINE_HEIGHT + LABEL_PADDING_Y * 2;
+}
+
+function measureLongestWordWidth(words: string[], fontFamily: string): number {
+  if (!labelMeasureContext) return 0;
+  labelMeasureContext.font = `${LABEL_FONT_WEIGHT} ${LABEL_FONT_SIZE}px ${fontFamily}`;
+  return words.reduce(
+    (max, word) => Math.max(max, labelMeasureContext.measureText(word).width),
+    0,
+  );
+}
+
+interface LabelOffset {
+  anchorY: number;
+  dy: number;
+}
+
+function declutterLabelPositions(
+  naturalPositions: number[],
+  minGaps: number[],
+  minY: number,
+  maxY: number,
+): number[] {
+  const positions = [...naturalPositions];
+  for (let i = 1; i < positions.length; i++) {
+    positions[i] = Math.max(
+      positions[i] ?? 0,
+      (positions[i - 1] ?? 0) + (minGaps[i - 1] ?? 0),
+    );
+  }
+  const lastIndex = positions.length - 1;
+  if (lastIndex >= 0 && (positions[lastIndex] ?? 0) > maxY) {
+    positions[lastIndex] = maxY;
+    for (let i = lastIndex - 1; i >= 0; i--) {
+      positions[i] = Math.min(
+        positions[i] ?? 0,
+        (positions[i + 1] ?? 0) - (minGaps[i] ?? 0),
+      );
+    }
+  }
+  if ((positions[0] ?? 0) < minY) {
+    positions[0] = minY;
+    for (let i = 1; i < positions.length; i++) {
+      positions[i] = Math.max(
+        positions[i] ?? 0,
+        (positions[i - 1] ?? 0) + (minGaps[i - 1] ?? 0),
+      );
+    }
+  }
+  return positions;
+}
 
 export function init(
   container: HTMLElement,
@@ -27,7 +96,11 @@ export function init(
   dimensions: Dimensions,
 ): void {
   const chart = echarts.init(container);
-  new ResizeObserver(() => chart.resize()).observe(container);
+  let updateLabelConnectors = (): void => {};
+  new ResizeObserver(() => {
+    chart.resize();
+    updateLabelConnectors();
+  }).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
@@ -35,6 +108,13 @@ export function init(
   let seriesOrder: string[] = [];
   let sharesByAge: number[][] = [];
   let forceWideLayout = false;
+  let previousFilters: Filters | null = null;
+
+  const fontFamily = getComputedStyle(document.body).fontFamily;
+  const longestLabelWordWidth = measureLongestWordWidth(
+    dimensions.cause_groups.flatMap((name) => name.split(" ")),
+    fontFamily,
+  );
 
   chart.getZr().on("click", (event) => {
     const pixel: [number, number] = [event.offsetX, event.offsetY];
@@ -61,6 +141,12 @@ export function init(
     const filters = store.get();
     if (titleEl)
       titleEl.textContent = ageCompositionChartTitle(filters, dimensions);
+    const useFastAnimation = isManualYearOnlyChange(
+      store.getLastYearOrigin(),
+      previousFilters,
+      filters,
+    );
+    previousFilters = filters;
 
     const table = await fetchDeathsByCauseGroupAgeForLocation(filters.location);
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
@@ -91,7 +177,18 @@ export function init(
 
     const stackedFromBase = [...includedIndices].reverse();
 
-    const series = stackedFromBase.map((causeGroupIndex) => {
+    const isNarrow = !forceWideLayout && container.clientWidth < 480;
+    const baseRightMargin = forceWideLayout ? 240 : isNarrow ? 96 : 132;
+    const labelWidth = Math.max(
+      baseRightMargin - 16,
+      Math.ceil(longestLabelWordWidth) + 4,
+    );
+    const rightMargin = labelWidth + 16;
+    const gridTop = 16;
+    const gridBottom = isNarrow ? 40 : 48;
+    const lastAgeIndex = dimensions.age_groups.length - 1;
+
+    const stackedSeriesData = stackedFromBase.map((causeGroupIndex) => {
       const causeGroup = dimensions.cause_groups[causeGroupIndex];
       const isHighlighted =
         !filters.causeGroup || filters.causeGroup === causeGroup;
@@ -100,42 +197,146 @@ export function init(
         const total = totalByAge[ageIndex] ?? 0;
         return total > 0 ? deaths / total : 0;
       });
-
-      const color = causeGroupColor(causeGroupIndex);
-
-      return {
-        name: causeGroup,
-        type: "line" as const,
-        stack: "total",
-        symbol: "none" as const,
-        areaStyle: { opacity: isHighlighted ? 0.9 : 0.25 },
-        lineStyle: {
-          color: "#fff",
-          width: 1,
-          opacity: isHighlighted ? 1 : 0.25,
-        },
-        color,
-        endLabel: {
-          show: isHighlighted,
-          formatter: () => causeGroup,
-          color,
-          fontSize: 10,
-          fontWeight: 600,
-        },
-        labelLayout: { moveOverlap: "shiftY" as const },
-        data: shares,
-      };
+      return { causeGroupIndex, causeGroup, isHighlighted, shares };
     });
 
-    const isNarrow = !forceWideLayout && container.clientWidth < 480;
-    const rightMargin = forceWideLayout ? 240 : isNarrow ? 88 : 120;
+    let cumulativeShareAtEnd = 0;
+    const cumulativeShareAtEndByStackIndex = stackedSeriesData.map(
+      ({ shares }) => {
+        cumulativeShareAtEnd += shares[lastAgeIndex] ?? 0;
+        return cumulativeShareAtEnd;
+      },
+    );
+
+    function computeLabelOffsets(): Map<number, LabelOffset> {
+      const offsets = new Map<number, LabelOffset>();
+      const plotHeight = chart.getHeight() - gridTop - gridBottom;
+      const pixelYForShare = (share: number) =>
+        gridTop + (1 - share) * plotHeight;
+
+      const visibleStackIndices = stackedSeriesData
+        .map((_, index) => index)
+        .filter((index) => stackedSeriesData[index]?.isHighlighted);
+
+      const naturalY = new Map<number, number>();
+      for (const index of visibleStackIndices) {
+        naturalY.set(
+          index,
+          pixelYForShare(cumulativeShareAtEndByStackIndex[index] ?? 0),
+        );
+      }
+
+      const orderedIndices = [...visibleStackIndices].sort(
+        (a, b) => (naturalY.get(a) ?? 0) - (naturalY.get(b) ?? 0),
+      );
+      if (orderedIndices.length === 0) return offsets;
+
+      const heights = orderedIndices.map((index) =>
+        measureLabelHeight(
+          stackedSeriesData[index]?.causeGroup ?? "",
+          labelWidth,
+          fontFamily,
+        ),
+      );
+      const gaps = heights
+        .slice(1)
+        .map((height, i) => (height + (heights[i] ?? 0)) / 2);
+
+      const declutteredY = declutterLabelPositions(
+        orderedIndices.map((index) => naturalY.get(index) ?? 0),
+        gaps,
+        gridTop + (heights[0] ?? 0) / 2,
+        gridTop + plotHeight - (heights[heights.length - 1] ?? 0) / 2,
+      );
+
+      orderedIndices.forEach((index, position) => {
+        const anchorY = naturalY.get(index) ?? 0;
+        offsets.set(index, {
+          anchorY,
+          dy: (declutteredY[position] ?? 0) - anchorY,
+        });
+      });
+
+      return offsets;
+    }
+
+    function buildLabelConnectors(
+      offsets: Map<number, LabelOffset>,
+    ): NonNullable<EChartsCoreOption["graphic"]> {
+      const anchorX = chart.getWidth() - rightMargin;
+
+      return {
+        elements: stackedSeriesData.map(({ causeGroupIndex }, stackIndex) => {
+          const offset = offsets.get(stackIndex);
+          const isVisible =
+            !!offset && Math.abs(offset.dy) > LABEL_LINE_DY_THRESHOLD;
+
+          return {
+            id: `label-connector-${stackIndex}`,
+            type: "polyline",
+            silent: true,
+            invisible: !isVisible,
+            shape: {
+              points: isVisible
+                ? [
+                    [anchorX, offset.anchorY],
+                    [anchorX + LABEL_LINE_STUB, offset.anchorY],
+                    [anchorX + LABEL_LINE_STUB, offset.anchorY + offset.dy],
+                  ]
+                : [],
+            },
+            style: {
+              stroke: causeGroupColor(causeGroupIndex),
+              lineWidth: 1,
+              opacity: 0.5,
+            },
+          };
+        }),
+      };
+    }
+
+    const labelOffsets = computeLabelOffsets();
+
+    const series = stackedSeriesData.map(
+      ({ causeGroupIndex, causeGroup, isHighlighted, shares }, stackIndex) => {
+        const color = causeGroupColor(causeGroupIndex);
+
+        return {
+          name: causeGroup,
+          type: "line" as const,
+          stack: "total",
+          symbol: "none" as const,
+          areaStyle: { opacity: isHighlighted ? 0.9 : 0.25 },
+          lineStyle: {
+            color: "#fff",
+            width: 1,
+            opacity: isHighlighted ? 1 : 0.25,
+          },
+          color,
+          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
+          endLabel: {
+            show: isHighlighted,
+            formatter: () => causeGroup,
+            color,
+            fontSize: LABEL_FONT_SIZE,
+            fontWeight: LABEL_FONT_WEIGHT,
+            width: labelWidth,
+            overflow: "break" as const,
+            lineHeight: LABEL_LINE_HEIGHT,
+            padding: [LABEL_PADDING_Y, 0] as [number, number],
+          },
+          labelLayout: { dy: labelOffsets.get(stackIndex)?.dy ?? 0 },
+          data: shares,
+        };
+      },
+    );
 
     const option: EChartsCoreOption = {
       grid: {
         left: isNarrow ? 36 : 48,
         right: rightMargin,
-        top: 16,
-        bottom: isNarrow ? 40 : 48,
+        top: gridTop,
+        bottom: gridBottom,
       },
       tooltip: {
         trigger: "axis",
@@ -164,9 +365,19 @@ export function init(
         },
       },
       series,
+      graphic: buildLabelConnectors(labelOffsets),
     };
 
     chart.setOption(option, { notMerge: true });
+    updateLabelConnectors = () => {
+      const offsets = computeLabelOffsets();
+      chart.setOption({
+        series: stackedSeriesData.map((_, stackIndex) => ({
+          labelLayout: { dy: offsets.get(stackIndex)?.dy ?? 0 },
+        })),
+        graphic: buildLabelConnectors(offsets),
+      });
+    };
 
     seriesOrder = series.map((s) => s.name);
     sharesByAge = series.map((s) => s.data);

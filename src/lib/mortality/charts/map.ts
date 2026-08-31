@@ -14,9 +14,9 @@ import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatRate, formatRateLabel } from "../format";
 import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
-import type { FiltersStore } from "../filters";
+import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
-import type { Dimensions } from "../types";
+import type { Dimensions, Filters } from "../types";
 
 const MAP_NAME = "brazil-states";
 const EXPORT_SIZE = { width: 760, height: 560 };
@@ -41,6 +41,7 @@ export function init(
   let stableScale = true;
   let mapRegistered = false;
   let renderToken = 0;
+  let previousFilters: Filters | null = null;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
 
   if (stableScaleCheckbox instanceof HTMLInputElement) {
@@ -58,6 +59,12 @@ export function init(
     const token = ++renderToken;
     const filters = store.get();
     const level = resolveCauseLevel(filters);
+    const useFastAnimation = isManualYearOnlyChange(
+      store.getLastYearOrigin(),
+      previousFilters,
+      filters,
+    );
+    previousFilters = filters;
 
     const geoJson = await fetchBrazilStatesGeoJson();
     if (!mapRegistered) {
@@ -125,20 +132,7 @@ export function init(
           aspectScale: 0.95,
           roam: true,
           scaleLimit: { min: 1, max: 8 },
-          selectedMode: "single",
-          select:
-            filters.location !== "BR"
-              ? {
-                  itemStyle: {
-                    borderColor: themeColor("--color-primary-500"),
-                    borderWidth: 2,
-                  },
-                }
-              : undefined,
-          selected:
-            filters.location !== "BR"
-              ? { [filters.location]: true }
-              : undefined,
+          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
           itemStyle: { borderColor: "#fff", borderWidth: 0.5 },
           emphasis: {
             itemStyle: {
@@ -172,12 +166,6 @@ export function init(
       ]),
     };
   }
-
-  chart.on("click", (params) => {
-    if (params.componentType === "series" && typeof params.name === "string") {
-      store.setLocation(params.name);
-    }
-  });
 
   setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("mapa", store.get()),

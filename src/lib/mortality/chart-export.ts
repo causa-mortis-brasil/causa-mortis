@@ -54,7 +54,7 @@ function downloadBlob(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-function wrapText(
+export function wrapText(
   ctx: CanvasRenderingContext2D,
   text: string,
   maxWidth: number,

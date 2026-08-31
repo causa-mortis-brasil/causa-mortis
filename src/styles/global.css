@@ -6,21 +6,22 @@
   --color-primary-200: #bcdafe;
   --color-primary-500: #0165fa;
   --color-primary-600: #0156d5;
+  --color-primary-800: #013e9a;
   --color-secondary: #ffc300;
   --color-tertiary: #fa0000;
   --color-quaternary: #ff4c00;
 
-  --color-cause-1: #1d4e63;
-  --color-cause-2: #d9667a;
-  --color-cause-3: #4c9a6b;
-  --color-cause-4: #d98c3d;
-  --color-cause-5: #b23a48;
-  --color-cause-6: #7c5cbf;
-  --color-cause-7: #3f9c9c;
-  --color-cause-8: #a68b2c;
-  --color-cause-9: #5c7cba;
-  --color-cause-10: #9ca3af;
-  --color-cause-11: #274257;
+  --color-cause-1: #135ae1;
+  --color-cause-2: #2197ff;
+  --color-cause-3: #9852d9;
+  --color-cause-4: #de2c35;
+  --color-cause-5: #fa6502;
+  --color-cause-6: #f2b90f;
+  --color-cause-7: #09aa64;
+  --color-cause-8: #058896;
+  --color-cause-9: #d94f8c;
+  --color-cause-10: #808080;
+  --color-cause-11: #a7abaf;
 }
 
 @theme inline {

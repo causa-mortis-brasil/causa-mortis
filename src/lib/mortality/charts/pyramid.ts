@@ -15,10 +15,10 @@ import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
-import type { FiltersStore } from "../filters";
+import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { crudeRate } from "../rate";
 import { setupChartShare } from "../share";
-import type { Dimensions } from "../types";
+import type { Dimensions, Filters } from "../types";
 
 const MEN_COLOR = "#1e3a8a";
 const WOMEN_COLOR = "#fca5a5";
@@ -69,6 +69,7 @@ export function init(
   const subtitleEl = card.querySelector("[data-chart-subtitle]");
 
   let renderToken = 0;
+  let previousFilters: Filters | null = null;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
   let forceWideLayout = false;
 
@@ -76,6 +77,12 @@ export function init(
     const token = ++renderToken;
     const filters = store.get();
     const level = resolveCauseLevel(filters);
+    const useFastAnimation = isManualYearOnlyChange(
+      store.getLastYearOrigin(),
+      previousFilters,
+      filters,
+    );
+    previousFilters = filters;
 
     const [deathsByAgeGetter, populationTable] = await Promise.all([
       loadDeathsByAgeGetter(level, dimensions, filters.location),
@@ -239,6 +246,7 @@ export function init(
           yAxisIndex: 0,
           data: menValues,
           color: MEN_COLOR,
+          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
           label: {
             show: true,
             position: "left",
@@ -255,6 +263,7 @@ export function init(
           yAxisIndex: 1,
           data: womenValues,
           color: WOMEN_COLOR,
+          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
           label: {
             show: true,
             position: "right",

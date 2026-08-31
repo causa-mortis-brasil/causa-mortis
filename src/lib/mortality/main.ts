@@ -89,11 +89,14 @@ function setupPyramidMeasureSelect(
 }
 
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
+const YEAR_PLAYBACK_SPEEDS = [1, 2, 3];
 
 interface YearPlayback {
   toggle: () => void;
   stop: () => void;
+  cycleSpeed: () => void;
   subscribe: (listener: (playing: boolean) => void) => void;
+  subscribeSpeed: (listener: (speed: number) => void) => void;
 }
 
 function createYearPlayback(
@@ -103,10 +106,17 @@ function createYearPlayback(
   const minYear = Math.min(...dimensions.years);
   const maxYear = Math.max(...dimensions.years);
   let intervalId: ReturnType<typeof setInterval> | null = null;
+  let speedIndex = 0;
   const listeners = new Set<(playing: boolean) => void>();
+  const speedListeners = new Set<(speed: number) => void>();
 
   function notify(playing: boolean): void {
     for (const listener of listeners) listener(playing);
+  }
+
+  function notifySpeed(): void {
+    const speed = YEAR_PLAYBACK_SPEEDS[speedIndex] ?? 1;
+    for (const listener of speedListeners) listener(speed);
   }
 
   function stop(): void {
@@ -116,16 +126,19 @@ function createYearPlayback(
     notify(false);
   }
 
+  function tick(): void {
+    const nextYear = store.get().year + 1;
+    if (nextYear > maxYear) {
+      stop();
+      return;
+    }
+    store.setYear(nextYear, "playback");
+  }
+
   function start(): void {
-    if (store.get().year >= maxYear) store.setYear(minYear);
-    intervalId = setInterval(() => {
-      const nextYear = store.get().year + 1;
-      if (nextYear > maxYear) {
-        stop();
-        return;
-      }
-      store.setYear(nextYear);
-    }, YEAR_PLAYBACK_INTERVAL_MS);
+    if (store.get().year >= maxYear) store.setYear(minYear, "playback");
+    const speed = YEAR_PLAYBACK_SPEEDS[speedIndex] ?? 1;
+    intervalId = setInterval(tick, YEAR_PLAYBACK_INTERVAL_MS / speed);
     notify(true);
   }
 
@@ -135,9 +148,21 @@ function createYearPlayback(
       else stop();
     },
     stop,
+    cycleSpeed(): void {
+      speedIndex = (speedIndex + 1) % YEAR_PLAYBACK_SPEEDS.length;
+      notifySpeed();
+      if (intervalId !== null) {
+        stop();
+        start();
+      }
+    },
     subscribe(listener): void {
       listeners.add(listener);
       listener(intervalId !== null);
+    },
+    subscribeSpeed(listener): void {
+      speedListeners.add(listener);
+      listener(YEAR_PLAYBACK_SPEEDS[speedIndex] ?? 1);
     },
   };
 }
@@ -154,6 +179,7 @@ function setupYearControl(
   const toggleButton = scope.querySelector(`#filter-year-toggle${suffix}`);
   const playIcon = scope.querySelector(`#filter-year-icon-play${suffix}`);
   const pauseIcon = scope.querySelector(`#filter-year-icon-pause${suffix}`);
+  const speedButton = scope.querySelector(`#filter-year-speed${suffix}`);
   if (!(input instanceof HTMLInputElement) || !output) return;
 
   const years = dimensions.years;
@@ -182,6 +208,17 @@ function setupYearControl(
       input.disabled = playing;
     });
     toggleButton.addEventListener("click", () => playback.toggle());
+  }
+
+  if (speedButton instanceof HTMLButtonElement) {
+    playback.subscribeSpeed((speed) => {
+      speedButton.textContent = `${speed}x`;
+      speedButton.setAttribute(
+        "aria-label",
+        `Velocidade de reprodução: ${speed}x`,
+      );
+    });
+    speedButton.addEventListener("click", () => playback.cycleSpeed());
   }
 }
 
@@ -323,6 +360,9 @@ function setupChartTabs(
   const sexWraps = [
     ...document.querySelectorAll<HTMLElement>('[id^="filter-sex-wrap"]'),
   ];
+  const locationWraps = [
+    ...document.querySelectorAll<HTMLElement>('[id^="filter-location-wrap"]'),
+  ];
   const pyramidMeasureWraps = [
     ...document.querySelectorAll<HTMLElement>(
       '[id^="filter-pyramid-measure-wrap"]',
@@ -364,6 +404,8 @@ function setupChartTabs(
 
     for (const wrap of sexWraps)
       wrap.toggleAttribute("hidden", target === "pyramid");
+    for (const wrap of locationWraps)
+      wrap.toggleAttribute("hidden", target === "map");
     for (const wrap of pyramidMeasureWraps)
       wrap.toggleAttribute("hidden", target !== "pyramid");
     setDetailFiltersEnabled(target !== "age-composition");

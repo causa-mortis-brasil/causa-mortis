@@ -1,7 +1,8 @@
 ---
-import { Blocks, ChartColumnStacked, ChartLine, Pyramid } from "@lucide/astro";
+import { ChartArea, ChartLine, LayoutPanelLeft } from "@lucide/astro";
 import BrazilIcon from "../icons/BrazilIcon.astro";
 import OneTwoThreeIcon from "../icons/OneTwoThreeIcon.astro";
+import PopulationPyramidIcon from "../icons/PopulationPyramidIcon.astro";
 import ChartCard from "./ChartCard.astro";
 import FilterBar from "./FilterBar.astro";
 import SummaryStat from "./SummaryStat.astro";
@@ -10,13 +11,13 @@ import YearControl from "./YearControl.astro";
 const charts = [
   { name: "map", label: "Mapa", icon: BrazilIcon },
   { name: "evolution", label: "Evolução", icon: ChartLine },
-  { name: "causes", label: "Causas", icon: Blocks },
+  { name: "causes", label: "Causas", icon: LayoutPanelLeft },
   {
     name: "age-composition",
     label: "Composição",
-    icon: ChartColumnStacked,
+    icon: ChartArea,
   },
-  { name: "pyramid", label: "Sexo", icon: Pyramid },
+  { name: "pyramid", label: "Sexo", icon: PopulationPyramidIcon },
   { name: "stats", label: "Resumo", icon: OneTwoThreeIcon },
 ];
 ---
@@ -86,14 +87,14 @@ const charts = [
             subtitleId="stat-std-rate-delta"
           />
           <SummaryStat
-            label="Taxa bruta"
-            valueId="stat-crude-rate-value"
-            subtitleId="stat-crude-rate-delta"
-          />
-          <SummaryStat
             label="Cobertura do SIM"
             valueId="stat-coverage-value"
             subtitleId="stat-coverage-subtitle"
+          />
+          <SummaryStat
+            label="Taxa bruta"
+            valueId="stat-crude-rate-value"
+            subtitleId="stat-crude-rate-delta"
           />
         </div>
       </div>

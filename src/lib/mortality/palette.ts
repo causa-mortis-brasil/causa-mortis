@@ -54,7 +54,7 @@ let mapScaleEndpoints: [string, string] | null = null;
 function getMapScaleEndpoints(): [string, string] {
   mapScaleEndpoints ??= [
     readCssColor("--color-primary-50"),
-    readCssColor("--color-primary-600"),
+    readCssColor("--color-primary-800"),
   ];
   return mapScaleEndpoints;
 }

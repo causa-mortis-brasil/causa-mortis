@@ -7,6 +7,7 @@ import {
   TreemapChart,
 } from "echarts/charts";
 import {
+  GraphicComponent,
   GridComponent,
   LegendComponent,
   MarkAreaComponent,
@@ -22,6 +23,7 @@ echarts.use([
   MapChart,
   ScatterChart,
   TreemapChart,
+  GraphicComponent,
   GridComponent,
   LegendComponent,
   MarkAreaComponent,

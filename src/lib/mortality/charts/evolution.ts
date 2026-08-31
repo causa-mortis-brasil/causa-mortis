@@ -11,12 +11,38 @@ import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { evolutionChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
+import { formatRate } from "../format";
 import { themeColor } from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 const EXPORT_SIZE = { width: 760, height: 400 };
+
+type LinePoint = number | { value: number; label: Record<string, unknown> };
+
+function withLastPointLabel(
+  data: number[],
+  position: "top" | "bottom",
+  color: string,
+  formatter: string,
+): LinePoint[] {
+  return data.map((value, index) =>
+    index === data.length - 1
+      ? {
+          value,
+          label: {
+            show: true,
+            position,
+            formatter,
+            color,
+            fontSize: 11,
+            fontWeight: 600,
+          },
+        }
+      : value,
+  );
+}
 
 export function init(
   container: HTMLElement,
@@ -57,9 +83,18 @@ export function init(
       standardized.push(point.stdRate);
     }
 
+    const lastIndex = dimensions.years.length - 1;
+    const standardizedIsHigher =
+      (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
+    const standardizedColor = themeColor("--color-primary-500");
+    const crudeColor = themeColor("--color-gray-400");
+
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 132, top: 24, bottom: 32 },
-      tooltip: { trigger: "axis" },
+      grid: { left: 48, right: 80, top: 24, bottom: 32 },
+      tooltip: {
+        trigger: "axis",
+        valueFormatter: (value: number | string) => formatRate(Number(value)),
+      },
       xAxis: {
         type: "category",
         data: dimensions.years.map(String),
@@ -73,17 +108,15 @@ export function init(
         {
           name: "Padronizada por idade",
           type: "line",
-          data: standardized,
-          color: themeColor("--color-primary-500"),
+          data: withLastPointLabel(
+            standardized,
+            standardizedIsHigher ? "top" : "bottom",
+            standardizedColor,
+            "Padronizada por idade",
+          ),
+          color: standardizedColor,
           symbolSize: 5,
           emphasis: { disabled: true },
-          endLabel: {
-            show: true,
-            formatter: "Padronizada por idade",
-            color: themeColor("--color-primary-500"),
-            fontSize: 11,
-            fontWeight: 600,
-          },
           markArea: {
             silent: true,
             itemStyle: { color: "rgba(0, 0, 0, 0.04)" },
@@ -119,17 +152,15 @@ export function init(
         {
           name: "Bruta",
           type: "line",
-          data: crude,
-          color: themeColor("--color-gray-400"),
+          data: withLastPointLabel(
+            crude,
+            standardizedIsHigher ? "bottom" : "top",
+            crudeColor,
+            "Bruta",
+          ),
+          color: crudeColor,
           symbolSize: 5,
           emphasis: { disabled: true },
-          endLabel: {
-            show: true,
-            formatter: "Bruta",
-            color: themeColor("--color-gray-400"),
-            fontSize: 11,
-            fontWeight: 600,
-          },
         },
       ],
     };

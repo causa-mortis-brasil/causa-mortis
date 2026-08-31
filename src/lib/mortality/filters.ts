@@ -1,10 +1,12 @@
 import type { Filters, PyramidMeasure, Sex } from "./types";
 
 type Listener = (filters: Filters) => void;
+export type YearChangeOrigin = "input" | "playback";
 
 export class FiltersStore {
   #filters: Filters;
   #listeners = new Set<Listener>();
+  #lastYearOrigin: YearChangeOrigin = "input";
 
   constructor(initial: Filters) {
     this.#filters = initial;
@@ -12,6 +14,10 @@ export class FiltersStore {
 
   get(): Filters {
     return this.#filters;
+  }
+
+  getLastYearOrigin(): YearChangeOrigin {
+    return this.#lastYearOrigin;
   }
 
   subscribe(listener: Listener): () => void {
@@ -35,7 +41,8 @@ export class FiltersStore {
     this.#set({ ...this.#filters, sex });
   }
 
-  setYear(year: number): void {
+  setYear(year: number, origin: YearChangeOrigin = "input"): void {
+    this.#lastYearOrigin = origin;
     this.#set({ ...this.#filters, year });
   }
 
@@ -79,4 +86,22 @@ export class FiltersStore {
   setPyramidMeasure(pyramidMeasure: PyramidMeasure): void {
     this.#set({ ...this.#filters, pyramidMeasure });
   }
+}
+
+export function isManualYearOnlyChange(
+  origin: YearChangeOrigin,
+  previous: Filters | null,
+  current: Filters,
+): boolean {
+  if (previous === null || origin !== "input") return false;
+  return (
+    previous.year !== current.year &&
+    previous.location === current.location &&
+    previous.sex === current.sex &&
+    previous.pyramidMeasure === current.pyramidMeasure &&
+    previous.causeGroup === current.causeGroup &&
+    previous.detailedSubgroup === current.detailedSubgroup &&
+    previous.externalCauseType === current.externalCauseType &&
+    previous.assaultMeans === current.assaultMeans
+  );
 }

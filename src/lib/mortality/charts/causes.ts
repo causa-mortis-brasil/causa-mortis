@@ -24,11 +24,13 @@ import type { ECElementEvent, EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { causeGroupColor } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
-import type { FiltersStore } from "../filters";
+import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
-import type { CauseFilter, Dimensions } from "../types";
+import type { CauseFilter, Dimensions, Filters } from "../types";
 
 const EXPORT_SIZE = { width: 672, height: 480 };
+const NORMAL_TREEMAP_DURATION = 900;
+const FAST_TREEMAP_DURATION = 200;
 
 interface CauseNode {
   id: string;
@@ -55,6 +57,22 @@ function causePath(filters: CauseFilter): string[] {
     filters.externalCauseType ?? filters.detailedSubgroup,
     filters.assaultMeans,
   ].filter((value): value is string => value != null);
+}
+
+function findDisplayNodes(level1: CauseNode[], path: string[]): CauseNode[] {
+  let nodes = level1;
+  let node: CauseNode | undefined;
+  for (const name of path) {
+    node = nodes.find((candidate) => candidate.name === name);
+    if (!node) return level1;
+    nodes = node.children ?? [];
+  }
+  if (path.length === 0) return level1;
+  return node && node.children && node.children.length > 0
+    ? node.children
+    : node
+      ? [node]
+      : level1;
 }
 
 interface TreePathEntry {
@@ -90,6 +108,47 @@ function applyCauseSelection(store: FiltersStore, names: string[]): void {
   }
 }
 
+function createBreadcrumb(container: HTMLElement): HTMLElement {
+  const breadcrumb = document.createElement("div");
+  breadcrumb.className =
+    "flex flex-wrap items-center justify-center gap-2 text-xs";
+  container.insertAdjacentElement("afterend", breadcrumb);
+  return breadcrumb;
+}
+
+function renderBreadcrumb(
+  breadcrumb: HTMLElement,
+  store: FiltersStore,
+  path: string[],
+): void {
+  const crumbs: HTMLElement[] = [];
+  for (let depth = 0; depth <= path.length; depth++) {
+    const isCurrent = depth === path.length;
+    const label = depth === 0 ? "Todas as causas" : path[depth - 1];
+
+    if (isCurrent) {
+      const span = document.createElement("span");
+      span.textContent = label;
+      span.setAttribute("aria-current", "true");
+      span.className =
+        "rounded-full bg-primary-100 px-3 py-1 font-medium text-primary-700";
+      crumbs.push(span);
+      continue;
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.className =
+      "cursor-pointer rounded-full bg-gray-100 px-3 py-1 text-gray-600 hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500";
+    button.addEventListener("click", () => {
+      applyCauseSelection(store, path.slice(0, depth));
+    });
+    crumbs.push(button);
+  }
+  breadcrumb.replaceChildren(...crumbs);
+}
+
 function flattenCauseNodes(
   nodes: CauseNode[],
   parents: string[] = [],
@@ -115,49 +174,25 @@ export function init(
 ): void {
   const chart = echarts.init(container);
   new ResizeObserver(() => chart.resize()).observe(container);
-
-  let lastCauseKey = "";
-  let currentOption: EChartsCoreOption | null = null;
-
-  function syncZoom(filters: CauseFilter): void {
-    const path = causePath(filters);
-    const key = path.join(">");
-    if (key === lastCauseKey) return;
-    lastCauseKey = key;
-    if (path.length > 0) {
-      for (const nodeId of path) {
-        chart.dispatchAction(
-          { type: "treemapRootToNode", targetNode: nodeId },
-          { flush: true },
-        );
-      }
-    } else if (currentOption) {
-      chart.setOption(currentOption, { notMerge: true });
-    }
-  }
+  const breadcrumb = createBreadcrumb(container);
 
   chart.on("click", (params: ECElementEvent) => {
     const treePathInfo: unknown = params.treePathInfo;
     if (!isTreePathInfo(treePathInfo)) return;
-    const names = treePathInfo.slice(1).map((entry) => entry.name);
-    lastCauseKey = names.join(">");
-    applyCauseSelection(store, names);
+    const clickedNames = treePathInfo.slice(1).map((entry) => entry.name);
+    if (clickedNames.length === 0) return;
+    const currentPath = causePath(store.get());
+    applyCauseSelection(store, [...currentPath, ...clickedNames]);
   });
 
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
-  let renderKey = "";
+  let dataKey = "";
+  let cachedLevel1: CauseNode[] | null = null;
+  let previousFilters: Filters | null = null;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
 
-  async function render(): Promise<void> {
-    const filters = store.get();
-
-    if (titleEl) titleEl.textContent = causesChartTitle(filters, dimensions);
-
-    const key = `${filters.location}|${filters.sex}|${filters.year}`;
-    if (key === renderKey) return;
-    renderKey = key;
-
+  async function fetchLevel1(filters: Filters): Promise<CauseNode[]> {
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);
 
@@ -172,9 +207,8 @@ export function init(
       fetchDeathsByExternalCauseForLocation(filters.location),
       fetchDeathsByAssaultMeansForLocation(filters.location),
     ]);
-    if (key !== renderKey) return;
 
-    const level1 = withPercent(
+    return withPercent(
       dimensions.cause_groups
         .map((causeGroup, causeGroupIndex) => {
           const [deaths, stdRate] = getCauseGroupEntry(
@@ -265,42 +299,60 @@ export function init(
         })
         .filter((node) => node.value > 0),
     );
+  }
 
-    const option: EChartsCoreOption = {
-      tooltip: {
-        formatter: (params: { data: CauseNode }) => {
-          const node = params.data;
-          return `${node.name}<br/>${formatInteger(node.value)} óbitos · ${formatPercent(node.percent / 100)} do nível · Taxa padronizada ${formatRate(node.stdRate)}`;
-        },
+  function applyOption(
+    filters: Filters,
+    level1: CauseNode[],
+    useFastAnimation: boolean,
+  ): void {
+    const path = causePath(filters);
+    const displayNodes = findDisplayNodes(level1, path);
+    renderBreadcrumb(breadcrumb, store, path);
+
+    const treemapSeries = {
+      name: "Todas as causas",
+      type: "treemap" as const,
+      top: 8,
+      roam: false,
+      nodeClick: false as const,
+      leafDepth: 1,
+      breadcrumb: { show: false },
+      upperLabel: { show: true, height: 24, color: "#fff" },
+      label: {
+        formatter: (params: { name: string; data: CauseNode }) =>
+          `${params.name}\n${formatPercent((params.data.percent ?? 0) / 100)}`,
       },
-      series: [
-        {
-          name: "Todas as causas",
-          type: "treemap",
-          top: 8,
-          roam: false,
-          nodeClick: "zoomToNode",
-          leafDepth: 1,
-          breadcrumb: { show: true, height: 24 },
-          upperLabel: { show: true, height: 24, color: "#fff" },
-          label: {
-            formatter: (params: { name: string; data: CauseNode }) =>
-              `${params.name}\n${formatPercent((params.data.percent ?? 0) / 100)}`,
-          },
-          itemStyle: { borderColor: "#fff", gapWidth: 3 },
-          levels: [
-            {},
-            { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
-            { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
-          ],
-          data: level1,
-        },
+      itemStyle: { borderColor: "#fff", gapWidth: 3 },
+      levels: [
+        {},
+        { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
+        { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
       ],
+      data: displayNodes,
     };
 
-    currentOption = option;
-    chart.setOption(option, { notMerge: true });
-    lastCauseKey = "";
+    const tooltip: EChartsCoreOption["tooltip"] = {
+      formatter: (params: { data: CauseNode }) => {
+        const node = params.data;
+        return `${node.name}<br/>${formatInteger(node.value)} óbitos · ${formatPercent(node.percent / 100)} do nível · Taxa padronizada ${formatRate(node.stdRate)}`;
+      },
+    };
+
+    chart.setOption(
+      {
+        tooltip,
+        series: [
+          {
+            ...treemapSeries,
+            animationDurationUpdate: useFastAnimation
+              ? FAST_TREEMAP_DURATION
+              : NORMAL_TREEMAP_DURATION,
+          },
+        ],
+      },
+      { notMerge: true },
+    );
 
     exportRows = {
       headers: [
@@ -322,6 +374,29 @@ export function init(
     };
   }
 
+  async function render(): Promise<void> {
+    const filters = store.get();
+    const useFastAnimation = isManualYearOnlyChange(
+      store.getLastYearOrigin(),
+      previousFilters,
+      filters,
+    );
+    previousFilters = filters;
+
+    if (titleEl) titleEl.textContent = causesChartTitle(filters, dimensions);
+
+    const key = `${filters.location}|${filters.sex}|${filters.year}`;
+    if (key !== dataKey) {
+      dataKey = key;
+      const level1 = await fetchLevel1(filters);
+      if (key !== dataKey) return;
+      cachedLevel1 = level1;
+    }
+    if (!cachedLevel1) return;
+
+    applyOption(filters, cachedLevel1, useFastAnimation);
+  }
+
   setupChartExport(card, chart, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("causas", store.get()),
     getRows: () => exportRows,
@@ -330,7 +405,5 @@ export function init(
   setupChartFullscreen(card, container);
   setupChartShare(card, store);
 
-  subscribeWhenVisible(card, store, () =>
-    render().then(() => syncZoom(store.get())),
-  );
+  subscribeWhenVisible(card, store, () => render());
 }

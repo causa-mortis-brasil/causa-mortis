@@ -18,12 +18,14 @@ const selectWidthClass = compact ? "shrink-0" : "w-full sm:w-auto";
     compact ? "flex-nowrap" : "w-full flex-wrap sm:w-auto",
   ]}
 >
-  <CustomSelect
-    id={`filter-location${idSuffix}`}
-    name="Território"
-    class={selectWidthClass}
-    compact={compact}
-  />
+  <div id={`filter-location-wrap${idSuffix}`} class={selectWidthClass}>
+    <CustomSelect
+      id={`filter-location${idSuffix}`}
+      name="Território"
+      class="w-full"
+      compact={compact}
+    />
+  </div>
   <CustomSelect
     id={`filter-cause-group${idSuffix}`}
     name="Grupo de causas"
