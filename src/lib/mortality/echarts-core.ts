@@ -13,6 +13,7 @@ import {
   TooltipComponent,
   VisualMapComponent,
 } from "echarts/components";
+import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 
 echarts.use([
@@ -26,6 +27,7 @@ echarts.use([
   MarkAreaComponent,
   TooltipComponent,
   VisualMapComponent,
+  LabelLayout,
   CanvasRenderer,
 ]);
 

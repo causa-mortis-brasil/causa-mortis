@@ -116,6 +116,7 @@ export function init(
           fontSize: 10,
           fontWeight: 600,
         },
+        labelLayout: { moveOverlap: "shiftY" as const },
         data: shares,
       };
     });
