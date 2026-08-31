@@ -7,6 +7,7 @@ export class FiltersStore {
   #filters: Filters;
   #listeners = new Set<Listener>();
   #lastYearOrigin: YearChangeOrigin = "input";
+  #lastYearIntervalMs: number | null = null;
 
   constructor(initial: Filters) {
     this.#filters = initial;
@@ -18,6 +19,10 @@ export class FiltersStore {
 
   getLastYearOrigin(): YearChangeOrigin {
     return this.#lastYearOrigin;
+  }
+
+  getLastYearIntervalMs(): number | null {
+    return this.#lastYearIntervalMs;
   }
 
   subscribe(listener: Listener): () => void {
@@ -41,8 +46,13 @@ export class FiltersStore {
     this.#set({ ...this.#filters, sex });
   }
 
-  setYear(year: number, origin: YearChangeOrigin = "input"): void {
+  setYear(
+    year: number,
+    origin: YearChangeOrigin = "input",
+    intervalMs: number | null = null,
+  ): void {
     this.#lastYearOrigin = origin;
+    this.#lastYearIntervalMs = intervalMs;
     this.#set({ ...this.#filters, year });
   }
 
@@ -88,12 +98,11 @@ export class FiltersStore {
   }
 }
 
-export function isManualYearOnlyChange(
-  origin: YearChangeOrigin,
+export function isYearOnlyChange(
   previous: Filters | null,
   current: Filters,
 ): boolean {
-  if (previous === null || origin !== "input") return false;
+  if (previous === null) return false;
   return (
     previous.year !== current.year &&
     previous.location === current.location &&
@@ -104,4 +113,12 @@ export function isManualYearOnlyChange(
     previous.externalCauseType === current.externalCauseType &&
     previous.assaultMeans === current.assaultMeans
   );
+}
+
+export function isManualYearOnlyChange(
+  origin: YearChangeOrigin,
+  previous: Filters | null,
+  current: Filters,
+): boolean {
+  return origin === "input" && isYearOnlyChange(previous, current);
 }

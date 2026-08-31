@@ -24,13 +24,18 @@ import type { ECElementEvent, EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { causeGroupColor } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
-import { isManualYearOnlyChange, type FiltersStore } from "../filters";
+import {
+  isManualYearOnlyChange,
+  isYearOnlyChange,
+  type FiltersStore,
+} from "../filters";
 import { setupChartShare } from "../share";
 import type { CauseFilter, Dimensions, Filters } from "../types";
 
 const EXPORT_SIZE = { width: 672, height: 480 };
 const NORMAL_TREEMAP_DURATION = 900;
 const FAST_TREEMAP_DURATION = 200;
+const PLAYBACK_ANIMATION_BUFFER_MS = 80;
 
 interface CauseNode {
   id: string;
@@ -304,7 +309,7 @@ export function init(
   function applyOption(
     filters: Filters,
     level1: CauseNode[],
-    useFastAnimation: boolean,
+    animationDurationUpdate: number,
   ): void {
     const path = causePath(filters);
     const displayNodes = findDisplayNodes(level1, path);
@@ -345,9 +350,7 @@ export function init(
         series: [
           {
             ...treemapSeries,
-            animationDurationUpdate: useFastAnimation
-              ? FAST_TREEMAP_DURATION
-              : NORMAL_TREEMAP_DURATION,
+            animationDurationUpdate,
           },
         ],
       },
@@ -374,13 +377,29 @@ export function init(
     };
   }
 
+  function treemapAnimationDuration(filters: Filters): number {
+    const origin = store.getLastYearOrigin();
+    if (isManualYearOnlyChange(origin, previousFilters, filters))
+      return FAST_TREEMAP_DURATION;
+
+    if (origin === "playback" && isYearOnlyChange(previousFilters, filters)) {
+      const intervalMs = store.getLastYearIntervalMs();
+      if (intervalMs !== null)
+        return Math.min(
+          NORMAL_TREEMAP_DURATION,
+          Math.max(
+            FAST_TREEMAP_DURATION,
+            intervalMs - PLAYBACK_ANIMATION_BUFFER_MS,
+          ),
+        );
+    }
+
+    return NORMAL_TREEMAP_DURATION;
+  }
+
   async function render(): Promise<void> {
     const filters = store.get();
-    const useFastAnimation = isManualYearOnlyChange(
-      store.getLastYearOrigin(),
-      previousFilters,
-      filters,
-    );
+    const animationDurationUpdate = treemapAnimationDuration(filters);
     previousFilters = filters;
 
     if (titleEl) titleEl.textContent = causesChartTitle(filters, dimensions);
@@ -394,7 +413,8 @@ export function init(
     }
     if (!cachedLevel1) return;
 
-    applyOption(filters, cachedLevel1, useFastAnimation);
+    chart.resize();
+    applyOption(filters, cachedLevel1, animationDurationUpdate);
   }
 
   setupChartExport(card, chart, EXPORT_SIZE, {

@@ -132,7 +132,8 @@ function createYearPlayback(
       stop();
       return;
     }
-    store.setYear(nextYear, "playback");
+    const speed = YEAR_PLAYBACK_SPEEDS[speedIndex] ?? 1;
+    store.setYear(nextYear, "playback", YEAR_PLAYBACK_INTERVAL_MS / speed);
   }
 
   function start(): void {
@@ -369,12 +370,16 @@ function setupChartTabs(
     ),
   ];
 
+  let settlePanelsHeight: (() => void) | null = null;
+
   function activate(target: string): void {
     for (const tab of tabs)
       tab.setAttribute(
         "aria-selected",
         String(tab.dataset.chartTab === target),
       );
+
+    settlePanelsHeight?.();
 
     const startHeight = panelsWrap?.getBoundingClientRect().height ?? 0;
     for (const panel of panels)
@@ -387,14 +392,15 @@ function setupChartTabs(
         panelsWrap.style.height = `${startHeight}px`;
         void panelsWrap.offsetHeight;
         panelsWrap.style.height = `${endHeight}px`;
-        panelsWrap.addEventListener(
-          "transitionend",
-          () => {
-            panelsWrap.style.height = "";
-            panelsWrap.classList.remove("overflow-hidden");
-          },
-          { once: true },
-        );
+
+        const settle = (): void => {
+          panelsWrap.style.height = "";
+          panelsWrap.classList.remove("overflow-hidden");
+          panelsWrap.removeEventListener("transitionend", settle);
+          settlePanelsHeight = null;
+        };
+        panelsWrap.addEventListener("transitionend", settle);
+        settlePanelsHeight = settle;
       }
     }
 

@@ -18,7 +18,7 @@ import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
 
-const EXPORT_SIZE = { width: 880, height: 660 };
+const EXPORT_SIZE = { width: 880, height: 560 };
 const MIN_ANNUAL_DEATHS_TO_INCLUDE = 20;
 const LABEL_FONT_SIZE = 10;
 const LABEL_FONT_WEIGHT = 600;
@@ -105,7 +105,7 @@ export function init(
     const stackedFromBase = [...includedIndices].reverse();
 
     const isNarrow = !forceWideLayout && container.clientWidth < 480;
-    const labelWidth = forceWideLayout ? 224 : isNarrow ? 80 : 116;
+    const labelWidth = forceWideLayout ? 168 : isNarrow ? 80 : 116;
     const rightMargin = labelWidth + 16;
     const gridTop = 16;
     const gridBottom = isNarrow ? 40 : 48;
