@@ -41,25 +41,18 @@ function niceStepBounds(roughStep: number): { down: number; up: number } {
   return { down, up };
 }
 
-function safeInterval(step: number, padded: number): number {
-  if (padded < 1000) return step;
-  return Math.max(1000, Math.ceil(step / 1000) * 1000);
-}
-
 function niceAxisScale(value: number): { max: number; interval: number } {
   const padded = value * 1.2;
   if (padded <= 0) return { max: 10, interval: 2 };
 
   const roughStep = padded / AXIS_SPLIT_COUNT;
   const { down, up } = niceStepBounds(roughStep);
-  const downInterval = safeInterval(down, padded);
-  const upInterval = safeInterval(up, padded);
-  const downMax = Math.ceil(value / downInterval) * downInterval;
-  const upMax = Math.ceil(value / upInterval) * upInterval;
+  const downMax = Math.ceil(value / down) * down;
+  const upMax = Math.ceil(value / up) * up;
 
   return Math.abs(downMax - padded) <= Math.abs(upMax - padded)
-    ? { max: downMax, interval: downInterval }
-    : { max: upMax, interval: upInterval };
+    ? { max: downMax, interval: down }
+    : { max: upMax, interval: up };
 }
 
 export function init(
