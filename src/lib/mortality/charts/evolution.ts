@@ -87,7 +87,7 @@ export function init(
     const standardizedIsHigher =
       (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
     const standardizedColor = themeColor("--color-primary-500");
-    const crudeColor = themeColor("--color-gray-400");
+    const crudeColor = themeColor("--color-gray-500");
 
     const option: EChartsCoreOption = {
       grid: { left: 48, right: 80, top: 24, bottom: 32 },

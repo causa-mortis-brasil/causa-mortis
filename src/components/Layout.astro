@@ -1,6 +1,7 @@
 ---
 import { Font } from "astro:assets";
 import "../styles/global.css";
+import Loader from "./Loader.astro";
 
 interface Props {
   title?: string;
@@ -46,6 +47,8 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
   </head>
 
   <body class="relative flex w-full flex-col overflow-x-hidden text-gray-900">
+    <Loader />
+
     <slot />
   </body>
 </html>
