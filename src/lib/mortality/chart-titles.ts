@@ -100,6 +100,13 @@ export function ageCompositionChartTitle(
   };
 }
 
+export function qualityChartTitle(filters: Filters): ChartTitle {
+  return {
+    line1: `Cobertura do SIM por UF · ${filters.year}`,
+    line2: "",
+  };
+}
+
 export function pyramidChartTitle(
   filters: Filters,
   dimensions: Dimensions,

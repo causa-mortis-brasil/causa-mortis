@@ -2,6 +2,8 @@
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import Layout from "../components/Layout.astro";
+import QualityChartCard from "../components/mortality/QualityChartCard.astro";
+import YearControl from "../components/mortality/YearControl.astro";
 ---
 
 <Layout
@@ -60,7 +62,7 @@ import Layout from "../components/Layout.astro";
 
     <div class="app-content-col">
       <div
-        class="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/10 p-6 pb-12"
+        class="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/10 p-6"
       >
         <h2 class="font-bold">Conferências e limitações</h2>
         <ul class="flex list-disc flex-col gap-2 pl-4">
@@ -87,7 +89,59 @@ import Layout from "../components/Layout.astro";
           </li>
         </ul>
       </div>
+
+      <div class="app-content-col flex flex-col gap-4 px-4 pb-8">
+        <YearControl />
+        <QualityChartCard active standalone padding="p-6" />
+      </div>
     </div>
+
+    <script>
+      import { fetchCoverage } from "../lib/mortality/data";
+      import { fetchDimensions } from "../lib/mortality/dimensions";
+      import { FiltersStore } from "../lib/mortality/filters";
+
+      const container = document.getElementById("chart-quality");
+
+      async function mountQualityChart(chartMount: HTMLElement): Promise<void> {
+        const [dimensions, coverageTable, quality, main] = await Promise.all([
+          fetchDimensions(),
+          fetchCoverage(),
+          import("../lib/mortality/charts/quality"),
+          import("../lib/mortality/main"),
+        ]);
+        const store = new FiltersStore({
+          location: "BR",
+          sex: "Ambos",
+          year: quality.findLatestCoverageYear(dimensions, coverageTable),
+          causeGroup: null,
+          detailedSubgroup: null,
+          externalCauseType: null,
+          assaultMeans: null,
+          pyramidMeasure: "rate",
+        });
+
+        const playback = main.createYearPlayback(dimensions, store);
+        main.setupYearControl(document, dimensions, store, playback, "");
+
+        chartMount.querySelector(".chart-placeholder")?.remove();
+        quality.init(chartMount, store, dimensions);
+      }
+
+      if (container instanceof HTMLElement) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              observer.disconnect();
+              void mountQualityChart(container);
+            }
+          },
+          { rootMargin: "200px" },
+        );
+        observer.observe(container);
+      }
+    </script>
   </main>
 
   <Footer />

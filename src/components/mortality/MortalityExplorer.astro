@@ -3,8 +3,10 @@ import { ChartArea, ChartLine, LayoutPanelLeft } from "@lucide/astro";
 import BrazilIcon from "../icons/BrazilIcon.astro";
 import OneTwoThreeIcon from "../icons/OneTwoThreeIcon.astro";
 import PopulationPyramidIcon from "../icons/PopulationPyramidIcon.astro";
+import SimIcon from "../icons/SimIcon.astro";
 import ChartCard from "./ChartCard.astro";
 import FilterBar from "./FilterBar.astro";
+import QualityChartCard from "./QualityChartCard.astro";
 import SummaryStat from "./SummaryStat.astro";
 import YearControl from "./YearControl.astro";
 
@@ -19,17 +21,25 @@ const charts = [
   },
   { name: "pyramid", label: "Sexo", icon: PopulationPyramidIcon },
   { name: "stats", label: "Resumo", icon: OneTwoThreeIcon },
+  { name: "quality", label: "Qualidade", icon: SimIcon },
 ];
 ---
 
 <section id="mortality-explorer" class="app-content-col gap-4">
-  <div id="filters-panel" class="w-full rounded-2xl bg-primary-100">
-    <div class="center w-full">
-      <div
-        id="filters-row"
-        class="app-content flex-wrap items-center justify-between gap-x-1 gap-y-2 p-4"
-      >
-        <FilterBar />
+  <div
+    id="filters-panel-wrap"
+    class="grid w-full grid-rows-[1fr] transition-[grid-template-rows,opacity,margin-bottom] duration-200 ease-in-out data-hiding:-mb-4 data-hiding:grid-rows-[0fr] data-hiding:opacity-0 motion-reduce:transition-none"
+  >
+    <div class="overflow-hidden">
+      <div id="filters-panel" class="w-full rounded-2xl bg-primary-100">
+        <div class="center w-full">
+          <div
+            id="filters-row"
+            class="app-content flex-wrap items-center justify-between gap-x-1 gap-y-2 p-4"
+          >
+            <FilterBar />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -153,6 +163,8 @@ const charts = [
         height="h-96 md:h-120"
         fullscreenToggle
       />
+
+      <QualityChartCard />
     </div>
   </div>
 

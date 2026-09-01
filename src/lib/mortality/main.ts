@@ -20,6 +20,7 @@ const CHART_LOADERS: Record<string, () => Promise<ChartModule>> = {
   map: () => import("./charts/map"),
   "age-composition": () => import("./charts/age-composition"),
   pyramid: () => import("./charts/pyramid"),
+  quality: () => import("./charts/quality"),
 };
 
 const FILTER_ID_SUFFIXES = ["", "-floating"] as const;
@@ -91,7 +92,7 @@ function setupPyramidMeasureSelect(
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
 const YEAR_PLAYBACK_SPEEDS = [1, 2, 3];
 
-interface YearPlayback {
+export interface YearPlayback {
   toggle: () => void;
   stop: () => void;
   cycleSpeed: () => void;
@@ -99,7 +100,7 @@ interface YearPlayback {
   subscribeSpeed: (listener: (speed: number) => void) => void;
 }
 
-function createYearPlayback(
+export function createYearPlayback(
   dimensions: Dimensions,
   store: FiltersStore,
 ): YearPlayback {
@@ -168,7 +169,7 @@ function createYearPlayback(
   };
 }
 
-function setupYearControl(
+export function setupYearControl(
   scope: ParentNode,
   dimensions: Dimensions,
   store: FiltersStore,
@@ -324,7 +325,7 @@ function setupCauseFilters(
   };
 }
 
-function setYearWrapsHidden(wraps: HTMLElement[], shouldHide: boolean): void {
+function setWrapsHidden(wraps: HTMLElement[], shouldHide: boolean): void {
   for (const wrap of wraps) {
     if (shouldHide) {
       if (wrap.hidden || wrap.hasAttribute("data-hiding")) continue;
@@ -355,6 +356,9 @@ function setupChartTabs(
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
+  const filtersPanelWraps = [
+    ...document.querySelectorAll<HTMLElement>('[id^="filters-panel-wrap"]'),
+  ];
   const yearWraps = [
     ...document.querySelectorAll<HTMLElement>('[id^="filter-year-wrap"]'),
   ];
@@ -363,6 +367,11 @@ function setupChartTabs(
   ];
   const locationWraps = [
     ...document.querySelectorAll<HTMLElement>('[id^="filter-location-wrap"]'),
+  ];
+  const causeGroupWraps = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[id^="filter-cause-group-wrap"]',
+    ),
   ];
   const pyramidMeasureWraps = [
     ...document.querySelectorAll<HTMLElement>(
@@ -404,17 +413,22 @@ function setupChartTabs(
       }
     }
 
+    setWrapsHidden(filtersPanelWraps, target === "quality");
+
     const hidesYear = target === "evolution";
-    setYearWrapsHidden(yearWraps, hidesYear);
+    setWrapsHidden(yearWraps, hidesYear);
     if (hidesYear) stopYearPlayback();
 
-    for (const wrap of sexWraps)
-      wrap.toggleAttribute("hidden", target === "pyramid");
-    for (const wrap of locationWraps)
-      wrap.toggleAttribute("hidden", target === "map");
-    for (const wrap of pyramidMeasureWraps)
-      wrap.toggleAttribute("hidden", target !== "pyramid");
-    setDetailFiltersEnabled(target !== "age-composition");
+    if (target !== "quality") {
+      for (const wrap of sexWraps)
+        wrap.toggleAttribute("hidden", target === "pyramid");
+      for (const wrap of locationWraps)
+        wrap.toggleAttribute("hidden", target === "map");
+      for (const wrap of causeGroupWraps) wrap.hidden = false;
+      for (const wrap of pyramidMeasureWraps)
+        wrap.toggleAttribute("hidden", target !== "pyramid");
+      setDetailFiltersEnabled(target !== "age-composition");
+    }
   }
 
   for (const tab of tabs) {
