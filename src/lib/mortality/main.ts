@@ -327,8 +327,10 @@ function setupCauseFilters(
 
 function setWrapsHidden(wraps: HTMLElement[], shouldHide: boolean): void {
   for (const wrap of wraps) {
+    const clip = wrap.querySelector<HTMLElement>("[data-filters-panel-clip]");
     if (shouldHide) {
       if (wrap.hidden || wrap.hasAttribute("data-hiding")) continue;
+      clip?.classList.add("overflow-hidden");
       wrap.setAttribute("data-hiding", "");
       wrap.addEventListener(
         "transitionend",
@@ -338,10 +340,18 @@ function setWrapsHidden(wraps: HTMLElement[], shouldHide: boolean): void {
         { once: true },
       );
     } else {
-      if (!wrap.hidden && !wrap.hasAttribute("data-hiding")) continue;
+      if (!wrap.hidden && !wrap.hasAttribute("data-hiding")) {
+        clip?.classList.remove("overflow-hidden");
+        continue;
+      }
       wrap.hidden = false;
       void wrap.offsetWidth;
       wrap.removeAttribute("data-hiding");
+      wrap.addEventListener(
+        "transitionend",
+        () => clip?.classList.remove("overflow-hidden"),
+        { once: true },
+      );
     }
   }
 }
