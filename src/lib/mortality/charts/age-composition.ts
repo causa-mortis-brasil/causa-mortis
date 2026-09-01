@@ -1,5 +1,5 @@
 import { getCauseGroupAgeSeries } from "../access";
-import { ageCompositionChartTitle } from "../chart-titles";
+import { ageCompositionChartTitle, setChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
   roundTo,
@@ -94,8 +94,7 @@ export function init(
 
   async function render(): Promise<void> {
     const filters = store.get();
-    if (titleEl)
-      titleEl.textContent = ageCompositionChartTitle(filters, dimensions);
+    setChartTitle(titleEl, ageCompositionChartTitle(filters, dimensions));
     const animationDuration = areaAnimationDuration(filters);
     previousFilters = filters;
 

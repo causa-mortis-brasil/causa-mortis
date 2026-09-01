@@ -7,7 +7,7 @@ import {
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
-import { mapChartTitle } from "../chart-titles";
+import { mapChartTitle, setChartTitle } from "../chart-titles";
 import { fetchBrazilStatesGeoJson } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
@@ -78,7 +78,7 @@ export function init(
     const pointGetter = await loadRatePointGetter(level, dimensions);
     if (token !== renderToken) return;
 
-    if (titleEl) titleEl.textContent = mapChartTitle(filters, dimensions);
+    setChartTitle(titleEl, mapChartTitle(filters, dimensions));
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
     const yearIndex = indexOf(dimensions.years, filters.year);

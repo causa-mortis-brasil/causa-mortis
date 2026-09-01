@@ -9,7 +9,7 @@ import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { evolutionChartTitle } from "../chart-titles";
+import { evolutionChartTitle, setChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
 import { formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
@@ -121,7 +121,7 @@ export function init(
     );
     if (token !== renderToken) return;
 
-    if (titleEl) titleEl.textContent = evolutionChartTitle(filters, dimensions);
+    setChartTitle(titleEl, evolutionChartTitle(filters, dimensions));
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
 

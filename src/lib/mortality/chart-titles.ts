@@ -1,5 +1,25 @@
 import type { CauseFilter, Dimensions, Filters, Sex } from "./types";
 
+export interface ChartTitle {
+  line1: string;
+  line2: string;
+}
+
+export function setChartTitle(
+  titleEl: Element | null,
+  title: ChartTitle,
+): void {
+  if (!titleEl) return;
+  const line1El = titleEl.querySelector("[data-chart-title-line1]");
+  const line2El = titleEl.querySelector("[data-chart-title-line2]");
+  if (line1El) line1El.textContent = title.line1;
+  if (line2El) line2El.textContent = title.line2;
+}
+
+function hasLocation(filters: Filters): boolean {
+  return filters.location !== "BR";
+}
+
 export function causePathLabel(filters: CauseFilter): string {
   const parts = [
     filters.causeGroup,
@@ -30,22 +50,35 @@ export function locationLabel(
 export function mapChartTitle(
   filters: Filters,
   dimensions: Dimensions,
-): string {
-  return `Onde se morre mais por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)}`;
+): ChartTitle {
+  return {
+    line1: `Mortes por ${causePathLabel(filters)} por UF · ${yearLabel(filters.year, dimensions)}`,
+    line2: sexLabel(filters.sex),
+  };
 }
 
 export function evolutionChartTitle(
   filters: Filters,
   dimensions: Dimensions,
-): string {
-  return `Histórico de óbitos por ${causePathLabel(filters)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
+): ChartTitle {
+  return {
+    line1: `Histórico de óbitos por ${causePathLabel(filters)}`,
+    line2: hasLocation(filters)
+      ? `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`
+      : sexLabel(filters.sex),
+  };
 }
 
 export function causesChartTitle(
   filters: Filters,
   dimensions: Dimensions,
-): string {
-  return `Composição dos óbitos por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
+): ChartTitle {
+  return {
+    line1: `Composição dos óbitos por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
+    line2: hasLocation(filters)
+      ? `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`
+      : sexLabel(filters.sex),
+  };
 }
 
 export function statsChartTitle(
@@ -58,13 +91,23 @@ export function statsChartTitle(
 export function ageCompositionChartTitle(
   filters: Filters,
   dimensions: Dimensions,
-): string {
-  return `Composição dos óbitos por faixa etária · ${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`;
+): ChartTitle {
+  return {
+    line1: `Composição dos óbitos por faixa etária · ${yearLabel(filters.year, dimensions)}`,
+    line2: hasLocation(filters)
+      ? `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`
+      : sexLabel(filters.sex),
+  };
 }
 
 export function pyramidChartTitle(
   filters: Filters,
   dimensions: Dimensions,
-): string {
-  return `Pirâmide de mortalidade por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)} · ${locationLabel(dimensions, filters.location)}`;
+): ChartTitle {
+  return {
+    line1: `Pirâmide de mortalidade por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
+    line2: hasLocation(filters)
+      ? locationLabel(dimensions, filters.location)
+      : "",
+  };
 }

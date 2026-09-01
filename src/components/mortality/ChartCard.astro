@@ -41,7 +41,10 @@ const {
 >
   <div class="flex flex-col items-center gap-3">
     <div class="flex flex-col items-center gap-1 text-center">
-      <h2 data-chart-title class="text-lg font-bold uppercase">{title}</h2>
+      <h2 data-chart-title class="flex flex-col text-xl font-bold uppercase">
+        <span data-chart-title-line1>{title}</span>
+        <span data-chart-title-line2 class="empty:hidden"></span>
+      </h2>
       <p
         data-chart-subtitle
         class="text-sm font-medium text-primary-600 empty:hidden"

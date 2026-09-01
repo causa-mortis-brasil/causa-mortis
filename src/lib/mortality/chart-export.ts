@@ -88,7 +88,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 export async function exportChartImage(
   chart: EChartsType,
   exportSize: ChartExportSize,
-  title: string,
+  titleLines: string[],
   subtitle: string,
   description: string,
   filenameBase: string,
@@ -134,7 +134,7 @@ export async function exportChartImage(
   const padding = 24 * pixelRatio;
   const blockWidth = chartImage.width;
   const contentWidth = blockWidth - padding * 2;
-  const titleFontSize = 18 * pixelRatio;
+  const titleFontSize = 22 * pixelRatio;
   const subtitleFontSize = 14 * pixelRatio;
   const descriptionFontSize = 14 * pixelRatio;
   const footerFontSize = 12 * pixelRatio;
@@ -142,14 +142,16 @@ export async function exportChartImage(
   const blockGap = 4 * pixelRatio;
 
   ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-  const titleLines = wrapText(ctx, title.toUpperCase(), contentWidth);
+  const wrappedTitleLines = titleLines
+    .filter((line) => line.length > 0)
+    .flatMap((line) => wrapText(ctx, line.toUpperCase(), contentWidth));
 
   ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
   const descriptionLines = description
     ? wrapText(ctx, description, contentWidth)
     : [];
 
-  const titleHeight = titleLines.length * (titleFontSize + lineGap);
+  const titleHeight = wrappedTitleLines.length * (titleFontSize + lineGap);
   const subtitleHeight = subtitle ? subtitleFontSize + lineGap + blockGap : 0;
   const descriptionHeight = descriptionLines.length
     ? descriptionLines.length * (descriptionFontSize + lineGap) + blockGap
@@ -178,7 +180,7 @@ export async function exportChartImage(
   let y = padding;
   ctx.fillStyle = titleColor || "#1f2937";
   ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-  for (const line of titleLines) {
+  for (const line of wrappedTitleLines) {
     ctx.fillText(line, centerX, y);
     y += titleFontSize + lineGap;
   }
@@ -345,8 +347,15 @@ export function setupChartExport(
     "[data-export-format]",
   )) {
     button.addEventListener("click", () => {
-      const title =
-        card.querySelector("[data-chart-title]")?.textContent?.trim() ?? "";
+      const titleLine1 =
+        card.querySelector("[data-chart-title-line1]")?.textContent?.trim() ??
+        card.querySelector("[data-chart-title]")?.textContent?.trim() ??
+        "";
+      const titleLine2 =
+        card.querySelector("[data-chart-title-line2]")?.textContent?.trim() ??
+        "";
+      const titleLines = [titleLine1, titleLine2].filter(Boolean);
+      const title = titleLines.join(" ");
       const subtitle =
         card.querySelector("[data-chart-subtitle]")?.textContent?.trim() ?? "";
       const description =
@@ -358,7 +367,7 @@ export function setupChartExport(
         void exportChartImage(
           chart,
           exportSize,
-          title,
+          titleLines,
           subtitle,
           description,
           filenameBase,

@@ -12,7 +12,7 @@ import {
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
-import { causesChartTitle } from "../chart-titles";
+import { causesChartTitle, setChartTitle } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
   fetchDeathsByAssaultMeansForLocation,
@@ -402,7 +402,7 @@ export function init(
     const animationDurationUpdate = treemapAnimationDuration(filters);
     previousFilters = filters;
 
-    if (titleEl) titleEl.textContent = causesChartTitle(filters, dimensions);
+    setChartTitle(titleEl, causesChartTitle(filters, dimensions));
 
     const key = `${filters.location}|${filters.sex}|${filters.year}`;
     if (key !== dataKey) {

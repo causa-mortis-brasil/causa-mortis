@@ -1,6 +1,6 @@
 import { loadDeathsByAgeGetter, resolveCauseLevel } from "../cause-level";
 import { getAgeSeries } from "../access";
-import { pyramidChartTitle } from "../chart-titles";
+import { pyramidChartTitle, setChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
   roundTo,
@@ -90,7 +90,7 @@ export function init(
     ]);
     if (token !== renderToken) return;
 
-    if (titleEl) titleEl.textContent = pyramidChartTitle(filters, dimensions);
+    setChartTitle(titleEl, pyramidChartTitle(filters, dimensions));
     const measure = filters.pyramidMeasure;
     if (subtitleEl)
       subtitleEl.textContent =
@@ -149,9 +149,7 @@ export function init(
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
     const dataLabelFormatter = (value: number): string =>
-      measure === "deaths"
-        ? formatInteger(value)
-        : `${formatRate(value)} por 100 mil`;
+      measure === "deaths" ? formatInteger(value) : `${formatRate(value)}`;
 
     const isNarrow = !forceWideLayout && container.clientWidth < 480;
     const labelMargin = isNarrow ? 72 : 116;
