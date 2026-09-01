@@ -390,7 +390,45 @@ function setupChartTabs(
     ),
   ];
 
+  let panelsHeight: number | null = null;
   let settlePanelsHeight: (() => void) | null = null;
+
+  function syncPanelsHeight(): void {
+    if (!panelsWrap) return;
+    if (settlePanelsHeight) {
+      panelsWrap.removeEventListener("transitionend", settlePanelsHeight);
+      settlePanelsHeight = null;
+    }
+
+    const startHeight =
+      panelsHeight ?? panelsWrap.getBoundingClientRect().height;
+    const endHeight = panelsWrap.scrollHeight;
+    panelsHeight = endHeight;
+
+    if (Math.round(startHeight) === Math.round(endHeight)) {
+      if (panelsWrap.style.height) {
+        panelsWrap.style.height = "";
+        panelsWrap.classList.remove("overflow-hidden");
+      }
+      return;
+    }
+
+    panelsWrap.classList.add("overflow-hidden");
+    panelsWrap.style.height = `${startHeight}px`;
+    void panelsWrap.offsetHeight;
+    panelsWrap.style.height = `${endHeight}px`;
+
+    const settle = (): void => {
+      panelsWrap.style.height = "";
+      panelsWrap.classList.remove("overflow-hidden");
+      panelsWrap.removeEventListener("transitionend", settle);
+      settlePanelsHeight = null;
+    };
+    panelsWrap.addEventListener("transitionend", settle);
+    settlePanelsHeight = settle;
+  }
+
+  panelsWrap?.addEventListener("chart-title-change", syncPanelsHeight);
 
   function activate(target: string): void {
     for (const tab of tabs)
@@ -399,30 +437,9 @@ function setupChartTabs(
         String(tab.dataset.chartTab === target),
       );
 
-    settlePanelsHeight?.();
-
-    const startHeight = panelsWrap?.getBoundingClientRect().height ?? 0;
     for (const panel of panels)
       panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
-
-    if (panelsWrap) {
-      const endHeight = panelsWrap.scrollHeight;
-      if (Math.round(startHeight) !== Math.round(endHeight)) {
-        panelsWrap.classList.add("overflow-hidden");
-        panelsWrap.style.height = `${startHeight}px`;
-        void panelsWrap.offsetHeight;
-        panelsWrap.style.height = `${endHeight}px`;
-
-        const settle = (): void => {
-          panelsWrap.style.height = "";
-          panelsWrap.classList.remove("overflow-hidden");
-          panelsWrap.removeEventListener("transitionend", settle);
-          settlePanelsHeight = null;
-        };
-        panelsWrap.addEventListener("transitionend", settle);
-        settlePanelsHeight = settle;
-      }
-    }
+    syncPanelsHeight();
 
     setWrapsHidden(filtersPanelWraps, target === "quality");
 

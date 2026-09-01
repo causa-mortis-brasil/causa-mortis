@@ -75,6 +75,36 @@ export function wrapText(
   return lines;
 }
 
+function opticalAscent(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  font: string,
+): number {
+  ctx.font = font;
+  const capAscent = ctx.measureText(text).actualBoundingBoxAscent;
+  const xHeightAscent = ctx.measureText("n").actualBoundingBoxAscent;
+  const letters = text.match(/\p{L}/gu) ?? [];
+  const uppercaseCount = text.match(/\p{Lu}/gu)?.length ?? 0;
+  const uppercaseRatio = letters.length ? uppercaseCount / letters.length : 0;
+  return xHeightAscent + (capAscent - xHeightAscent) * uppercaseRatio;
+}
+
+function textBaselineForCenter(
+  ctx: CanvasRenderingContext2D,
+  centerY: number,
+  entries: { text: string; font: string }[],
+): number {
+  let ascent = 0;
+  let descent = 0;
+  for (const entry of entries) {
+    ctx.font = entry.font;
+    const metrics = ctx.measureText(entry.text);
+    descent = Math.max(descent, metrics.actualBoundingBoxDescent);
+    ascent = Math.max(ascent, opticalAscent(ctx, entry.text, entry.font));
+  }
+  return centerY + (ascent - descent) / 2;
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -115,6 +145,7 @@ export async function exportChartImage(
   container.style.visibility = originalVisibility;
 
   const chartImage = await loadImage(chartDataUrl);
+  const logoImage = await loadImage("/logo.svg");
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -206,22 +237,48 @@ export async function exportChartImage(
   ctx.drawImage(chartImage, offsetX, chartY);
 
   const footerY = squareSize - footerHeight + padding / 2;
+  const footerCenterY = footerY + footerFontSize / 2;
   ctx.fillStyle = footerColor || "#6b7280";
-  ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
-  ctx.textAlign = "left";
-  ctx.fillText("Fonte: SIM/DATASUS · IBGE", offsetX + padding, footerY);
+  ctx.textBaseline = "alphabetic";
 
-  const brandRightX = offsetX + blockWidth - padding;
-  ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
+  const brandFontRegular = `500 ${footerFontSize}px ${fontFamily}`;
+  const brandFontBold = `700 ${footerFontSize}px ${fontFamily}`;
+  const brandBaselineY = textBaselineForCenter(ctx, footerCenterY, [
+    { text: "Causa ", font: brandFontRegular },
+    { text: "Mortis", font: brandFontBold },
+  ]);
+
+  const logoSize = footerFontSize * 1.8;
+  const logoGap = 6 * pixelRatio;
+  const brandLeftX = offsetX + padding;
+  ctx.drawImage(
+    logoImage,
+    brandLeftX,
+    footerCenterY - logoSize / 2,
+    logoSize,
+    logoSize,
+  );
+
+  ctx.textAlign = "left";
+  ctx.font = brandFontRegular;
+  ctx.fillText("Causa ", brandLeftX + logoSize + logoGap, brandBaselineY);
   const causaWidth = ctx.measureText("Causa ").width;
-  ctx.font = `700 ${footerFontSize}px ${fontFamily}`;
-  const mortisWidth = ctx.measureText("Mortis").width;
+  ctx.font = brandFontBold;
+  ctx.fillText(
+    "Mortis",
+    brandLeftX + logoSize + logoGap + causaWidth,
+    brandBaselineY,
+  );
 
-  ctx.textAlign = "left";
-  ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
-  ctx.fillText("Causa ", brandRightX - causaWidth - mortisWidth, footerY);
-  ctx.font = `700 ${footerFontSize}px ${fontFamily}`;
-  ctx.fillText("Mortis", brandRightX - mortisWidth, footerY);
+  const sourceFont = `500 ${footerFontSize}px ${fontFamily}`;
+  const sourceText = "Fonte: SIM/DATASUS · IBGE";
+  const sourceBaselineY = textBaselineForCenter(ctx, footerCenterY, [
+    { text: sourceText, font: sourceFont },
+  ]);
+  ctx.font = sourceFont;
+  ctx.textAlign = "right";
+  ctx.fillText(sourceText, offsetX + blockWidth - padding, sourceBaselineY);
+  ctx.textBaseline = "top";
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/png"),

@@ -14,6 +14,9 @@ export function setChartTitle(
   const line2El = titleEl.querySelector("[data-chart-title-line2]");
   if (line1El) line1El.textContent = title.line1;
   if (line2El) line2El.textContent = title.line2;
+  titleEl.dispatchEvent(
+    new CustomEvent("chart-title-change", { bubbles: true }),
+  );
 }
 
 function hasLocation(filters: Filters): boolean {

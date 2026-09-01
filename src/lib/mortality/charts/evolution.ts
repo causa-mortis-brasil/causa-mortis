@@ -22,18 +22,22 @@ const GRID_TOP = 24;
 const GRID_BOTTOM = 32;
 const PRELIMINARY_AREA_START_OFFSET = 0.4;
 
-type LinePoint = number | { value: number; label: Record<string, unknown> };
+type YearPoint = [number, number];
+type LinePoint =
+  YearPoint | { value: YearPoint; label: Record<string, unknown> };
 
 function withLastPointLabel(
+  years: number[],
   data: number[],
   position: "top" | "bottom",
   color: string,
   formatter: string,
 ): LinePoint[] {
-  return data.map((value, index) =>
-    index === data.length - 1
+  return data.map((value, index) => {
+    const point: YearPoint = [years[index] ?? 0, value];
+    return index === data.length - 1
       ? {
-          value,
+          value: point,
           label: {
             show: true,
             position,
@@ -43,8 +47,8 @@ function withLastPointLabel(
             fontWeight: 600,
           },
         }
-      : value,
-  );
+      : point;
+  });
 }
 
 export function init(
@@ -53,62 +57,14 @@ export function init(
   dimensions: Dimensions,
 ): void {
   const chart = echarts.init(container);
-  let hasRendered = false;
-  new ResizeObserver(() => {
-    chart.resize();
-    if (hasRendered) applyPreliminaryHighlight();
-  }).observe(container);
+  new ResizeObserver(() => chart.resize()).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
   const subtitleEl = card.querySelector("[data-chart-subtitle]");
   if (subtitleEl) subtitleEl.textContent = "Taxa/100 mil habitantes";
-  const maxYear = Math.max(...dimensions.years);
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
-
-  function applyPreliminaryHighlight(): void {
-    const startPixel = chart.convertToPixel(
-      { xAxisIndex: 0 },
-      String(maxYear - 1),
-    );
-    const endPixel = chart.convertToPixel({ xAxisIndex: 0 }, String(maxYear));
-
-    const x =
-      startPixel + (endPixel - startPixel) * PRELIMINARY_AREA_START_OFFSET;
-    const width = Math.max(endPixel - x, 0);
-    const height = Math.max(container.clientHeight - GRID_TOP - GRID_BOTTOM, 0);
-
-    chart.setOption({
-      graphic: {
-        elements: [
-          {
-            id: "preliminary-area",
-            type: "rect",
-            silent: true,
-            z: 1,
-            x,
-            y: GRID_TOP,
-            shape: { width, height },
-            style: { fill: "rgba(0, 0, 0, 0.04)" },
-          },
-          {
-            id: "preliminary-label",
-            type: "text",
-            silent: true,
-            z: 2,
-            x: x + 4,
-            y: GRID_TOP + 4,
-            style: {
-              text: "preliminar",
-              fill: themeColor("--color-gray-500"),
-              fontSize: 11,
-            },
-          },
-        ],
-      },
-    });
-  }
 
   async function render(): Promise<void> {
     const token = ++renderToken;
@@ -134,6 +90,8 @@ export function init(
     }
 
     const lastIndex = dimensions.years.length - 1;
+    const minYear = dimensions.years[0] ?? 0;
+    const maxYear = dimensions.years[lastIndex] ?? 0;
     const standardizedIsHigher =
       (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
     const standardizedColor = themeColor("--color-primary-500");
@@ -146,11 +104,13 @@ export function init(
         valueFormatter: (value: number | string) => formatRate(Number(value)),
       },
       xAxis: {
-        type: "category",
-        data: dimensions.years.map(String),
-        boundaryGap: false,
+        type: "value",
+        min: minYear,
+        max: maxYear,
+        interval: 5,
+        splitLine: { show: false },
         axisLabel: {
-          interval: (_index: number, value: string) => Number(value) % 5 === 0,
+          formatter: (value: number) => String(value),
         },
       },
       yAxis: {
@@ -166,6 +126,7 @@ export function init(
           name: "Padronizada por idade",
           type: "line",
           data: withLastPointLabel(
+            dimensions.years,
             standardized,
             standardizedIsHigher ? "top" : "bottom",
             standardizedColor,
@@ -183,7 +144,16 @@ export function init(
               color: themeColor("--color-gray-500"),
               fontSize: 11,
             },
-            data: [[{ name: "pandemia", xAxis: "2020" }, { xAxis: "2023" }]],
+            data: [
+              [{ name: "pandemia", xAxis: 2020 }, { xAxis: 2023 }],
+              [
+                {
+                  name: "preliminar",
+                  xAxis: maxYear - 1 + PRELIMINARY_AREA_START_OFFSET,
+                },
+                { xAxis: maxYear },
+              ],
+            ],
           },
           markLine: {
             silent: true,
@@ -193,13 +163,14 @@ export function init(
               color: themeColor("--color-gray-400"),
             },
             label: { formatter: "ano selecionado" },
-            data: [{ xAxis: String(store.get().year) }],
+            data: [{ xAxis: store.get().year }],
           },
         },
         {
           name: "Bruta",
           type: "line",
           data: withLastPointLabel(
+            dimensions.years,
             crude,
             standardizedIsHigher ? "bottom" : "top",
             crudeColor,
@@ -213,8 +184,6 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
-    hasRendered = true;
-    applyPreliminaryHighlight();
 
     exportRows = {
       headers: [
