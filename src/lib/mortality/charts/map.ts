@@ -19,7 +19,7 @@ import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
 
 const MAP_NAME = "brazil-states";
-const EXPORT_SIZE = { width: 760, height: 560 };
+const EXPORT_SIZE = { width: 760, height: 620 };
 
 export function init(
   container: HTMLElement,
