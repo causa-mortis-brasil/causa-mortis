@@ -11,7 +11,7 @@ interface Props {
 const defaultDescription =
   "Infográficos interativos sobre mortalidade no Brasil com dados oficiais do SIM/DATASUS e do IBGE: evolução de taxas, causas de morte, distribuição geográfica e pirâmide de mortalidade por sexo e idade.";
 
-const { title = "Do que morremos", description = defaultDescription } =
+const { title = "Causa Mortis", description = defaultDescription } =
   Astro.props;
 
 const socialImage = new URL("/logo.svg", Astro.site);
@@ -31,7 +31,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Do que morremos" />
+    <meta property="og:site_name" content="Causa Mortis" />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

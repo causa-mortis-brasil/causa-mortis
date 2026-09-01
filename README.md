@@ -1,4 +1,4 @@
-# Do que morremos
+# Causa Mortis
 
 Infográfico interativo sobre mortalidade no Brasil, construído com [Astro](https://astro.build). O site reúne dados oficiais de óbitos (SIM/DATASUS) e projeções populacionais (IBGE) em visualizações que permitem explorar a evolução das taxas, as principais causas de morte, a distribuição geográfica, a composição por idade e a pirâmide de mortalidade por sexo. Gráficos renderizados com [ECharts](https://echarts.apache.org/).
 

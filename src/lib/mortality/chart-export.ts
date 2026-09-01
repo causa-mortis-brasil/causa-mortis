@@ -210,9 +210,18 @@ export async function exportChartImage(
   ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
   ctx.textAlign = "left";
   ctx.fillText("Fonte: SIM/DATASUS · IBGE", offsetX + padding, footerY);
-  ctx.textAlign = "right";
-  ctx.fillText("Do que morremos", offsetX + blockWidth - padding, footerY);
+
+  const brandRightX = offsetX + blockWidth - padding;
+  ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
+  const causaWidth = ctx.measureText("Causa ").width;
+  ctx.font = `700 ${footerFontSize}px ${fontFamily}`;
+  const mortisWidth = ctx.measureText("Mortis").width;
+
   ctx.textAlign = "left";
+  ctx.font = `500 ${footerFontSize}px ${fontFamily}`;
+  ctx.fillText("Causa ", brandRightX - causaWidth - mortisWidth, footerY);
+  ctx.font = `700 ${footerFontSize}px ${fontFamily}`;
+  ctx.fillText("Mortis", brandRightX - mortisWidth, footerY);
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/png"),
