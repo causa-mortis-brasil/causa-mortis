@@ -18,6 +18,9 @@ import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
 const EXPORT_SIZE = { width: 760, height: 400 };
+const GRID_TOP = 24;
+const GRID_BOTTOM = 32;
+const PRELIMINARY_AREA_START_OFFSET = 0.4;
 
 type LinePoint = number | { value: number; label: Record<string, unknown> };
 
@@ -50,7 +53,11 @@ export function init(
   dimensions: Dimensions,
 ): void {
   const chart = echarts.init(container);
-  new ResizeObserver(() => chart.resize()).observe(container);
+  let hasRendered = false;
+  new ResizeObserver(() => {
+    chart.resize();
+    if (hasRendered) applyPreliminaryHighlight();
+  }).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
@@ -59,6 +66,49 @@ export function init(
   const maxYear = Math.max(...dimensions.years);
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
+
+  function applyPreliminaryHighlight(): void {
+    const startPixel = chart.convertToPixel(
+      { xAxisIndex: 0 },
+      String(maxYear - 1),
+    );
+    const endPixel = chart.convertToPixel({ xAxisIndex: 0 }, String(maxYear));
+
+    const x =
+      startPixel + (endPixel - startPixel) * PRELIMINARY_AREA_START_OFFSET;
+    const width = Math.max(endPixel - x, 0);
+    const height = Math.max(container.clientHeight - GRID_TOP - GRID_BOTTOM, 0);
+
+    chart.setOption({
+      graphic: {
+        elements: [
+          {
+            id: "preliminary-area",
+            type: "rect",
+            silent: true,
+            z: 1,
+            x,
+            y: GRID_TOP,
+            shape: { width, height },
+            style: { fill: "rgba(0, 0, 0, 0.04)" },
+          },
+          {
+            id: "preliminary-label",
+            type: "text",
+            silent: true,
+            z: 2,
+            x: x + 4,
+            y: GRID_TOP + 4,
+            style: {
+              text: "preliminar",
+              fill: themeColor("--color-gray-500"),
+              fontSize: 11,
+            },
+          },
+        ],
+      },
+    });
+  }
 
   async function render(): Promise<void> {
     const token = ++renderToken;
@@ -90,7 +140,7 @@ export function init(
     const crudeColor = themeColor("--color-gray-500");
 
     const option: EChartsCoreOption = {
-      grid: { left: 48, right: 80, top: 24, bottom: 32 },
+      grid: { left: 48, right: 80, top: GRID_TOP, bottom: GRID_BOTTOM },
       tooltip: {
         trigger: "axis",
         valueFormatter: (value: number | string) => formatRate(Number(value)),
@@ -133,17 +183,7 @@ export function init(
               color: themeColor("--color-gray-500"),
               fontSize: 11,
             },
-            data: [
-              [{ name: "pandemia", xAxis: "2020" }, { xAxis: "2023" }],
-              [
-                {
-                  name: "preliminar",
-                  xAxis: String(maxYear - 1),
-                  label: { position: "insideTopLeft" },
-                },
-                { xAxis: String(maxYear) },
-              ],
-            ],
+            data: [[{ name: "pandemia", xAxis: "2020" }, { xAxis: "2023" }]],
           },
           markLine: {
             silent: true,
@@ -173,6 +213,8 @@ export function init(
     };
 
     chart.setOption(option, { notMerge: true });
+    hasRendered = true;
+    applyPreliminaryHighlight();
 
     exportRows = {
       headers: [

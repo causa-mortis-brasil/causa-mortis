@@ -13,17 +13,24 @@ import { indexOf } from "../dimensions";
 import type { EChartsCoreOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
-import { causeGroupColor } from "../palette";
-import { isManualYearOnlyChange, type FiltersStore } from "../filters";
+import { causeGroupColor, themeColor } from "../palette";
+import {
+  isManualYearOnlyChange,
+  isYearOnlyChange,
+  type FiltersStore,
+} from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
 
-const EXPORT_SIZE = { width: 880, height: 560 };
+const EXPORT_SIZE = { width: 880, height: 460 };
 const MIN_ANNUAL_DEATHS_TO_INCLUDE = 20;
 const LABEL_FONT_SIZE = 10;
 const LABEL_FONT_WEIGHT = 600;
 const LABEL_LINE_HEIGHT = 12;
 const LABEL_PADDING_Y = 1;
+const FAST_AREA_DURATION = 200;
+const NORMAL_AREA_DURATION = 400;
+const PLAYBACK_ANIMATION_BUFFER_MS = 80;
 
 export function init(
   container: HTMLElement,
@@ -64,15 +71,32 @@ export function init(
     }
   });
 
+  function areaAnimationDuration(filters: Filters): number | undefined {
+    const origin = store.getLastYearOrigin();
+    if (isManualYearOnlyChange(origin, previousFilters, filters))
+      return FAST_AREA_DURATION;
+
+    if (origin === "playback" && isYearOnlyChange(previousFilters, filters)) {
+      const intervalMs = store.getLastYearIntervalMs();
+      if (intervalMs !== null)
+        return Math.min(
+          NORMAL_AREA_DURATION,
+          Math.max(
+            FAST_AREA_DURATION,
+            intervalMs - PLAYBACK_ANIMATION_BUFFER_MS,
+          ),
+        );
+      return NORMAL_AREA_DURATION;
+    }
+
+    return undefined;
+  }
+
   async function render(): Promise<void> {
     const filters = store.get();
     if (titleEl)
       titleEl.textContent = ageCompositionChartTitle(filters, dimensions);
-    const useFastAnimation = isManualYearOnlyChange(
-      store.getLastYearOrigin(),
-      previousFilters,
-      filters,
-    );
+    const animationDuration = areaAnimationDuration(filters);
     previousFilters = filters;
 
     const table = await fetchDeathsByCauseGroupAgeForLocation(filters.location);
@@ -138,7 +162,9 @@ export function init(
             opacity: isHighlighted ? 1 : 0.25,
           },
           color,
-          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
+          ...(animationDuration !== undefined
+            ? { animationDuration, animationDurationUpdate: animationDuration }
+            : {}),
           endLabel: {
             show: isHighlighted,
             formatter: () => causeGroup,
@@ -179,6 +205,13 @@ export function init(
             index % 2 === 0 || index === dimensions.age_groups.length - 1
               ? value
               : "",
+        },
+        axisTick: {
+          show: true,
+          alignWithLabel: true,
+          interval: 0,
+          length: 5,
+          lineStyle: { color: themeColor("--color-gray-400"), width: 2 },
         },
       },
       yAxis: {
