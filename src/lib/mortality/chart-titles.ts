@@ -52,7 +52,7 @@ export function mapChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Mortes por ${causePathLabel(filters)} por UF · ${yearLabel(filters.year, dimensions)}`,
+    line1: `Mortes por UF - ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
     line2: sexLabel(filters.sex),
   };
 }
@@ -62,7 +62,7 @@ export function evolutionChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Histórico de óbitos por ${causePathLabel(filters)}`,
+    line1: `Histórico de óbitos - ${causePathLabel(filters)}`,
     line2: hasLocation(filters)
       ? `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`
       : sexLabel(filters.sex),
@@ -74,7 +74,7 @@ export function causesChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Composição dos óbitos por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
+    line1: `Composição dos óbitos - ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
     line2: hasLocation(filters)
       ? `${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`
       : sexLabel(filters.sex),
@@ -112,7 +112,7 @@ export function pyramidChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Pirâmide de mortalidade por ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
+    line1: `Pirâmide de mortalidade - ${causePathLabel(filters)} · ${yearLabel(filters.year, dimensions)}`,
     line2: hasLocation(filters)
       ? locationLabel(dimensions, filters.location)
       : "",

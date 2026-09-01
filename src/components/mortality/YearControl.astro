@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Pause, Play } from "@lucide/astro";
+import { DEFAULT_YEAR } from "../../lib/mortality/filters";
 
 interface Props {
   idSuffix?: string;
@@ -71,14 +72,14 @@ const maxYear = Math.max(...years);
         min={minYear}
         max={maxYear}
         step="1"
-        value={maxYear}
+        value={DEFAULT_YEAR}
         class:list={["accent-primary-500/90", compact ? "w-48" : "w-full"]}
       />
       <output
         id={`filter-year-value${idSuffix}`}
         for={`filter-year${idSuffix}`}
         class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
-        >{maxYear}</output
+        >{DEFAULT_YEAR}</output
       >
     </div>
   </div>

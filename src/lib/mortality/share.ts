@@ -12,7 +12,7 @@ export interface SharedState {
 export function parseSharedState(
   search: string,
   dimensions: Dimensions,
-  maxYear: number,
+  defaultYear: number,
 ): SharedState {
   const params = new URLSearchParams(search);
 
@@ -29,7 +29,7 @@ export function parseSharedState(
     location:
       location && dimensions.locations.includes(location) ? location : "BR",
     sex: sex && SEX_VALUES.includes(sex as Sex) ? (sex as Sex) : "Ambos",
-    year: dimensions.years.includes(year) ? year : maxYear,
+    year: dimensions.years.includes(year) ? year : defaultYear,
     causeGroup:
       causeGroup && dimensions.cause_groups.includes(causeGroup)
         ? causeGroup

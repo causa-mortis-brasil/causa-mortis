@@ -1,7 +1,7 @@
 import { sexLabel } from "./chart-titles";
 import { createCustomSelect, type CustomSelect } from "./custom-select";
 import { fetchDimensions } from "./dimensions";
-import { FiltersStore } from "./filters";
+import { DEFAULT_YEAR, FiltersStore } from "./filters";
 import { parseSharedState } from "./share";
 import { initSummaryStats } from "./summary-stats";
 import type { Dimensions, Filters, PyramidMeasure, Sex } from "./types";
@@ -91,6 +91,7 @@ function setupPyramidMeasureSelect(
 
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
 const YEAR_PLAYBACK_SPEEDS = [1, 2, 3];
+const RANDOM_TAB_EXCLUDED_CHARTS = ["quality"];
 
 export interface YearPlayback {
   toggle: () => void;
@@ -480,11 +481,10 @@ function observeChartCards(
 
 export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   const dimensions = await fetchDimensions();
-  const maxYear = Math.max(...dimensions.years);
   const { filters: initialFilters, tab: sharedTab } = parseSharedState(
     window.location.search,
     dimensions,
-    maxYear,
+    DEFAULT_YEAR,
   );
 
   const store = new FiltersStore(initialFilters);
@@ -518,9 +518,12 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     sharedTab && ["stats", ...chartNames].includes(sharedTab)
       ? sharedTab
       : null;
+  const randomTabChoices = chartNames.filter(
+    (name) => !RANDOM_TAB_EXCLUDED_CHARTS.includes(name),
+  );
   activateChartTab(
     validSharedTab ??
-      chartNames[Math.floor(Math.random() * chartNames.length)] ??
+      randomTabChoices[Math.floor(Math.random() * randomTabChoices.length)] ??
       "map",
   );
   observeChartCards(root, store, dimensions);

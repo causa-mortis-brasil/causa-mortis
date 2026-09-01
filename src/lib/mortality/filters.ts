@@ -1,5 +1,7 @@
 import type { Filters, PyramidMeasure, Sex } from "./types";
 
+export const DEFAULT_YEAR = 2024;
+
 type Listener = (filters: Filters) => void;
 export type YearChangeOrigin = "input" | "playback";
 
