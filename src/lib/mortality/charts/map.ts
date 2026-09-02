@@ -11,7 +11,11 @@ import { subscribeWhenVisible } from "../chart-visibility";
 import { mapChartTitle, setChartTitle } from "../chart-titles";
 import { fetchBrazilStatesGeoJson } from "../data";
 import { indexOf } from "../dimensions";
-import type { EChartsCoreOption } from "../echarts-core";
+import type {
+  CallbackDataParams,
+  EChartsOption,
+  TopLevelFormatterParams,
+} from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatRate, formatRateLabel } from "../format";
 import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
@@ -87,12 +91,15 @@ export function init(
     optionData: MapOptionData,
     roam: RoamState,
     useFastAnimation: boolean,
-  ): EChartsCoreOption {
+  ): EChartsOption {
     const { data, min, max } = optionData;
     return {
       tooltip: {
-        formatter: (params: { name: string; value: number }) => {
-          const { name, value } = params;
+        formatter: (raw: TopLevelFormatterParams) => {
+          const params = Array.isArray(raw) ? raw[0] : raw;
+          if (!params) return "";
+          const { name } = params;
+          const value = Number(params.value);
           return `${dimensions.location_names[name] ?? name}<br/>${formatRate(value)} por 100 mil hab. (padronizada por idade)`;
         },
       },
@@ -128,8 +135,8 @@ export function init(
           },
           label: {
             show: true,
-            formatter: (params: { value: number }) =>
-              formatRateLabel(params.value),
+            formatter: (params: CallbackDataParams) =>
+              formatRateLabel(Number(params.value)),
             fontSize: 10,
             fontWeight: 600,
             color: "#fff",

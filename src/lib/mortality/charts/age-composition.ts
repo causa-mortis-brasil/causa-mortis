@@ -11,7 +11,7 @@ import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
 import { fetchDeathsByCauseGroupAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
-import type { EChartsCoreOption } from "../echarts-core";
+import type { EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
 import { causeGroupColor, themeColor } from "../palette";
@@ -63,7 +63,7 @@ export function init(
   function buildOption(
     data: AgeCompositionOptionData,
     wide: boolean,
-  ): EChartsCoreOption {
+  ): EChartsOption {
     const {
       filters,
       stackedFromBase,
@@ -134,8 +134,7 @@ export function init(
       tooltip: {
         trigger: "axis",
         order: "seriesDesc",
-        valueFormatter: (value: number | string) =>
-          formatPercent(Number(value)),
+        valueFormatter: (value) => formatPercent(Number(value)),
       },
       xAxis: {
         type: "category",

@@ -11,7 +11,11 @@ import { subscribeWhenVisible } from "../chart-visibility";
 import { qualityChartTitle, setChartTitle } from "../chart-titles";
 import { fetchBrazilStatesGeoJson, fetchCoverage } from "../data";
 import { indexOf } from "../dimensions";
-import type { EChartsCoreOption } from "../echarts-core";
+import type {
+  CallbackDataParams,
+  EChartsOption,
+  TopLevelFormatterParams,
+} from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatRate } from "../format";
 import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
@@ -126,12 +130,19 @@ export function init(
   function buildOption(
     optionData: QualityOptionData,
     roam: RoamState,
-  ): EChartsCoreOption {
+  ): EChartsOption {
     const { data, domainMin } = optionData;
+    const seriesData = data.map(({ name, value }) => ({
+      name,
+      value: value ?? ("-" as const),
+    }));
     return {
       tooltip: {
-        formatter: (params: { name: string; value: number | null }) => {
-          const { name, value } = params;
+        formatter: (raw: TopLevelFormatterParams) => {
+          const params = Array.isArray(raw) ? raw[0] : raw;
+          if (!params) return "";
+          const { name } = params;
+          const value = params.value == null ? null : Number(params.value);
           const label = dimensions.location_names[name] ?? name;
           return hasValue(value)
             ? `${label}<br/>${formatRate(value)}% dos óbitos captados`
@@ -168,15 +179,17 @@ export function init(
           },
           label: {
             show: true,
-            formatter: (params: { value: number | null }) =>
-              hasValue(params.value) ? `${formatRate(params.value)}%` : "—",
+            formatter: (params: CallbackDataParams) => {
+              const value = params.value == null ? null : Number(params.value);
+              return hasValue(value) ? `${formatRate(value)}%` : "—";
+            },
             fontSize: 10,
             fontWeight: 600,
             color: "#fff",
             textBorderColor: "rgba(0, 0, 0, 0.35)",
             textBorderWidth: 2,
           },
-          data,
+          data: seriesData,
         },
       ],
     };

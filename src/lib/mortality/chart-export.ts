@@ -1,4 +1,4 @@
-import type { EChartsCoreOption } from "./echarts-core";
+import type { EChartsOption } from "./echarts-core";
 import { echarts } from "./echarts-core";
 import type { Filters } from "./types";
 import { buildZip } from "./zip";
@@ -11,7 +11,7 @@ export interface ChartExportRows {
 export interface ChartExportSource {
   getFilenameBase: () => string;
   getRows: () => ChartExportRows;
-  getExportOption: () => EChartsCoreOption;
+  getExportOption: () => EChartsOption;
 }
 
 export interface ChartExportSize {
@@ -126,7 +126,7 @@ function nextPaint(): Promise<void> {
 async function captureOffscreen(
   exportSize: ChartExportSize,
   pixelRatio: number,
-  option: EChartsCoreOption,
+  option: EChartsOption,
 ): Promise<HTMLCanvasElement> {
   const offscreen = document.createElement("div");
   offscreen.style.cssText = `position:fixed;left:-9999px;top:0;width:${exportSize.width}px;height:${exportSize.height}px;`;
@@ -154,7 +154,7 @@ export async function exportChartImage(
   subtitle: string,
   description: string,
   filenameBase: string,
-  getExportOption: () => EChartsCoreOption,
+  getExportOption: () => EChartsOption,
 ): Promise<void> {
   const pixelRatio = 3;
   await nextPaint();

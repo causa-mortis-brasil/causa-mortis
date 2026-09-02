@@ -8,7 +8,7 @@ import {
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
-import type { EChartsCoreOption } from "../echarts-core";
+import type { EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { evolutionChartTitle, setChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
@@ -80,7 +80,7 @@ export function init(
 
   let lastOptionData: EvolutionOptionData | null = null;
 
-  function buildOption(data: EvolutionOptionData): EChartsCoreOption {
+  function buildOption(data: EvolutionOptionData): EChartsOption {
     const {
       years,
       standardized,
@@ -99,7 +99,7 @@ export function init(
       grid: { left: 48, right: 80, top: GRID_TOP, bottom: GRID_BOTTOM },
       tooltip: {
         trigger: "axis",
-        valueFormatter: (value: number | string) => formatRate(Number(value)),
+        valueFormatter: (value) => formatRate(Number(value)),
       },
       xAxis: {
         type: "value",
@@ -109,6 +109,11 @@ export function init(
         splitLine: { show: false },
         axisLabel: {
           formatter: (value: number) => String(value),
+        },
+        axisPointer: {
+          label: {
+            formatter: (params) => String(params.value),
+          },
         },
       },
       yAxis: {

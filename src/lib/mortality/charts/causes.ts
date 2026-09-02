@@ -21,7 +21,12 @@ import {
   fetchDeathsByDetailedSubgroupForLocation,
   fetchDeathsByExternalCauseForLocation,
 } from "../data";
-import type { ECElementEvent, EChartsCoreOption } from "../echarts-core";
+import type {
+  CallbackDataParams,
+  ECElementEvent,
+  EChartsOption,
+  TopLevelFormatterParams,
+} from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { causeGroupColor } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
@@ -313,11 +318,9 @@ export function init(
     );
   }
 
-  function treemapLabelFormatter(params: {
-    name: string;
-    data: CauseNode;
-  }): string {
-    return `${params.name}\n${formatPercent((params.data.percent ?? 0) / 100)}`;
+  function treemapLabelFormatter(params: CallbackDataParams): string {
+    const node = params.data as CauseNode;
+    return `${params.name}\n${formatPercent((node.percent ?? 0) / 100)}`;
   }
 
   function buildTreemapSeries(displayNodes: CauseNode[], bottom: number) {
@@ -342,10 +345,12 @@ export function init(
     };
   }
 
-  function treemapTooltip(): EChartsCoreOption["tooltip"] {
+  function treemapTooltip(): EChartsOption["tooltip"] {
     return {
-      formatter: (params: { data: CauseNode }) => {
-        const node = params.data;
+      formatter: (raw: TopLevelFormatterParams) => {
+        const params = Array.isArray(raw) ? raw[0] : raw;
+        if (!params) return "";
+        const node = params.data as CauseNode;
         const stats = [`${formatInteger(node.value)} óbitos`];
         if (Number.isFinite(node.percent))
           stats.push(`${formatPercent(node.percent / 100)} do nível`);
@@ -365,7 +370,7 @@ export function init(
   function buildExportOption(
     filters: Filters,
     level1: CauseNode[],
-  ): EChartsCoreOption {
+  ): EChartsOption {
     const displayNodes = findDisplayNodes(level1, causePath(filters)).map(
       (node) => ({ ...node, children: undefined }),
     );

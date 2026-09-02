@@ -12,7 +12,7 @@ import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
 import { fetchPopulationByAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
-import type { EChartsCoreOption } from "../echarts-core";
+import type { CallbackDataParams, EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
 import { themeColor } from "../palette";
@@ -84,10 +84,7 @@ export function init(
 
   let lastOptionData: PyramidOptionData | null = null;
 
-  function buildOption(
-    data: PyramidOptionData,
-    wide: boolean,
-  ): EChartsCoreOption {
+  function buildOption(data: PyramidOptionData, wide: boolean): EChartsOption {
     const {
       measure,
       menValues,
@@ -111,8 +108,7 @@ export function init(
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "shadow" },
-        valueFormatter: (value: number | string) =>
-          fullValueFormatter(Math.abs(Number(value))),
+        valueFormatter: (value) => fullValueFormatter(Math.abs(Number(value))),
       },
       legend: [
         {
@@ -196,8 +192,10 @@ export function init(
           label: {
             show: true,
             position: "left",
-            formatter: (params: { value: number }) =>
-              params.value > 0 ? dataLabelFormatter(params.value) : "",
+            formatter: (params: CallbackDataParams) => {
+              const value = Number(params.value);
+              return value > 0 ? dataLabelFormatter(value) : "";
+            },
             color: themeColor("--color-gray-700"),
             fontSize: 10,
           },
@@ -213,8 +211,10 @@ export function init(
           label: {
             show: true,
             position: "right",
-            formatter: (params: { value: number }) =>
-              params.value > 0 ? dataLabelFormatter(params.value) : "",
+            formatter: (params: CallbackDataParams) => {
+              const value = Number(params.value);
+              return value > 0 ? dataLabelFormatter(value) : "";
+            },
             color: themeColor("--color-gray-700"),
             fontSize: 10,
           },
