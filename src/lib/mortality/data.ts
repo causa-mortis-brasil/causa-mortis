@@ -50,8 +50,6 @@ function fetchLocationTable<T>(name: string, location: string): Promise<T> {
   );
 }
 
-// Tabelas completas (todos os territórios) — usadas só onde é preciso
-// comparar territórios ao mesmo tempo (mapa coroplético).
 export const fetchOverall = (): Promise<OverallTable> => fetchTable("overall");
 export const fetchDeathsByCauseGroup = (): Promise<DeathsByCauseGroupTable> =>
   fetchTable("deaths_by_cause_group");
@@ -67,8 +65,6 @@ export const fetchDeathsByDetailedSubgroup =
 export const fetchCoverage = (): Promise<CoverageTable> =>
   fetchTable("coverage");
 
-// Tabelas de um único território — usadas pelos gráficos que só olham para o
-// território ativo no filtro, evitando baixar os outros 27.
 export const fetchOverallForLocation = (
   location: string,
 ): Promise<OverallLocationTable> => fetchLocationTable("overall", location);

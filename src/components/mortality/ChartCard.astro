@@ -1,10 +1,12 @@
 ---
 import {
   Check,
+  CircleAlert,
   Download,
   FileSpreadsheet,
   FileText,
   Image,
+  LoaderCircle,
   Maximize2,
   Minimize2,
   Share2,
@@ -99,8 +101,16 @@ const {
 
     <div class="flex items-center gap-3">
       <details data-chart-export class="group relative">
-        <summary class="chart-export-trigger">
-          <Download class="size-4" />
+        <summary class="chart-export-trigger" data-chart-export-trigger>
+          <span data-export-icon-default>
+            <Download class="size-4" />
+          </span>
+          <span data-export-icon-loading hidden>
+            <LoaderCircle class="size-4 animate-spin" />
+          </span>
+          <span data-export-icon-error hidden>
+            <CircleAlert class="size-4 text-red-500" />
+          </span>
           Exportar
         </summary>
         <div class="chart-export-menu">

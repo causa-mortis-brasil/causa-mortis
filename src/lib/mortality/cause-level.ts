@@ -84,11 +84,6 @@ export interface RatePoint {
 const ZERO_POINT: RatePoint = { deaths: 0, crudeRate: 0, stdRate: 0 };
 const EMPTY_LOCATION_TABLE: OverallLocationTable = [];
 
-/**
- * Variante "todos os territórios": só o mapa coroplético precisa comparar
- * territórios entre si, então é o único consumidor que busca a tabela
- * completa em vez da fatia do território ativo.
- */
 export type RatePointGetter = (
   locationIndex: number,
   sexIndex: number,
@@ -178,11 +173,6 @@ export async function loadRatePointGetter(
   };
 }
 
-/**
- * Variante "um território": usada pelos gráficos que só olham para o
- * território ativo no filtro (evolução, resumo). Busca só a fatia daquele
- * território em vez da tabela inteira.
- */
 export type LocationRatePointGetter = (
   sexIndex: number,
   yearIndex: number,

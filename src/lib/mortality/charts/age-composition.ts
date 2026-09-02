@@ -2,6 +2,7 @@ import { getCauseGroupAgeSeries } from "../access";
 import { ageCompositionChartTitle, setChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
+  EXPORT_WIDTH,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -22,7 +23,7 @@ import {
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
 
-const EXPORT_SIZE = { width: 880, height: 460 };
+const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 620 };
 const MIN_ANNUAL_DEATHS_TO_INCLUDE = 20;
 const LABEL_FONT_SIZE = 10;
 const LABEL_FONT_WEIGHT = 600;
@@ -47,8 +48,125 @@ export function init(
   let exportRows: ChartExportRows = { headers: [], rows: [] };
   let seriesOrder: string[] = [];
   let sharesByAge: number[][] = [];
-  let forceWideLayout = false;
   let previousFilters: Filters | null = null;
+
+  interface AgeCompositionOptionData {
+    filters: Filters;
+    stackedFromBase: number[];
+    deathsByCauseGroup: (number | null)[][];
+    totalByAge: number[];
+    animationDuration: number | undefined;
+  }
+
+  let lastOptionData: AgeCompositionOptionData | null = null;
+
+  function buildOption(
+    data: AgeCompositionOptionData,
+    wide: boolean,
+  ): EChartsCoreOption {
+    const {
+      filters,
+      stackedFromBase,
+      deathsByCauseGroup,
+      totalByAge,
+      animationDuration,
+    } = data;
+    const isNarrow = !wide && container.clientWidth < 480;
+    const labelWidth = wide ? 168 : isNarrow ? 80 : 116;
+    const rightMargin = labelWidth + 16;
+    const gridTop = 16;
+    const gridBottom = isNarrow ? 40 : 48;
+
+    const stackedSeriesData = stackedFromBase.map((causeGroupIndex) => {
+      const causeGroup = dimensions.cause_groups[causeGroupIndex];
+      const isHighlighted =
+        !filters.causeGroup || filters.causeGroup === causeGroup;
+      const shares = dimensions.age_groups.map((_, ageIndex) => {
+        const deaths = deathsByCauseGroup[causeGroupIndex]?.[ageIndex] ?? 0;
+        const total = totalByAge[ageIndex] ?? 0;
+        return total > 0 ? deaths / total : 0;
+      });
+      return { causeGroupIndex, causeGroup, isHighlighted, shares };
+    });
+
+    const series = stackedSeriesData.map(
+      ({ causeGroupIndex, causeGroup, isHighlighted, shares }) => {
+        const color = causeGroupColor(causeGroupIndex);
+
+        return {
+          name: causeGroup,
+          type: "line" as const,
+          stack: "total",
+          symbol: "none" as const,
+          areaStyle: { opacity: isHighlighted ? 0.9 : 0.25 },
+          lineStyle: {
+            color: "#fff",
+            width: 1,
+            opacity: isHighlighted ? 1 : 0.25,
+          },
+          color,
+          ...(animationDuration !== undefined
+            ? { animationDuration, animationDurationUpdate: animationDuration }
+            : {}),
+          endLabel: {
+            show: isHighlighted,
+            formatter: () => causeGroup,
+            color,
+            fontSize: LABEL_FONT_SIZE,
+            fontWeight: LABEL_FONT_WEIGHT,
+            width: labelWidth,
+            lineHeight: LABEL_LINE_HEIGHT,
+            padding: [LABEL_PADDING_Y, 0] as [number, number],
+          },
+          labelLayout: { moveOverlap: "shiftY" as const },
+          data: shares,
+        };
+      },
+    );
+
+    return {
+      grid: {
+        left: isNarrow ? 36 : 48,
+        right: rightMargin,
+        top: gridTop,
+        bottom: gridBottom,
+      },
+      tooltip: {
+        trigger: "axis",
+        order: "seriesDesc",
+        valueFormatter: (value: number | string) =>
+          formatPercent(Number(value)),
+      },
+      xAxis: {
+        type: "category",
+        data: dimensions.age_groups,
+        name: "Faixa de idade (anos)",
+        nameLocation: "middle",
+        nameGap: 24,
+        axisLabel: {
+          formatter: (value: string, index: number) =>
+            index % 2 === 0 || index === dimensions.age_groups.length - 1
+              ? value
+              : "",
+        },
+        axisTick: {
+          show: true,
+          alignWithLabel: true,
+          interval: 0,
+          length: 5,
+          lineStyle: { color: themeColor("--color-gray-400"), width: 2 },
+        },
+      },
+      yAxis: {
+        type: "value",
+        max: 1,
+        axisLabel: {
+          formatter: (value: number) => formatPercentInteger(value),
+        },
+      },
+      series,
+    };
+  }
 
   chart.getZr().on("click", (event) => {
     const pixel: [number, number] = [event.offsetX, event.offsetY];
@@ -127,106 +245,26 @@ export function init(
 
     const stackedFromBase = [...includedIndices].reverse();
 
-    const isNarrow = !forceWideLayout && container.clientWidth < 480;
-    const labelWidth = forceWideLayout ? 168 : isNarrow ? 80 : 116;
-    const rightMargin = labelWidth + 16;
-    const gridTop = 16;
-    const gridBottom = isNarrow ? 40 : 48;
+    lastOptionData = {
+      filters,
+      stackedFromBase,
+      deathsByCauseGroup,
+      totalByAge,
+      animationDuration,
+    };
+    const wide = container.clientWidth >= 480;
+    chart.setOption(buildOption(lastOptionData, wide), { notMerge: true });
 
-    const stackedSeriesData = stackedFromBase.map((causeGroupIndex) => {
-      const causeGroup = dimensions.cause_groups[causeGroupIndex];
-      const isHighlighted =
-        !filters.causeGroup || filters.causeGroup === causeGroup;
-      const shares = dimensions.age_groups.map((_, ageIndex) => {
+    seriesOrder = stackedFromBase.map(
+      (causeGroupIndex) => dimensions.cause_groups[causeGroupIndex] ?? "",
+    );
+    sharesByAge = stackedFromBase.map((causeGroupIndex) =>
+      dimensions.age_groups.map((_, ageIndex) => {
         const deaths = deathsByCauseGroup[causeGroupIndex]?.[ageIndex] ?? 0;
         const total = totalByAge[ageIndex] ?? 0;
         return total > 0 ? deaths / total : 0;
-      });
-      return { causeGroupIndex, causeGroup, isHighlighted, shares };
-    });
-
-    const series = stackedSeriesData.map(
-      ({ causeGroupIndex, causeGroup, isHighlighted, shares }) => {
-        const color = causeGroupColor(causeGroupIndex);
-
-        return {
-          name: causeGroup,
-          type: "line" as const,
-          stack: "total",
-          symbol: "none" as const,
-          areaStyle: { opacity: isHighlighted ? 0.9 : 0.25 },
-          lineStyle: {
-            color: "#fff",
-            width: 1,
-            opacity: isHighlighted ? 1 : 0.25,
-          },
-          color,
-          ...(animationDuration !== undefined
-            ? { animationDuration, animationDurationUpdate: animationDuration }
-            : {}),
-          endLabel: {
-            show: isHighlighted,
-            formatter: () => causeGroup,
-            color,
-            fontSize: LABEL_FONT_SIZE,
-            fontWeight: LABEL_FONT_WEIGHT,
-            width: labelWidth,
-            lineHeight: LABEL_LINE_HEIGHT,
-            padding: [LABEL_PADDING_Y, 0] as [number, number],
-          },
-          labelLayout: { moveOverlap: "shiftY" as const },
-          data: shares,
-        };
-      },
+      }),
     );
-
-    const option: EChartsCoreOption = {
-      grid: {
-        left: isNarrow ? 36 : 48,
-        right: rightMargin,
-        top: gridTop,
-        bottom: gridBottom,
-      },
-      tooltip: {
-        trigger: "axis",
-        order: "seriesDesc",
-        valueFormatter: (value: number | string) =>
-          formatPercent(Number(value)),
-      },
-      xAxis: {
-        type: "category",
-        data: dimensions.age_groups,
-        name: "Faixa de idade (anos)",
-        nameLocation: "middle",
-        nameGap: 24,
-        axisLabel: {
-          formatter: (value: string, index: number) =>
-            index % 2 === 0 || index === dimensions.age_groups.length - 1
-              ? value
-              : "",
-        },
-        axisTick: {
-          show: true,
-          alignWithLabel: true,
-          interval: 0,
-          length: 5,
-          lineStyle: { color: themeColor("--color-gray-400"), width: 2 },
-        },
-      },
-      yAxis: {
-        type: "value",
-        max: 1,
-        axisLabel: {
-          formatter: (value: number) => formatPercentInteger(value),
-        },
-      },
-      series,
-    };
-
-    chart.setOption(option, { notMerge: true });
-
-    seriesOrder = series.map((s) => s.name);
-    sharesByAge = series.map((s) => s.data);
 
     exportRows = {
       headers: [
@@ -246,17 +284,13 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, EXPORT_SIZE, {
+  setupChartExport(card, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("composicao-etaria", store.get()),
     getRows: () => exportRows,
-    prepareExport: async () => {
-      forceWideLayout = true;
-      await render();
-    },
-    finishExport: () => {
-      forceWideLayout = false;
-      void render();
-    },
+    getExportOption: () =>
+      lastOptionData
+        ? { ...buildOption(lastOptionData, true), animation: false }
+        : {},
   });
 
   setupChartFullscreen(card, container);

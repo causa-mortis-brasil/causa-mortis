@@ -344,10 +344,6 @@ console.log(
   `  ${bundleFile.replace(`${HERE}/../`, "")} ${(statSync(bundleFile).size / 1e6).toFixed(2)} MB`,
 );
 
-// Fatias por território: cada gráfico que só olha para um território de
-// cada vez (todos menos o mapa) busca só o arquivo abaixo em vez da tabela
-// inteira. O nome da tabela completa acima continua existindo, sem mudanças,
-// para a seção de download do site.
 const LOCATION_SHARDED_TABLES = JSON_TABLES.filter(
   (table) => table !== "dimensions" && table !== "coverage",
 );
@@ -377,12 +373,6 @@ console.log(
   `  ${LOCATION_SHARDED_TABLES.length} tabelas × ${dimensions.locations.length} territórios = ${shardCount} arquivos, ${(shardBytes / 1e6).toFixed(2)} MB total`,
 );
 
-// Malha dos estados: a versão original de alta precisão continua em
-// public/data/geo/br-states.geojson para a seção de download. O mapa do site
-// usa uma cópia simplificada (gerada uma vez com mapshaper a partir de
-// data/br-states-simplified.geojson), guardada num diretório versionado por
-// hash para poder ser cacheada de forma imutável sem risco de ficar
-// desatualizada.
 mkdirSync(GEO_OUT_DIR, { recursive: true });
 const geoVersionedDir = path.join(GEO_OUT_DIR, "versioned");
 rmSync(geoVersionedDir, { recursive: true, force: true });

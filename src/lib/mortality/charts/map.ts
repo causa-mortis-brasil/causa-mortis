@@ -1,6 +1,7 @@
 import { loadRatePointGetter, resolveCauseLevel } from "../cause-level";
 import {
   buildFilenameBase,
+  EXPORT_WIDTH,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -19,7 +20,7 @@ import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
 
 const MAP_NAME = "brazil-states";
-const EXPORT_SIZE = { width: 760, height: 620 };
+const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 620 };
 
 export function init(
   container: HTMLElement,
@@ -35,10 +36,9 @@ export function init(
   const stableScaleCheckbox = card.querySelector("#map-scale-stable");
 
   if (subtitleEl)
-    subtitleEl.textContent =
-      "Índice/100 mil habitantes (padronizado por idade)";
+    subtitleEl.textContent = "Taxa/100 mil habitantes (padronizada por idade)";
 
-  let stableScale = true;
+  let stableScale = false;
   let mapRegistered = false;
   let renderToken = 0;
   let previousFilters: Filters | null = null;
@@ -54,6 +54,93 @@ export function init(
   const stateLocations = dimensions.locations.filter(
     (location) => location !== "BR",
   );
+
+  interface MapOptionData {
+    data: { name: string; value: number }[];
+    min: number;
+    max: number;
+  }
+
+  interface RoamState {
+    center?: [number, number];
+    zoom?: number;
+  }
+
+  let lastOptionData: MapOptionData | null = null;
+
+  function readRoamState(): RoamState {
+    const option = chart.getOption();
+    const series = option?.series;
+    const first = Array.isArray(series) ? series[0] : undefined;
+    if (!first || typeof first !== "object") return {};
+    const { center, zoom } = first as { center?: unknown; zoom?: unknown };
+    return {
+      center:
+        Array.isArray(center) && center.length === 2
+          ? (center as [number, number])
+          : undefined,
+      zoom: typeof zoom === "number" ? zoom : undefined,
+    };
+  }
+
+  function buildOption(
+    optionData: MapOptionData,
+    roam: RoamState,
+    useFastAnimation: boolean,
+  ): EChartsCoreOption {
+    const { data, min, max } = optionData;
+    return {
+      tooltip: {
+        formatter: (params: { name: string; value: number }) => {
+          const { name, value } = params;
+          return `${dimensions.location_names[name] ?? name}<br/>${formatRate(value)} por 100 mil hab. (padronizada por idade)`;
+        },
+      },
+      visualMap: {
+        min,
+        max,
+        type: "continuous",
+        splitNumber: MAP_SCALE_STEPS,
+        itemGap: 2,
+        inRange: { color: mapScaleSteps() },
+        orient: "horizontal",
+        left: "left",
+        bottom: 0,
+        text: [formatRate(max), formatRate(min)],
+      },
+      series: [
+        {
+          type: "map",
+          map: MAP_NAME,
+          aspectScale: 0.95,
+          roam: true,
+          scaleLimit: { min: 1, max: 8 },
+          ...(roam.center ? { center: roam.center } : {}),
+          ...(roam.zoom ? { zoom: roam.zoom } : {}),
+          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
+          itemStyle: { borderColor: "#fff", borderWidth: 0.5 },
+          emphasis: {
+            itemStyle: {
+              borderColor: themeColor("--color-primary-500"),
+              borderWidth: 1.5,
+            },
+            label: { color: "#fff" },
+          },
+          label: {
+            show: true,
+            formatter: (params: { value: number }) =>
+              formatRateLabel(params.value),
+            fontSize: 10,
+            fontWeight: 600,
+            color: "#fff",
+            textBorderColor: "rgba(0, 0, 0, 0.35)",
+            textBorderWidth: 2,
+          },
+          data,
+        },
+      ],
+    };
+  }
 
   async function render(): Promise<void> {
     const token = ++renderToken;
@@ -106,56 +193,10 @@ export function init(
       };
     });
 
-    const option: EChartsCoreOption = {
-      tooltip: {
-        formatter: (params: { name: string; value: number }) => {
-          const { name, value } = params;
-          return `${dimensions.location_names[name] ?? name}<br/>${formatRate(value)} por 100 mil hab. (padronizada por idade)`;
-        },
-      },
-      visualMap: {
-        min,
-        max,
-        type: "continuous",
-        splitNumber: MAP_SCALE_STEPS,
-        itemGap: 2,
-        inRange: { color: mapScaleSteps() },
-        orient: "horizontal",
-        left: "left",
-        bottom: 0,
-        text: [formatRate(max), formatRate(min)],
-      },
-      series: [
-        {
-          type: "map",
-          map: MAP_NAME,
-          aspectScale: 0.95,
-          roam: true,
-          scaleLimit: { min: 1, max: 8 },
-          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
-          itemStyle: { borderColor: "#fff", borderWidth: 0.5 },
-          emphasis: {
-            itemStyle: {
-              borderColor: themeColor("--color-primary-500"),
-              borderWidth: 1.5,
-            },
-          },
-          label: {
-            show: true,
-            formatter: (params: { value: number }) =>
-              formatRateLabel(params.value),
-            fontSize: 10,
-            fontWeight: 600,
-            color: "#fff",
-            textBorderColor: "rgba(0, 0, 0, 0.35)",
-            textBorderWidth: 2,
-          },
-          data,
-        },
-      ],
-    };
-
-    chart.setOption(option, { notMerge: true });
+    lastOptionData = { data, min, max };
+    chart.setOption(buildOption(lastOptionData, {}, useFastAnimation), {
+      notMerge: true,
+    });
 
     exportRows = {
       headers: ["UF", "Território", "Taxa padronizada (por 100 mil hab.)"],
@@ -167,9 +208,16 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, EXPORT_SIZE, {
+  setupChartExport(card, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("mapa", store.get()),
     getRows: () => exportRows,
+    getExportOption: () =>
+      lastOptionData
+        ? {
+            ...buildOption(lastOptionData, readRoamState(), false),
+            animation: false,
+          }
+        : {},
   });
 
   setupChartFullscreen(card, container);

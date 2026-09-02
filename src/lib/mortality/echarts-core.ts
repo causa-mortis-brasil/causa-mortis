@@ -3,6 +3,7 @@ import {
   BarChart,
   LineChart,
   MapChart,
+  PieChart,
   ScatterChart,
   TreemapChart,
 } from "echarts/charts";
@@ -21,6 +22,7 @@ echarts.use([
   BarChart,
   LineChart,
   MapChart,
+  PieChart,
   ScatterChart,
   TreemapChart,
   GraphicComponent,

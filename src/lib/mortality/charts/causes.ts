@@ -6,6 +6,7 @@ import {
 } from "../access";
 import {
   buildFilenameBase,
+  EXPORT_WIDTH,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -32,7 +33,13 @@ import {
 import { setupChartShare } from "../share";
 import type { CauseFilter, Dimensions, Filters } from "../types";
 
-const EXPORT_SIZE = { width: 672, height: 480 };
+const EXPORT_CHART_HEIGHT = 480;
+const EXPORT_LEGEND_GAP = 16;
+const EXPORT_LEGEND_HEIGHT = 160;
+const EXPORT_SIZE = {
+  width: EXPORT_WIDTH,
+  height: EXPORT_CHART_HEIGHT + EXPORT_LEGEND_HEIGHT,
+};
 const NORMAL_TREEMAP_DURATION = 900;
 const FAST_TREEMAP_DURATION = 200;
 const PLAYBACK_ANIMATION_BUFFER_MS = 80;
@@ -306,6 +313,100 @@ export function init(
     );
   }
 
+  function treemapLabelFormatter(params: {
+    name: string;
+    data: CauseNode;
+  }): string {
+    return `${params.name}\n${formatPercent((params.data.percent ?? 0) / 100)}`;
+  }
+
+  function buildTreemapSeries(displayNodes: CauseNode[], bottom: number) {
+    return {
+      name: "Todas as causas",
+      type: "treemap" as const,
+      top: 8,
+      bottom,
+      roam: false,
+      nodeClick: false as const,
+      leafDepth: 1,
+      breadcrumb: { show: false },
+      upperLabel: { show: true, height: 24, color: "#fff" },
+      label: { formatter: treemapLabelFormatter },
+      itemStyle: { borderColor: "#fff", gapWidth: 3 },
+      levels: [
+        {},
+        { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
+        { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
+      ],
+      data: displayNodes,
+    };
+  }
+
+  function treemapTooltip(): EChartsCoreOption["tooltip"] {
+    return {
+      formatter: (params: { data: CauseNode }) => {
+        const node = params.data;
+        const stats = [`${formatInteger(node.value)} óbitos`];
+        if (Number.isFinite(node.percent))
+          stats.push(`${formatPercent(node.percent / 100)} do nível`);
+        if (Number.isFinite(node.stdRate))
+          stats.push(
+            `Taxa padronizada ${formatRate(node.stdRate)} por 100 mil hab.`,
+          );
+        return `${node.name}<br/>${stats.join(" · ")}`;
+      },
+    };
+  }
+
+  function legendLabel(node: CauseNode): string {
+    return `${node.name} (${formatPercent((node.percent ?? 0) / 100)})`;
+  }
+
+  function buildExportOption(
+    filters: Filters,
+    level1: CauseNode[],
+  ): EChartsCoreOption {
+    const displayNodes = findDisplayNodes(level1, causePath(filters)).map(
+      (node) => ({ ...node, children: undefined }),
+    );
+
+    const legendReferenceSeries = {
+      name: "legend-reference",
+      type: "pie" as const,
+      radius: 0,
+      center: ["-100%", "-100%"],
+      silent: true,
+      animation: false,
+      label: { show: false },
+      tooltip: { show: false },
+      data: displayNodes.map((node) => ({
+        name: legendLabel(node),
+        value: 1,
+        itemStyle: { color: node.itemStyle?.color ?? "#999" },
+      })),
+    };
+
+    return {
+      animation: false,
+      tooltip: treemapTooltip(),
+      legend: {
+        show: true,
+        top: EXPORT_CHART_HEIGHT + EXPORT_LEGEND_GAP,
+        left: "center",
+        itemWidth: 12,
+        itemHeight: 12,
+        itemGap: 12,
+        selectedMode: false,
+        textStyle: { fontSize: 11 },
+        data: displayNodes.map(legendLabel),
+      },
+      series: [
+        buildTreemapSeries(displayNodes, EXPORT_LEGEND_HEIGHT),
+        legendReferenceSeries,
+      ],
+    };
+  }
+
   function applyOption(
     filters: Filters,
     level1: CauseNode[],
@@ -315,41 +416,12 @@ export function init(
     const displayNodes = findDisplayNodes(level1, path);
     renderBreadcrumb(breadcrumb, store, path);
 
-    const treemapSeries = {
-      name: "Todas as causas",
-      type: "treemap" as const,
-      top: 8,
-      roam: false,
-      nodeClick: false as const,
-      leafDepth: 1,
-      breadcrumb: { show: false },
-      upperLabel: { show: true, height: 24, color: "#fff" },
-      label: {
-        formatter: (params: { name: string; data: CauseNode }) =>
-          `${params.name}\n${formatPercent((params.data.percent ?? 0) / 100)}`,
-      },
-      itemStyle: { borderColor: "#fff", gapWidth: 3 },
-      levels: [
-        {},
-        { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
-        { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
-      ],
-      data: displayNodes,
-    };
-
-    const tooltip: EChartsCoreOption["tooltip"] = {
-      formatter: (params: { data: CauseNode }) => {
-        const node = params.data;
-        return `${node.name}<br/>${formatInteger(node.value)} óbitos · ${formatPercent(node.percent / 100)} do nível · Taxa padronizada ${formatRate(node.stdRate)}`;
-      },
-    };
-
     chart.setOption(
       {
-        tooltip,
+        tooltip: treemapTooltip(),
         series: [
           {
-            ...treemapSeries,
+            ...buildTreemapSeries(displayNodes, 0),
             animationDurationUpdate,
           },
         ],
@@ -417,9 +489,10 @@ export function init(
     applyOption(filters, cachedLevel1, animationDurationUpdate);
   }
 
-  setupChartExport(card, chart, EXPORT_SIZE, {
+  setupChartExport(card, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("causas", store.get()),
     getRows: () => exportRows,
+    getExportOption: () => buildExportOption(store.get(), cachedLevel1 ?? []),
   });
 
   setupChartFullscreen(card, container);

@@ -1,6 +1,7 @@
 import { getCoverage } from "../access";
 import {
   buildFilenameBase,
+  EXPORT_WIDTH,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -20,7 +21,7 @@ import type { CoverageTable, Dimensions } from "../types";
 
 const MAP_NAME = "brazil-states";
 const MAX_COVERAGE = 100;
-const EXPORT_SIZE = { width: 760, height: 620 };
+const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 620 };
 const SUBTITLE =
   "Estimativa de óbitos captados pelo SIM (indicador DEM.4.02/RIPSA)";
 
@@ -95,6 +96,92 @@ export function init(
     return min === Infinity ? 0 : min;
   }
 
+  interface QualityOptionData {
+    data: { name: string; value: number | null }[];
+    domainMin: number;
+  }
+
+  interface RoamState {
+    center?: [number, number];
+    zoom?: number;
+  }
+
+  let lastOptionData: QualityOptionData | null = null;
+
+  function readRoamState(): RoamState {
+    const option = chart.getOption();
+    const series = option?.series;
+    const first = Array.isArray(series) ? series[0] : undefined;
+    if (!first || typeof first !== "object") return {};
+    const { center, zoom } = first as { center?: unknown; zoom?: unknown };
+    return {
+      center:
+        Array.isArray(center) && center.length === 2
+          ? (center as [number, number])
+          : undefined,
+      zoom: typeof zoom === "number" ? zoom : undefined,
+    };
+  }
+
+  function buildOption(
+    optionData: QualityOptionData,
+    roam: RoamState,
+  ): EChartsCoreOption {
+    const { data, domainMin } = optionData;
+    return {
+      tooltip: {
+        formatter: (params: { name: string; value: number | null }) => {
+          const { name, value } = params;
+          const label = dimensions.location_names[name] ?? name;
+          return hasValue(value)
+            ? `${label}<br/>${formatRate(value)}% dos óbitos captados`
+            : `${label}<br/>sem dado publicado`;
+        },
+      },
+      visualMap: {
+        min: domainMin,
+        max: MAX_COVERAGE,
+        type: "continuous",
+        splitNumber: MAP_SCALE_STEPS,
+        itemGap: 2,
+        inRange: { color: mapScaleSteps() },
+        orient: "horizontal",
+        left: "left",
+        bottom: 0,
+        text: [`${formatRate(MAX_COVERAGE)}%`, `${formatRate(domainMin)}%`],
+      },
+      series: [
+        {
+          type: "map",
+          map: MAP_NAME,
+          aspectScale: 0.95,
+          roam: true,
+          scaleLimit: { min: 1, max: 8 },
+          ...(roam.center ? { center: roam.center } : {}),
+          ...(roam.zoom ? { zoom: roam.zoom } : {}),
+          itemStyle: { borderColor: "#fff", borderWidth: 0.5 },
+          emphasis: {
+            itemStyle: {
+              borderColor: themeColor("--color-primary-500"),
+              borderWidth: 1.5,
+            },
+          },
+          label: {
+            show: true,
+            formatter: (params: { value: number | null }) =>
+              hasValue(params.value) ? `${formatRate(params.value)}%` : "—",
+            fontSize: 10,
+            fontWeight: 600,
+            color: "#fff",
+            textBorderColor: "rgba(0, 0, 0, 0.35)",
+            textBorderWidth: 2,
+          },
+          data,
+        },
+      ],
+    };
+  }
+
   async function render(): Promise<void> {
     const token = ++renderToken;
     const filters = store.get();
@@ -137,58 +224,8 @@ export function init(
         ? SUBTITLE
         : "Cobertura ainda não publicada para este ano";
 
-    const option: EChartsCoreOption = {
-      tooltip: {
-        formatter: (params: { name: string; value: number | null }) => {
-          const { name, value } = params;
-          const label = dimensions.location_names[name] ?? name;
-          return hasValue(value)
-            ? `${label}<br/>${formatRate(value)}% dos óbitos captados`
-            : `${label}<br/>sem dado publicado`;
-        },
-      },
-      visualMap: {
-        min: domainMin,
-        max: MAX_COVERAGE,
-        type: "continuous",
-        splitNumber: MAP_SCALE_STEPS,
-        itemGap: 2,
-        inRange: { color: mapScaleSteps() },
-        orient: "horizontal",
-        left: "left",
-        bottom: 0,
-        text: [`${formatRate(MAX_COVERAGE)}%`, `${formatRate(domainMin)}%`],
-      },
-      series: [
-        {
-          type: "map",
-          map: MAP_NAME,
-          aspectScale: 0.95,
-          roam: true,
-          scaleLimit: { min: 1, max: 8 },
-          itemStyle: { borderColor: "#fff", borderWidth: 0.5 },
-          emphasis: {
-            itemStyle: {
-              borderColor: themeColor("--color-primary-500"),
-              borderWidth: 1.5,
-            },
-          },
-          label: {
-            show: true,
-            formatter: (params: { value: number | null }) =>
-              hasValue(params.value) ? `${formatRate(params.value)}%` : "—",
-            fontSize: 10,
-            fontWeight: 600,
-            color: "#fff",
-            textBorderColor: "rgba(0, 0, 0, 0.35)",
-            textBorderWidth: 2,
-          },
-          data,
-        },
-      ],
-    };
-
-    chart.setOption(option, { notMerge: true });
+    lastOptionData = { data, domainMin };
+    chart.setOption(buildOption(lastOptionData, {}), { notMerge: true });
 
     exportRows = {
       headers: ["UF", "Território", "Cobertura do SIM (%)"],
@@ -200,9 +237,16 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, EXPORT_SIZE, {
+  setupChartExport(card, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("cobertura-sim", store.get()),
     getRows: () => exportRows,
+    getExportOption: () =>
+      lastOptionData
+        ? {
+            ...buildOption(lastOptionData, readRoamState()),
+            animation: false,
+          }
+        : {},
   });
 
   setupChartFullscreen(card, container);

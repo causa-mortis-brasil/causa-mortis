@@ -27,11 +27,6 @@ export type CauseRateEntry = [
 export type AgeSeries = (number | null)[];
 export type CoverageTable = (number | null)[][];
 
-// Tabelas "LocationTable" trazem só sexo × ano (um território), como servidas
-// por /data/mortality/by-location/. As tabelas completas ("Table") continuam
-// indexadas por território × sexo × ano e são um array dessas fatias — usadas
-// só onde todos os territórios precisam ser lidos de uma vez (mapa).
-
 export type OverallLocationTable = (OverallEntry | null)[][];
 export type OverallTable = OverallLocationTable[];
 

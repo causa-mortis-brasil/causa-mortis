@@ -3,6 +3,7 @@ import { getAgeSeries } from "../access";
 import { pyramidChartTitle, setChartTitle } from "../chart-titles";
 import {
   buildFilenameBase,
+  EXPORT_WIDTH,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -25,7 +26,7 @@ const WOMEN_COLOR = "#fca5a5";
 
 const AXIS_SPLIT_COUNT = 5;
 const NICE_FRACTIONS = [1, 2, 5, 10];
-const EXPORT_SIZE = { width: 820, height: 480 };
+const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 600 };
 
 function niceStepBounds(roughStep: number): { down: number; up: number } {
   const magnitude = 10 ** Math.floor(Math.log10(roughStep));
@@ -71,90 +72,37 @@ export function init(
   let renderToken = 0;
   let previousFilters: Filters | null = null;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
-  let forceWideLayout = false;
 
-  async function render(): Promise<void> {
-    const token = ++renderToken;
-    const filters = store.get();
-    const level = resolveCauseLevel(filters);
-    const useFastAnimation = isManualYearOnlyChange(
-      store.getLastYearOrigin(),
-      previousFilters,
-      filters,
-    );
-    previousFilters = filters;
+  interface PyramidOptionData {
+    measure: Filters["pyramidMeasure"];
+    menValues: number[];
+    womenValues: number[];
+    maxAbs: number;
+    axisInterval: number;
+    useFastAnimation: boolean;
+  }
 
-    const [deathsByAgeGetter, populationTable] = await Promise.all([
-      loadDeathsByAgeGetter(level, dimensions, filters.location),
-      fetchPopulationByAgeForLocation(filters.location),
-    ]);
-    if (token !== renderToken) return;
+  let lastOptionData: PyramidOptionData | null = null;
 
-    setChartTitle(titleEl, pyramidChartTitle(filters, dimensions));
-    const measure = filters.pyramidMeasure;
-    if (subtitleEl)
-      subtitleEl.textContent =
-        measure === "rate" ? "Taxa/100 mil habitantes" : "Óbitos absolutos";
-
-    const yearIndex = indexOf(dimensions.years, filters.year);
-    const menIndex = indexOf(dimensions.sexes, "Homens");
-    const womenIndex = indexOf(dimensions.sexes, "Mulheres");
-
-    const menDeaths =
-      deathsByAgeGetter(menIndex, yearIndex) ??
-      dimensions.age_groups.map(() => 0);
-    const womenDeaths =
-      deathsByAgeGetter(womenIndex, yearIndex) ??
-      dimensions.age_groups.map(() => 0);
-    const menPopulation =
-      getAgeSeries(populationTable, menIndex, yearIndex) ??
-      dimensions.age_groups.map(() => 0);
-    const womenPopulation =
-      getAgeSeries(populationTable, womenIndex, yearIndex) ??
-      dimensions.age_groups.map(() => 0);
-
-    const menRate = dimensions.age_groups.map((_, i) =>
-      crudeRate(menDeaths[i] ?? 0, menPopulation[i] ?? 0),
-    );
-    const womenRate = dimensions.age_groups.map((_, i) =>
-      crudeRate(womenDeaths[i] ?? 0, womenPopulation[i] ?? 0),
-    );
-
-    const menValues =
-      measure === "deaths" ? menDeaths.map((v) => v ?? 0) : menRate;
-    const womenValues =
-      measure === "deaths" ? womenDeaths.map((v) => v ?? 0) : womenRate;
-
-    let maxAcrossYears = 0;
-    for (let yi = 0; yi < dimensions.years.length; yi++) {
-      for (const sexIndex of [menIndex, womenIndex]) {
-        const deathsByAge = deathsByAgeGetter(sexIndex, yi) ?? [];
-        if (measure === "deaths") {
-          for (const deaths of deathsByAge)
-            maxAcrossYears = Math.max(maxAcrossYears, deaths ?? 0);
-        } else {
-          const populationByAge =
-            getAgeSeries(populationTable, sexIndex, yi) ?? [];
-          for (let i = 0; i < deathsByAge.length; i++) {
-            maxAcrossYears = Math.max(
-              maxAcrossYears,
-              crudeRate(deathsByAge[i] ?? 0, populationByAge[i] ?? 0),
-            );
-          }
-        }
-      }
-    }
-    const { max: maxAbs, interval: axisInterval } =
-      niceAxisScale(maxAcrossYears);
+  function buildOption(
+    data: PyramidOptionData,
+    wide: boolean,
+  ): EChartsCoreOption {
+    const {
+      measure,
+      menValues,
+      womenValues,
+      maxAbs,
+      axisInterval,
+      useFastAnimation,
+    } = data;
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
     const dataLabelFormatter = (value: number): string =>
       measure === "deaths" ? formatInteger(value) : `${formatRate(value)}`;
+    const labelMargin = wide ? 116 : 72;
 
-    const isNarrow = !forceWideLayout && container.clientWidth < 480;
-    const labelMargin = isNarrow ? 72 : 116;
-
-    const option: EChartsCoreOption = {
+    return {
       grid: [
         { left: labelMargin, right: "53%", top: 40, bottom: 32 },
         { left: "53%", right: labelMargin, top: 40, bottom: 32 },
@@ -295,8 +243,92 @@ export function init(
         },
       ],
     };
+  }
 
-    chart.setOption(option, { notMerge: true });
+  async function render(): Promise<void> {
+    const token = ++renderToken;
+    const filters = store.get();
+    const level = resolveCauseLevel(filters);
+    const useFastAnimation = isManualYearOnlyChange(
+      store.getLastYearOrigin(),
+      previousFilters,
+      filters,
+    );
+    previousFilters = filters;
+
+    const [deathsByAgeGetter, populationTable] = await Promise.all([
+      loadDeathsByAgeGetter(level, dimensions, filters.location),
+      fetchPopulationByAgeForLocation(filters.location),
+    ]);
+    if (token !== renderToken) return;
+
+    setChartTitle(titleEl, pyramidChartTitle(filters, dimensions));
+    const measure = filters.pyramidMeasure;
+    if (subtitleEl)
+      subtitleEl.textContent =
+        measure === "rate" ? "Taxa/100 mil habitantes" : "Óbitos absolutos";
+
+    const yearIndex = indexOf(dimensions.years, filters.year);
+    const menIndex = indexOf(dimensions.sexes, "Homens");
+    const womenIndex = indexOf(dimensions.sexes, "Mulheres");
+
+    const menDeaths =
+      deathsByAgeGetter(menIndex, yearIndex) ??
+      dimensions.age_groups.map(() => 0);
+    const womenDeaths =
+      deathsByAgeGetter(womenIndex, yearIndex) ??
+      dimensions.age_groups.map(() => 0);
+    const menPopulation =
+      getAgeSeries(populationTable, menIndex, yearIndex) ??
+      dimensions.age_groups.map(() => 0);
+    const womenPopulation =
+      getAgeSeries(populationTable, womenIndex, yearIndex) ??
+      dimensions.age_groups.map(() => 0);
+
+    const menRate = dimensions.age_groups.map((_, i) =>
+      crudeRate(menDeaths[i] ?? 0, menPopulation[i] ?? 0),
+    );
+    const womenRate = dimensions.age_groups.map((_, i) =>
+      crudeRate(womenDeaths[i] ?? 0, womenPopulation[i] ?? 0),
+    );
+
+    const menValues =
+      measure === "deaths" ? menDeaths.map((v) => v ?? 0) : menRate;
+    const womenValues =
+      measure === "deaths" ? womenDeaths.map((v) => v ?? 0) : womenRate;
+
+    let maxAcrossYears = 0;
+    for (let yi = 0; yi < dimensions.years.length; yi++) {
+      for (const sexIndex of [menIndex, womenIndex]) {
+        const deathsByAge = deathsByAgeGetter(sexIndex, yi) ?? [];
+        if (measure === "deaths") {
+          for (const deaths of deathsByAge)
+            maxAcrossYears = Math.max(maxAcrossYears, deaths ?? 0);
+        } else {
+          const populationByAge =
+            getAgeSeries(populationTable, sexIndex, yi) ?? [];
+          for (let i = 0; i < deathsByAge.length; i++) {
+            maxAcrossYears = Math.max(
+              maxAcrossYears,
+              crudeRate(deathsByAge[i] ?? 0, populationByAge[i] ?? 0),
+            );
+          }
+        }
+      }
+    }
+    const { max: maxAbs, interval: axisInterval } =
+      niceAxisScale(maxAcrossYears);
+
+    lastOptionData = {
+      measure,
+      menValues,
+      womenValues,
+      maxAbs,
+      axisInterval,
+      useFastAnimation,
+    };
+    const wide = container.clientWidth >= 480;
+    chart.setOption(buildOption(lastOptionData, wide), { notMerge: true });
 
     const measureLabel =
       measure === "deaths" ? "Óbitos" : "Taxa por faixa (por 100 mil hab.)";
@@ -318,17 +350,13 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, EXPORT_SIZE, {
+  setupChartExport(card, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("piramide", store.get()),
     getRows: () => exportRows,
-    prepareExport: async () => {
-      forceWideLayout = true;
-      await render();
-    },
-    finishExport: () => {
-      forceWideLayout = false;
-      void render();
-    },
+    getExportOption: () =>
+      lastOptionData
+        ? { ...buildOption(lastOptionData, true), animation: false }
+        : {},
   });
 
   setupChartFullscreen(card, container);

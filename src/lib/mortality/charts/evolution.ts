@@ -1,6 +1,7 @@
 import { loadLocationRatePointGetter, resolveCauseLevel } from "../cause-level";
 import {
   buildFilenameBase,
+  EXPORT_WIDTH,
   roundTo,
   setupChartExport,
   type ChartExportRows,
@@ -17,7 +18,7 @@ import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
 
-const EXPORT_SIZE = { width: 760, height: 400 };
+const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 560 };
 const GRID_TOP = 24;
 const GRID_BOTTOM = 32;
 const PRELIMINARY_AREA_START_OFFSET = 0.4;
@@ -66,38 +67,35 @@ export function init(
   let renderToken = 0;
   let exportRows: ChartExportRows = { headers: [], rows: [] };
 
-  async function render(): Promise<void> {
-    const token = ++renderToken;
-    const filters = store.get();
-    const level = resolveCauseLevel(filters);
-    const pointGetter = await loadLocationRatePointGetter(
-      level,
-      dimensions,
-      filters.location,
-    );
-    if (token !== renderToken) return;
+  interface EvolutionOptionData {
+    years: number[];
+    standardized: number[];
+    crude: number[];
+    minYear: number;
+    maxYear: number;
+    selectedYear: number;
+    standardizedColor: string;
+    crudeColor: string;
+  }
 
-    setChartTitle(titleEl, evolutionChartTitle(filters, dimensions));
+  let lastOptionData: EvolutionOptionData | null = null;
 
-    const sexIndex = indexOf(dimensions.sexes, filters.sex);
-
-    const crude: number[] = [];
-    const standardized: number[] = [];
-    for (let yearIndex = 0; yearIndex < dimensions.years.length; yearIndex++) {
-      const point = pointGetter(sexIndex, yearIndex);
-      crude.push(point.crudeRate);
-      standardized.push(point.stdRate);
-    }
-
-    const lastIndex = dimensions.years.length - 1;
-    const minYear = dimensions.years[0] ?? 0;
-    const maxYear = dimensions.years[lastIndex] ?? 0;
+  function buildOption(data: EvolutionOptionData): EChartsCoreOption {
+    const {
+      years,
+      standardized,
+      crude,
+      minYear,
+      maxYear,
+      selectedYear,
+      standardizedColor,
+      crudeColor,
+    } = data;
+    const lastIndex = years.length - 1;
     const standardizedIsHigher =
       (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
-    const standardizedColor = themeColor("--color-primary-500");
-    const crudeColor = themeColor("--color-gray-500");
 
-    const option: EChartsCoreOption = {
+    return {
       grid: { left: 48, right: 80, top: GRID_TOP, bottom: GRID_BOTTOM },
       tooltip: {
         trigger: "axis",
@@ -126,7 +124,7 @@ export function init(
           name: "Padronizada por idade",
           type: "line",
           data: withLastPointLabel(
-            dimensions.years,
+            years,
             standardized,
             standardizedIsHigher ? "top" : "bottom",
             standardizedColor,
@@ -163,14 +161,14 @@ export function init(
               color: themeColor("--color-gray-400"),
             },
             label: { formatter: "ano selecionado" },
-            data: [{ xAxis: store.get().year }],
+            data: [{ xAxis: selectedYear }],
           },
         },
         {
           name: "Bruta",
           type: "line",
           data: withLastPointLabel(
-            dimensions.years,
+            years,
             crude,
             standardizedIsHigher ? "bottom" : "top",
             crudeColor,
@@ -182,8 +180,48 @@ export function init(
         },
       ],
     };
+  }
 
-    chart.setOption(option, { notMerge: true });
+  async function render(): Promise<void> {
+    const token = ++renderToken;
+    const filters = store.get();
+    const level = resolveCauseLevel(filters);
+    const pointGetter = await loadLocationRatePointGetter(
+      level,
+      dimensions,
+      filters.location,
+    );
+    if (token !== renderToken) return;
+
+    setChartTitle(titleEl, evolutionChartTitle(filters, dimensions));
+
+    const sexIndex = indexOf(dimensions.sexes, filters.sex);
+
+    const crude: number[] = [];
+    const standardized: number[] = [];
+    for (let yearIndex = 0; yearIndex < dimensions.years.length; yearIndex++) {
+      const point = pointGetter(sexIndex, yearIndex);
+      crude.push(point.crudeRate);
+      standardized.push(point.stdRate);
+    }
+
+    const lastIndex = dimensions.years.length - 1;
+    const minYear = dimensions.years[0] ?? 0;
+    const maxYear = dimensions.years[lastIndex] ?? 0;
+    const standardizedColor = themeColor("--color-primary-500");
+    const crudeColor = themeColor("--color-gray-500");
+
+    lastOptionData = {
+      years: dimensions.years,
+      standardized,
+      crude,
+      minYear,
+      maxYear,
+      selectedYear: filters.year,
+      standardizedColor,
+      crudeColor,
+    };
+    chart.setOption(buildOption(lastOptionData), { notMerge: true });
 
     exportRows = {
       headers: [
@@ -199,9 +237,13 @@ export function init(
     };
   }
 
-  setupChartExport(card, chart, EXPORT_SIZE, {
+  setupChartExport(card, EXPORT_SIZE, {
     getFilenameBase: () => buildFilenameBase("evolucao", store.get()),
     getRows: () => exportRows,
+    getExportOption: () =>
+      lastOptionData
+        ? { ...buildOption(lastOptionData), animation: false }
+        : {},
   });
 
   setupChartFullscreen(card, container);
