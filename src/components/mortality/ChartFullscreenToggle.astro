@@ -1,0 +1,18 @@
+---
+import { Maximize2, Minimize2 } from "@lucide/astro";
+---
+
+<button
+  type="button"
+  data-chart-fullscreen-toggle
+  aria-pressed="false"
+  aria-label="Ver em tela cheia"
+  class="chart-export-trigger shrink-0"
+>
+  <span data-icon-enter>
+    <Maximize2 class="size-4" />
+  </span>
+  <span data-icon-exit hidden>
+    <Minimize2 class="size-4" />
+  </span>
+</button>

@@ -223,7 +223,9 @@ export async function exportChartImage(
 
   const squareSize = Math.max(blockWidth, naturalBlockHeight);
   const offsetX = (squareSize - blockWidth) / 2;
-  const offsetY = (squareSize - naturalBlockHeight) / 2;
+  const extraVerticalSpace = (squareSize - naturalBlockHeight) / 2;
+  const effectiveHeaderToChartGap = headerToChartGap + extraVerticalSpace;
+  const effectiveChartToFooterGap = chartToFooterGap + extraVerticalSpace;
 
   canvas.width = squareSize;
   canvas.height = squareSize;
@@ -235,7 +237,7 @@ export async function exportChartImage(
   ctx.textBaseline = "top";
   ctx.textAlign = "center";
 
-  let y = offsetY + padding;
+  let y = padding;
   ctx.fillStyle = titleColor || "#1f2937";
   ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
   for (const line of wrappedTitleLines) {
@@ -261,10 +263,10 @@ export async function exportChartImage(
     }
   }
 
-  const chartY = offsetY + padding + headerContentHeight + headerToChartGap;
+  const chartY = padding + headerContentHeight + effectiveHeaderToChartGap;
   ctx.drawImage(chartCanvas, offsetX, chartY);
 
-  const footerY = chartY + chartCanvas.height + chartToFooterGap;
+  const footerY = chartY + chartCanvas.height + effectiveChartToFooterGap;
   const footerCenterY = footerY + footerFontSize / 2;
   ctx.fillStyle = footerColor || "#6b7280";
   ctx.textBaseline = "alphabetic";
@@ -457,6 +459,17 @@ export function setupChartExport(
   }
 
   if (details instanceof HTMLDetailsElement) {
+    const menu = details.querySelector<HTMLElement>(".chart-export-menu");
+
+    details.addEventListener("toggle", () => {
+      if (!details.open || !menu || !trigger) return;
+      const triggerRect = trigger.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - triggerRect.bottom;
+      const spaceAbove = triggerRect.top;
+      const flipUp = spaceBelow < menu.offsetHeight && spaceAbove > spaceBelow;
+      menu.toggleAttribute("data-flip-up", flipUp);
+    });
+
     document.addEventListener("click", (event) => {
       if (!details.open) return;
       if (event.target instanceof Node && !details.contains(event.target))

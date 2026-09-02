@@ -7,10 +7,9 @@ import {
   FileText,
   Image,
   LoaderCircle,
-  Maximize2,
-  Minimize2,
   Share2,
 } from "@lucide/astro";
+import ChartFullscreenToggle from "./ChartFullscreenToggle.astro";
 
 interface Props {
   title: string;
@@ -155,24 +154,7 @@ const {
         <span data-chart-share-label>Compartilhar</span>
       </button>
 
-      {
-        fullscreenToggle && (
-          <button
-            type="button"
-            data-chart-fullscreen-toggle
-            aria-pressed="false"
-            aria-label="Ver em tela cheia"
-            class="chart-export-trigger shrink-0"
-          >
-            <span data-icon-enter>
-              <Maximize2 class="size-4" />
-            </span>
-            <span data-icon-exit hidden>
-              <Minimize2 class="size-4" />
-            </span>
-          </button>
-        )
-      }
+      {fullscreenToggle && <ChartFullscreenToggle />}
     </div>
   </div>
 </div>

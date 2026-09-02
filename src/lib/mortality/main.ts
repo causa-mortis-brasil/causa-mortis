@@ -1,3 +1,8 @@
+import {
+  isChartFullscreenActive,
+  setupChartFullscreen,
+  switchChartFullscreenTo,
+} from "./chart-fullscreen";
 import { sexLabel } from "./chart-titles";
 import { createCustomSelect, type CustomSelect } from "./custom-select";
 import { fetchDimensions } from "./dimensions";
@@ -405,7 +410,10 @@ function setupChartTabs(
     const endHeight = panelsWrap.scrollHeight;
     panelsHeight = endHeight;
 
-    if (Math.round(startHeight) === Math.round(endHeight)) {
+    if (
+      isChartFullscreenActive() ||
+      Math.round(startHeight) === Math.round(endHeight)
+    ) {
       if (panelsWrap.style.height) {
         panelsWrap.style.height = "";
         panelsWrap.classList.remove("overflow-hidden");
@@ -431,6 +439,8 @@ function setupChartTabs(
   panelsWrap?.addEventListener("chart-title-change", syncPanelsHeight);
 
   function activate(target: string): void {
+    if (isChartFullscreenActive()) switchChartFullscreenTo(target);
+
     for (const tab of tabs)
       tab.setAttribute(
         "aria-selected",
@@ -545,4 +555,8 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   );
   observeChartCards(root, store, dimensions);
   initSummaryStats(root, store, dimensions);
+
+  const statsPanel = root.querySelector<HTMLElement>("#panel-stats");
+  const statsGrid = root.querySelector<HTMLElement>("#stats-summary-grid");
+  if (statsPanel && statsGrid) setupChartFullscreen(statsPanel, statsGrid);
 }

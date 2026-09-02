@@ -5,6 +5,7 @@ import OneTwoThreeIcon from "../icons/OneTwoThreeIcon.astro";
 import PopulationPyramidIcon from "../icons/PopulationPyramidIcon.astro";
 import SimIcon from "../icons/SimIcon.astro";
 import ChartCard from "./ChartCard.astro";
+import ChartFullscreenToggle from "./ChartFullscreenToggle.astro";
 import FilterBar from "./FilterBar.astro";
 import QualityChartCard from "./QualityChartCard.astro";
 import SummaryStat from "./SummaryStat.astro";
@@ -48,6 +49,7 @@ const charts = [
 
   <div class="flex flex-col items-start gap-4 md:flex-row">
     <nav
+      id="chart-tabs-nav"
       aria-label="Selecionar gráfico"
       role="tablist"
       aria-orientation="vertical"
@@ -74,11 +76,11 @@ const charts = [
 
     <div
       data-chart-panels
-      class="flex w-full min-w-0 grow flex-col gap-4 transition-[height] duration-300 ease-in-out motion-reduce:transition-none"
+      class="flex min-w-0 grow flex-col gap-4 transition-[height] duration-300 ease-in-out motion-reduce:transition-none"
     >
       <div
         id="panel-stats"
-        class="chart-card flex w-full flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4"
+        class="chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4"
         data-chart-panel="stats"
         role="tabpanel"
         aria-labelledby="tab-stats"
@@ -88,6 +90,7 @@ const charts = [
           Resumo
         </h2>
         <div
+          id="stats-summary-grid"
           class="grid grid-cols-1 gap-3 sm:gap-4 lg:h-96 lg:auto-rows-fr lg:grid-cols-2"
         >
           <SummaryStat label="Óbitos registrados" valueId="stat-deaths-value" />
@@ -106,6 +109,9 @@ const charts = [
             valueId="stat-crude-rate-value"
             subtitleId="stat-crude-rate-delta"
           />
+        </div>
+        <div class="flex justify-end border-t border-gray-100 pt-2">
+          <ChartFullscreenToggle />
         </div>
       </div>
 
@@ -265,3 +271,13 @@ const charts = [
     </div>
   </div>
 </div>
+
+<aside
+  id="chart-fullscreen-sidebar"
+  hidden
+  inert
+  aria-label="Navegação e filtros em tela cheia"
+  class="fixed inset-y-0 left-0 z-10 w-72 overflow-y-auto border-r border-gray-200 bg-white"
+>
+  <div data-fullscreen-sidebar-content class="flex flex-col gap-4 p-4"></div>
+</aside>

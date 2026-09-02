@@ -31,6 +31,7 @@ const maxYear = Math.max(...years);
 >
   <div class="overflow-hidden">
     <div
+      data-year-control
       class:list={[
         "flex items-center gap-2",
         compact
@@ -38,7 +39,7 @@ const maxYear = Math.max(...years);
           : "w-full rounded-2xl bg-primary-100 p-2 pr-4",
       ]}
     >
-      <div class="flex gap-2">
+      <div data-year-playback-group class="flex gap-2">
         <button
           type="button"
           id={`filter-year-speed${idSuffix}`}
