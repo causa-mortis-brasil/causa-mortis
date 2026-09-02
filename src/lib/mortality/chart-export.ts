@@ -117,15 +117,9 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function canvasToBlobUrl(canvas: HTMLCanvasElement): Promise<string> {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error("Falha ao gerar a imagem do gráfico."));
-        return;
-      }
-      resolve(URL.createObjectURL(blob));
-    }, "image/png");
+function nextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
   });
 }
 
@@ -133,7 +127,7 @@ async function captureOffscreen(
   exportSize: ChartExportSize,
   pixelRatio: number,
   option: EChartsCoreOption,
-): Promise<string> {
+): Promise<HTMLCanvasElement> {
   const offscreen = document.createElement("div");
   offscreen.style.cssText = `position:fixed;left:-9999px;top:0;width:${exportSize.width}px;height:${exportSize.height}px;`;
   document.body.append(offscreen);
@@ -147,11 +141,7 @@ async function captureOffscreen(
       tempChart.on("finished", () => resolve());
       tempChart.setOption(option, { notMerge: true });
     });
-    const canvas = tempChart.renderToCanvas({
-      pixelRatio,
-      backgroundColor: "#fff",
-    });
-    return await canvasToBlobUrl(canvas);
+    return tempChart.renderToCanvas({ pixelRatio, backgroundColor: "#fff" });
   } finally {
     tempChart.dispose();
     offscreen.remove();
@@ -166,168 +156,163 @@ export async function exportChartImage(
   filenameBase: string,
   getExportOption: () => EChartsCoreOption,
 ): Promise<void> {
-  const pixelRatio = 5;
+  const pixelRatio = 3;
+  await nextPaint();
   await document.fonts.ready;
 
-  const chartDataUrl = await captureOffscreen(
+  const chartCanvas = await captureOffscreen(
     exportSize,
     pixelRatio,
     getExportOption(),
   );
 
-  try {
-    const chartImage = await loadImage(chartDataUrl);
-    const logoImage = await loadImage("/logo.svg");
+  const logoImage = await loadImage("/logo.svg");
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Falha ao criar o canvas de exportação.");
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Falha ao criar o canvas de exportação.");
 
-    const fontFamily = getComputedStyle(document.body).fontFamily;
-    const rootStyle = getComputedStyle(document.documentElement);
-    const titleColor = rootStyle.getPropertyValue("--color-gray-800").trim();
-    const subtitleColor = rootStyle
-      .getPropertyValue("--color-primary-600")
-      .trim();
-    const descriptionColor = rootStyle
-      .getPropertyValue("--color-gray-600")
-      .trim();
-    const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
+  const fontFamily = getComputedStyle(document.body).fontFamily;
+  const rootStyle = getComputedStyle(document.documentElement);
+  const titleColor = rootStyle.getPropertyValue("--color-gray-800").trim();
+  const subtitleColor = rootStyle
+    .getPropertyValue("--color-primary-600")
+    .trim();
+  const descriptionColor = rootStyle
+    .getPropertyValue("--color-gray-600")
+    .trim();
+  const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
 
-    const padding = 24 * pixelRatio;
-    const blockWidth = chartImage.width;
-    const contentWidth = blockWidth - padding * 2;
-    const titleFontSize = 22 * pixelRatio;
-    const subtitleFontSize = 14 * pixelRatio;
-    const descriptionFontSize = 14 * pixelRatio;
-    const footerFontSize = 12 * pixelRatio;
-    const lineGap = 6 * pixelRatio;
-    const blockGap = 4 * pixelRatio;
-    const headerToChartGap = padding;
-    const chartToFooterGap = padding;
+  const padding = 24 * pixelRatio;
+  const blockWidth = chartCanvas.width;
+  const contentWidth = blockWidth - padding * 2;
+  const titleFontSize = 22 * pixelRatio;
+  const subtitleFontSize = 14 * pixelRatio;
+  const descriptionFontSize = 14 * pixelRatio;
+  const footerFontSize = 12 * pixelRatio;
+  const lineGap = 6 * pixelRatio;
+  const blockGap = 4 * pixelRatio;
+  const headerToChartGap = padding;
+  const chartToFooterGap = padding;
 
-    ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-    const wrappedTitleLines = titleLines
-      .filter((line) => line.length > 0)
-      .flatMap((line) => wrapText(ctx, line.toUpperCase(), contentWidth));
+  ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
+  const wrappedTitleLines = titleLines
+    .filter((line) => line.length > 0)
+    .flatMap((line) => wrapText(ctx, line.toUpperCase(), contentWidth));
 
-    ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
-    const descriptionLines = description
-      ? wrapText(ctx, description, contentWidth)
-      : [];
+  ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
+  const descriptionLines = description
+    ? wrapText(ctx, description, contentWidth)
+    : [];
 
-    const titleHeight = wrappedTitleLines.length * (titleFontSize + lineGap);
-    const subtitleHeight = subtitle ? subtitleFontSize + lineGap + blockGap : 0;
-    const descriptionHeight = descriptionLines.length
-      ? descriptionLines.length * (descriptionFontSize + lineGap) + blockGap
-      : 0;
-    const headerContentHeight =
-      titleHeight + subtitleHeight + descriptionHeight;
+  const titleHeight = wrappedTitleLines.length * (titleFontSize + lineGap);
+  const subtitleHeight = subtitle ? subtitleFontSize + lineGap + blockGap : 0;
+  const descriptionHeight = descriptionLines.length
+    ? descriptionLines.length * (descriptionFontSize + lineGap) + blockGap
+    : 0;
+  const headerContentHeight = titleHeight + subtitleHeight + descriptionHeight;
 
-    const naturalBlockHeight =
-      padding +
-      headerContentHeight +
-      headerToChartGap +
-      chartImage.height +
-      chartToFooterGap +
-      footerFontSize +
-      padding;
+  const naturalBlockHeight =
+    padding +
+    headerContentHeight +
+    headerToChartGap +
+    chartCanvas.height +
+    chartToFooterGap +
+    footerFontSize +
+    padding;
 
-    const squareSize = Math.max(blockWidth, naturalBlockHeight);
-    const offsetX = (squareSize - blockWidth) / 2;
-    const offsetY = (squareSize - naturalBlockHeight) / 2;
+  const squareSize = Math.max(blockWidth, naturalBlockHeight);
+  const offsetX = (squareSize - blockWidth) / 2;
+  const offsetY = (squareSize - naturalBlockHeight) / 2;
 
-    canvas.width = squareSize;
-    canvas.height = squareSize;
+  canvas.width = squareSize;
+  canvas.height = squareSize;
 
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const centerX = offsetX + blockWidth / 2;
-    ctx.textBaseline = "top";
-    ctx.textAlign = "center";
+  const centerX = offsetX + blockWidth / 2;
+  ctx.textBaseline = "top";
+  ctx.textAlign = "center";
 
-    let y = offsetY + padding;
-    ctx.fillStyle = titleColor || "#1f2937";
-    ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-    for (const line of wrappedTitleLines) {
-      ctx.fillText(line, centerX, y);
-      y += titleFontSize + lineGap;
-    }
-
-    if (subtitle) {
-      y += blockGap;
-      ctx.fillStyle = subtitleColor || "#0156d5";
-      ctx.font = `500 ${subtitleFontSize}px ${fontFamily}`;
-      ctx.fillText(subtitle, centerX, y);
-      y += subtitleFontSize + lineGap;
-    }
-
-    if (descriptionLines.length) {
-      y += blockGap;
-      ctx.fillStyle = descriptionColor || "#4b5563";
-      ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
-      for (const line of descriptionLines) {
-        ctx.fillText(line, centerX, y);
-        y += descriptionFontSize + lineGap;
-      }
-    }
-
-    const chartY = offsetY + padding + headerContentHeight + headerToChartGap;
-    ctx.drawImage(chartImage, offsetX, chartY);
-
-    const footerY = chartY + chartImage.height + chartToFooterGap;
-    const footerCenterY = footerY + footerFontSize / 2;
-    ctx.fillStyle = footerColor || "#6b7280";
-    ctx.textBaseline = "alphabetic";
-
-    const brandFontRegular = `500 ${footerFontSize}px ${fontFamily}`;
-    const brandFontBold = `700 ${footerFontSize}px ${fontFamily}`;
-    const brandBaselineY = textBaselineForCenter(ctx, footerCenterY, [
-      { text: "Causa ", font: brandFontRegular },
-      { text: "Mortis", font: brandFontBold },
-    ]);
-
-    const logoSize = footerFontSize * 1.8;
-    const logoGap = 6 * pixelRatio;
-    const brandLeftX = offsetX + padding;
-    ctx.drawImage(
-      logoImage,
-      brandLeftX,
-      footerCenterY - logoSize / 2,
-      logoSize,
-      logoSize,
-    );
-
-    ctx.textAlign = "left";
-    ctx.font = brandFontRegular;
-    ctx.fillText("Causa ", brandLeftX + logoSize + logoGap, brandBaselineY);
-    const causaWidth = ctx.measureText("Causa ").width;
-    ctx.font = brandFontBold;
-    ctx.fillText(
-      "Mortis",
-      brandLeftX + logoSize + logoGap + causaWidth,
-      brandBaselineY,
-    );
-
-    const sourceFont = `500 ${footerFontSize}px ${fontFamily}`;
-    const sourceText = "Fonte: SIM/DATASUS · IBGE";
-    const sourceBaselineY = textBaselineForCenter(ctx, footerCenterY, [
-      { text: sourceText, font: sourceFont },
-    ]);
-    ctx.font = sourceFont;
-    ctx.textAlign = "right";
-    ctx.fillText(sourceText, offsetX + blockWidth - padding, sourceBaselineY);
-    ctx.textBaseline = "top";
-
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/png"),
-    );
-    if (!blob) throw new Error("Falha ao gerar o arquivo de imagem.");
-    downloadBlob(blob, `${filenameBase}.png`);
-  } finally {
-    URL.revokeObjectURL(chartDataUrl);
+  let y = offsetY + padding;
+  ctx.fillStyle = titleColor || "#1f2937";
+  ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
+  for (const line of wrappedTitleLines) {
+    ctx.fillText(line, centerX, y);
+    y += titleFontSize + lineGap;
   }
+
+  if (subtitle) {
+    y += blockGap;
+    ctx.fillStyle = subtitleColor || "#0156d5";
+    ctx.font = `500 ${subtitleFontSize}px ${fontFamily}`;
+    ctx.fillText(subtitle, centerX, y);
+    y += subtitleFontSize + lineGap;
+  }
+
+  if (descriptionLines.length) {
+    y += blockGap;
+    ctx.fillStyle = descriptionColor || "#4b5563";
+    ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
+    for (const line of descriptionLines) {
+      ctx.fillText(line, centerX, y);
+      y += descriptionFontSize + lineGap;
+    }
+  }
+
+  const chartY = offsetY + padding + headerContentHeight + headerToChartGap;
+  ctx.drawImage(chartCanvas, offsetX, chartY);
+
+  const footerY = chartY + chartCanvas.height + chartToFooterGap;
+  const footerCenterY = footerY + footerFontSize / 2;
+  ctx.fillStyle = footerColor || "#6b7280";
+  ctx.textBaseline = "alphabetic";
+
+  const brandFontRegular = `500 ${footerFontSize}px ${fontFamily}`;
+  const brandFontBold = `700 ${footerFontSize}px ${fontFamily}`;
+  const brandBaselineY = textBaselineForCenter(ctx, footerCenterY, [
+    { text: "Causa ", font: brandFontRegular },
+    { text: "Mortis", font: brandFontBold },
+  ]);
+
+  const logoSize = footerFontSize * 1.8;
+  const logoGap = 6 * pixelRatio;
+  const brandLeftX = offsetX + padding;
+  ctx.drawImage(
+    logoImage,
+    brandLeftX,
+    footerCenterY - logoSize / 2,
+    logoSize,
+    logoSize,
+  );
+
+  ctx.textAlign = "left";
+  ctx.font = brandFontRegular;
+  ctx.fillText("Causa ", brandLeftX + logoSize + logoGap, brandBaselineY);
+  const causaWidth = ctx.measureText("Causa ").width;
+  ctx.font = brandFontBold;
+  ctx.fillText(
+    "Mortis",
+    brandLeftX + logoSize + logoGap + causaWidth,
+    brandBaselineY,
+  );
+
+  const sourceFont = `500 ${footerFontSize}px ${fontFamily}`;
+  const sourceText = "Fonte: SIM/DATASUS · IBGE";
+  const sourceBaselineY = textBaselineForCenter(ctx, footerCenterY, [
+    { text: sourceText, font: sourceFont },
+  ]);
+  ctx.font = sourceFont;
+  ctx.textAlign = "right";
+  ctx.fillText(sourceText, offsetX + blockWidth - padding, sourceBaselineY);
+  ctx.textBaseline = "top";
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/png"),
+  );
+  if (!blob) throw new Error("Falha ao gerar o arquivo de imagem.");
+  downloadBlob(blob, `${filenameBase}.png`);
 }
 
 function escapeCsvValue(value: string | number): string {
