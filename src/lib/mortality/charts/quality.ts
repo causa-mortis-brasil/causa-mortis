@@ -176,6 +176,10 @@ export function init(
               borderColor: themeColor("--color-primary-500"),
               borderWidth: 1.5,
             },
+            label: { color: "#fff" },
+          },
+          select: {
+            label: { color: "#fff" },
           },
           label: {
             show: true,

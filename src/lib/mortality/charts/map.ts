@@ -133,6 +133,9 @@ export function init(
             },
             label: { color: "#fff" },
           },
+          select: {
+            label: { color: "#fff" },
+          },
           label: {
             show: true,
             formatter: (params: CallbackDataParams) =>
