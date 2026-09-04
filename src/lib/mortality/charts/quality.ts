@@ -18,7 +18,12 @@ import type {
 } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatRate } from "../format";
-import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
+import {
+  MAP_SCALE_STEPS,
+  mapScaleSteps,
+  themeColor,
+  tooltipStyle,
+} from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { CoverageTable, Dimensions } from "../types";
@@ -130,6 +135,7 @@ export function init(
   function buildOption(
     optionData: QualityOptionData,
     roam: RoamState,
+    forceLight = false,
   ): EChartsOption {
     const { data, domainMin } = optionData;
     const seriesData = data.map(({ name, value }) => ({
@@ -148,6 +154,7 @@ export function init(
             ? `${label}<br/>${formatRate(value)}% dos óbitos captados`
             : `${label}<br/>sem dado publicado`;
         },
+        ...tooltipStyle(),
       },
       visualMap: {
         min: domainMin,
@@ -160,6 +167,7 @@ export function init(
         left: "left",
         bottom: 0,
         text: [`${formatRate(MAX_COVERAGE)}%`, `${formatRate(domainMin)}%`],
+        textStyle: { color: themeColor("--color-gray-600", { forceLight }) },
       },
       series: [
         {
@@ -260,7 +268,7 @@ export function init(
     getExportOption: () =>
       lastOptionData
         ? {
-            ...buildOption(lastOptionData, readRoamState()),
+            ...buildOption(lastOptionData, readRoamState(), true),
             animation: false,
           }
         : {},

@@ -15,7 +15,7 @@ import { indexOf } from "../dimensions";
 import type { CallbackDataParams, EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
-import { themeColor } from "../palette";
+import { themeColor, tooltipStyle } from "../palette";
 import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { crudeRate } from "../rate";
 import { setupChartShare } from "../share";
@@ -84,7 +84,11 @@ export function init(
 
   let lastOptionData: PyramidOptionData | null = null;
 
-  function buildOption(data: PyramidOptionData, wide: boolean): EChartsOption {
+  function buildOption(
+    data: PyramidOptionData,
+    wide: boolean,
+    forceLight = false,
+  ): EChartsOption {
     const {
       measure,
       menValues,
@@ -93,6 +97,8 @@ export function init(
       axisInterval,
       useFastAnimation,
     } = data;
+    const axisLabelColor = themeColor("--color-gray-500", { forceLight });
+    const barLabelColor = themeColor("--color-gray-700", { forceLight });
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;
     const dataLabelFormatter = (value: number): string =>
@@ -109,6 +115,7 @@ export function init(
         trigger: "axis",
         axisPointer: { type: "shadow" },
         valueFormatter: (value) => fullValueFormatter(Math.abs(Number(value))),
+        ...tooltipStyle(),
       },
       legend: [
         {
@@ -136,7 +143,10 @@ export function init(
           max: maxAbs,
           interval: axisInterval,
           inverse: true,
-          axisLabel: { formatter: (value: number) => formatCompact(value) },
+          axisLabel: {
+            formatter: (value: number) => formatCompact(value),
+            color: axisLabelColor,
+          },
         },
         {
           gridIndex: 1,
@@ -144,7 +154,10 @@ export function init(
           min: 0,
           max: maxAbs,
           interval: axisInterval,
-          axisLabel: { formatter: (value: number) => formatCompact(value) },
+          axisLabel: {
+            formatter: (value: number) => formatCompact(value),
+            color: axisLabelColor,
+          },
         },
         {
           gridIndex: 2,
@@ -196,7 +209,7 @@ export function init(
               const value = Number(params.value);
               return value > 0 ? dataLabelFormatter(value) : "";
             },
-            color: themeColor("--color-gray-700"),
+            color: barLabelColor,
             fontSize: 10,
           },
         },
@@ -215,7 +228,7 @@ export function init(
               const value = Number(params.value);
               return value > 0 ? dataLabelFormatter(value) : "";
             },
-            color: themeColor("--color-gray-700"),
+            color: barLabelColor,
             fontSize: 10,
           },
         },
@@ -355,7 +368,7 @@ export function init(
     getRows: () => exportRows,
     getExportOption: () =>
       lastOptionData
-        ? { ...buildOption(lastOptionData, true), animation: false }
+        ? { ...buildOption(lastOptionData, true, true), animation: false }
         : {},
   });
 

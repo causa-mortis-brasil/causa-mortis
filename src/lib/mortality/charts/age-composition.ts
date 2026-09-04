@@ -14,7 +14,7 @@ import { indexOf } from "../dimensions";
 import type { EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
-import { causeGroupColor, themeColor } from "../palette";
+import { causeGroupColor, themeColor, tooltipStyle } from "../palette";
 import {
   isManualYearOnlyChange,
   isYearOnlyChange,
@@ -63,6 +63,7 @@ export function init(
   function buildOption(
     data: AgeCompositionOptionData,
     wide: boolean,
+    forceLight = false,
   ): EChartsOption {
     const {
       filters,
@@ -71,6 +72,7 @@ export function init(
       totalByAge,
       animationDuration,
     } = data;
+    const axisLabelColor = themeColor("--color-gray-500", { forceLight });
     const isNarrow = !wide && container.clientWidth < 480;
     const labelWidth = wide ? 168 : isNarrow ? 80 : 116;
     const rightMargin = labelWidth + 16;
@@ -135,6 +137,7 @@ export function init(
         trigger: "axis",
         order: "seriesDesc",
         valueFormatter: (value) => formatPercent(Number(value)),
+        ...tooltipStyle(),
       },
       xAxis: {
         type: "category",
@@ -147,13 +150,17 @@ export function init(
             index % 2 === 0 || index === dimensions.age_groups.length - 1
               ? value
               : "",
+          color: axisLabelColor,
         },
         axisTick: {
           show: true,
           alignWithLabel: true,
           interval: 0,
           length: 5,
-          lineStyle: { color: themeColor("--color-gray-400"), width: 2 },
+          lineStyle: {
+            color: themeColor("--color-gray-400", { forceLight }),
+            width: 2,
+          },
         },
       },
       yAxis: {
@@ -161,6 +168,7 @@ export function init(
         max: 1,
         axisLabel: {
           formatter: (value: number) => formatPercentInteger(value),
+          color: axisLabelColor,
         },
       },
       series,
@@ -288,7 +296,7 @@ export function init(
     getRows: () => exportRows,
     getExportOption: () =>
       lastOptionData
-        ? { ...buildOption(lastOptionData, true), animation: false }
+        ? { ...buildOption(lastOptionData, true, true), animation: false }
         : {},
   });
 

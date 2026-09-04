@@ -13,7 +13,7 @@ import { echarts } from "../echarts-core";
 import { evolutionChartTitle, setChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
 import { formatInteger, formatRate } from "../format";
-import { themeColor } from "../palette";
+import { themeColor, tooltipStyle } from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
@@ -74,32 +74,29 @@ export function init(
     minYear: number;
     maxYear: number;
     selectedYear: number;
-    standardizedColor: string;
-    crudeColor: string;
   }
 
   let lastOptionData: EvolutionOptionData | null = null;
 
-  function buildOption(data: EvolutionOptionData): EChartsOption {
-    const {
-      years,
-      standardized,
-      crude,
-      minYear,
-      maxYear,
-      selectedYear,
-      standardizedColor,
-      crudeColor,
-    } = data;
+  function buildOption(
+    data: EvolutionOptionData,
+    forceLight = false,
+  ): EChartsOption {
+    const { years, standardized, crude, minYear, maxYear, selectedYear } = data;
     const lastIndex = years.length - 1;
     const standardizedIsHigher =
       (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
+    const standardizedColor = themeColor("--color-primary-500", {
+      forceLight,
+    });
+    const crudeColor = themeColor("--color-gray-500", { forceLight });
 
     return {
       grid: { left: 48, right: 80, top: GRID_TOP, bottom: GRID_BOTTOM },
       tooltip: {
         trigger: "axis",
         valueFormatter: (value) => formatRate(Number(value)),
+        ...tooltipStyle(),
       },
       xAxis: {
         type: "value",
@@ -109,6 +106,7 @@ export function init(
         splitLine: { show: false },
         axisLabel: {
           formatter: (value: number) => String(value),
+          color: themeColor("--color-gray-500", { forceLight }),
         },
         axisPointer: {
           label: {
@@ -122,6 +120,7 @@ export function init(
         min: 0,
         axisLabel: {
           formatter: (value: number | string) => formatInteger(Number(value)),
+          color: themeColor("--color-gray-500", { forceLight }),
         },
       },
       series: [
@@ -144,7 +143,7 @@ export function init(
             label: {
               show: true,
               position: "insideTop",
-              color: themeColor("--color-gray-500"),
+              color: themeColor("--color-gray-500", { forceLight }),
               fontSize: 11,
             },
             data: [
@@ -163,7 +162,7 @@ export function init(
             symbol: "none",
             lineStyle: {
               type: "dashed",
-              color: themeColor("--color-gray-400"),
+              color: themeColor("--color-gray-400", { forceLight }),
             },
             label: { formatter: "ano selecionado" },
             data: [{ xAxis: selectedYear }],
@@ -213,8 +212,6 @@ export function init(
     const lastIndex = dimensions.years.length - 1;
     const minYear = dimensions.years[0] ?? 0;
     const maxYear = dimensions.years[lastIndex] ?? 0;
-    const standardizedColor = themeColor("--color-primary-500");
-    const crudeColor = themeColor("--color-gray-500");
 
     lastOptionData = {
       years: dimensions.years,
@@ -223,8 +220,6 @@ export function init(
       minYear,
       maxYear,
       selectedYear: filters.year,
-      standardizedColor,
-      crudeColor,
     };
     chart.setOption(buildOption(lastOptionData), { notMerge: true });
 
@@ -247,7 +242,7 @@ export function init(
     getRows: () => exportRows,
     getExportOption: () =>
       lastOptionData
-        ? { ...buildOption(lastOptionData), animation: false }
+        ? { ...buildOption(lastOptionData, true), animation: false }
         : {},
   });
 

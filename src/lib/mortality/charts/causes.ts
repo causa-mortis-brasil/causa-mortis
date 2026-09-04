@@ -28,7 +28,7 @@ import type {
   TopLevelFormatterParams,
 } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { causeGroupColor } from "../palette";
+import { causeGroupColor, tooltipStyle } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
 import {
   isManualYearOnlyChange,
@@ -148,7 +148,7 @@ function renderBreadcrumb(
       span.textContent = label;
       span.setAttribute("aria-current", "true");
       span.className =
-        "rounded-full bg-primary-100 px-3 py-1 font-medium text-primary-700";
+        "rounded-full bg-primary-100 px-3 py-1 font-medium text-primary-700 dark:bg-primary-950";
       crumbs.push(span);
       continue;
     }
@@ -157,7 +157,7 @@ function renderBreadcrumb(
     button.type = "button";
     button.textContent = label;
     button.className =
-      "cursor-pointer rounded-full bg-gray-100 px-3 py-1 text-gray-600 hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500";
+      "cursor-pointer rounded-full bg-gray-100 px-3 py-1 text-gray-600 hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700";
     button.addEventListener("click", () => {
       applyCauseSelection(store, path.slice(0, depth));
     });
@@ -360,6 +360,7 @@ export function init(
           );
         return `${node.name}<br/>${stats.join(" · ")}`;
       },
+      ...tooltipStyle(),
     };
   }
 

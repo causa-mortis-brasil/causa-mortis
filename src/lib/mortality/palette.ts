@@ -12,6 +12,18 @@ const CAUSE_TOKENS = [
   "--color-cause-11",
 ];
 
+const DARK_TOKEN_OVERRIDES: Record<string, string> = {
+  "--color-gray-400": "--color-gray-600",
+  "--color-gray-500": "--color-gray-400",
+  "--color-gray-600": "--color-gray-300",
+  "--color-gray-700": "--color-gray-200",
+  "--color-gray-800": "--color-gray-100",
+};
+
+export function isDarkTheme(): boolean {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
 const themeColorCache = new Map<string, string>();
 
 function readCssColor(token: string): string {
@@ -25,8 +37,37 @@ function readCssColor(token: string): string {
   return color;
 }
 
-export function themeColor(token: string): string {
+export interface ThemeColorOptions {
+  forceLight?: boolean;
+}
+
+export function themeColor(
+  token: string,
+  { forceLight = false }: ThemeColorOptions = {},
+): string {
+  if (!forceLight && isDarkTheme()) {
+    return readCssColor(DARK_TOKEN_OVERRIDES[token] ?? token);
+  }
   return readCssColor(token);
+}
+
+export function tooltipStyle(): {
+  backgroundColor: string;
+  borderColor: string;
+  textStyle: { color: string };
+} {
+  const dark = isDarkTheme();
+  return {
+    backgroundColor: dark ? readCssColor("--color-gray-800") : "#fff",
+    borderColor: dark
+      ? readCssColor("--color-gray-700")
+      : readCssColor("--color-gray-200"),
+    textStyle: {
+      color: dark
+        ? readCssColor("--color-gray-100")
+        : readCssColor("--color-gray-700"),
+    },
+  };
 }
 
 let causeColors: string[] | null = null;

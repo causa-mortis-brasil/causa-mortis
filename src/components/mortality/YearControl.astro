@@ -36,7 +36,7 @@ const maxYear = Math.max(...years);
         "flex items-center gap-2",
         compact
           ? "h-9 w-auto shrink-0"
-          : "w-full rounded-2xl bg-primary-100 p-2 pr-4",
+          : "w-full rounded-2xl bg-primary-100 p-2 pr-4 dark:bg-primary-950",
       ]}
     >
       <div data-year-playback-group class="flex gap-2">
@@ -44,7 +44,7 @@ const maxYear = Math.max(...years);
           type="button"
           id={`filter-year-speed${idSuffix}`}
           aria-label="Velocidade de reprodução: 1x"
-          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-sm font-medium text-gray-600 tabular-nums transition-colors hover:bg-gray-50"
+          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-sm font-medium text-gray-600 tabular-nums transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           1x
         </button>
@@ -54,7 +54,7 @@ const maxYear = Math.max(...years);
           aria-pressed="false"
           aria-label="Reproduzir evolução dos anos"
           class:list={[
-            "grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-gray-600 transition-colors hover:bg-gray-50",
+            "grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-gray-600 transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600",
           ]}
         >
           <span id={`filter-year-icon-play${idSuffix}`}
@@ -79,7 +79,7 @@ const maxYear = Math.max(...years);
       <output
         id={`filter-year-value${idSuffix}`}
         for={`filter-year${idSuffix}`}
-        class="shrink-0 text-sm font-medium text-gray-700 tabular-nums"
+        class="shrink-0 text-sm font-medium text-gray-700 tabular-nums dark:text-gray-300"
         >{DEFAULT_YEAR}</output
       >
     </div>

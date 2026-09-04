@@ -39,7 +39,7 @@ const {
 <div
   id={`panel-${chartName}`}
   class:list={[
-    "chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white",
+    "chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
     padding,
   ]}
   data-chart-panel={chartName}
@@ -60,7 +60,10 @@ const {
       </p>
       {
         description ? (
-          <p data-chart-description class="text-sm text-gray-600">
+          <p
+            data-chart-description
+            class="text-sm text-gray-600 dark:text-gray-400"
+          >
             {description}
           </p>
         ) : (
@@ -82,14 +85,14 @@ const {
     data-chart={chartName}
   >
     <p
-      class="chart-placeholder absolute inset-0 flex items-center justify-center text-sm text-gray-800"
+      class="chart-placeholder absolute inset-0 flex items-center justify-center text-sm text-gray-800 dark:text-gray-200"
     >
       Carregando gráfico…
     </p>
   </div>
 
   <div
-    class="flex flex-wrap items-end justify-between gap-3 border-t border-gray-100 pt-2 text-xs text-gray-500"
+    class="flex flex-wrap items-end justify-between gap-3 border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-gray-700"
   >
     <div class="flex flex-col gap-0.5">
       <span>Fonte: SIM/DATASUS · IBGE</span>

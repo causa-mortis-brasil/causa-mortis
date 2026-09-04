@@ -18,7 +18,12 @@ import type {
 } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatRate, formatRateLabel } from "../format";
-import { MAP_SCALE_STEPS, mapScaleSteps, themeColor } from "../palette";
+import {
+  MAP_SCALE_STEPS,
+  mapScaleSteps,
+  themeColor,
+  tooltipStyle,
+} from "../palette";
 import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
@@ -91,6 +96,7 @@ export function init(
     optionData: MapOptionData,
     roam: RoamState,
     useFastAnimation: boolean,
+    forceLight = false,
   ): EChartsOption {
     const { data, min, max } = optionData;
     return {
@@ -102,6 +108,7 @@ export function init(
           const value = Number(params.value);
           return `${dimensions.location_names[name] ?? name}<br/>${formatRate(value)} por 100 mil hab. (padronizada por idade)`;
         },
+        ...tooltipStyle(),
       },
       visualMap: {
         min,
@@ -114,6 +121,7 @@ export function init(
         left: "left",
         bottom: 0,
         text: [formatRate(max), formatRate(min)],
+        textStyle: { color: themeColor("--color-gray-600", { forceLight }) },
       },
       series: [
         {
@@ -224,7 +232,7 @@ export function init(
     getExportOption: () =>
       lastOptionData
         ? {
-            ...buildOption(lastOptionData, readRoamState(), false),
+            ...buildOption(lastOptionData, readRoamState(), false, true),
             animation: false,
           }
         : {},
