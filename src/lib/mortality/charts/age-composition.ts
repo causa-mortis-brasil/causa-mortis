@@ -78,7 +78,7 @@ export function init(
       totalByAge,
       animationDuration,
     } = data;
-    const axisLabelColor = themeColor("--color-gray-500", { forceLight });
+    const axisLabelColor = themeColor("--color-gray-600", { forceLight });
     const isNarrow = !wide && container.clientWidth < 480;
     const labelWidth = wide ? 168 : isNarrow ? 80 : 116;
     const rightMargin = labelWidth + 16;
@@ -151,6 +151,7 @@ export function init(
         name: "Faixa de idade (anos)",
         nameLocation: "middle",
         nameGap: 24,
+        nameTextStyle: { color: axisLabelColor },
         axisLabel: {
           formatter: (value: string, index: number) =>
             index % 2 === 0 || index === dimensions.age_groups.length - 1

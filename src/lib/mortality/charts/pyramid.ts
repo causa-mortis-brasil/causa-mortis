@@ -99,7 +99,7 @@ export function init(
       axisInterval,
       useFastAnimation,
     } = data;
-    const axisLabelColor = themeColor("--color-gray-500", { forceLight });
+    const axisLabelColor = themeColor("--color-gray-600", { forceLight });
     const barLabelColor = themeColor("--color-gray-700", { forceLight });
     const fullValueFormatter =
       measure === "deaths" ? formatInteger : formatRate;

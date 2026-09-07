@@ -183,7 +183,7 @@ export async function exportChartImage(
     .trim();
   const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
   const canvasBackgroundColor =
-    rootStyle.getPropertyValue("--color-gray-50").trim() || "#f9fafb";
+    rootStyle.getPropertyValue("--color-gray-100").trim() || "#f3f4f6";
 
   const padding = 24 * pixelRatio;
   const blockWidth = chartCanvas.width;

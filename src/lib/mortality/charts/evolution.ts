@@ -107,7 +107,7 @@ export function init(
         axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisLabel: {
           formatter: (value: number) => String(value),
-          color: themeColor("--color-gray-500", { forceLight }),
+          color: themeColor("--color-gray-600", { forceLight }),
         },
         axisPointer: {
           label: {
@@ -118,11 +118,14 @@ export function init(
       yAxis: {
         type: "value",
         name: "Taxa (por 100 mil hab.)",
+        nameTextStyle: {
+          color: themeColor("--color-gray-600", { forceLight }),
+        },
         min: 0,
         splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisLabel: {
           formatter: (value: number | string) => formatInteger(Number(value)),
-          color: themeColor("--color-gray-500", { forceLight }),
+          color: themeColor("--color-gray-600", { forceLight }),
         },
       },
       series: [
@@ -148,7 +151,7 @@ export function init(
             label: {
               show: true,
               position: "insideTop",
-              color: themeColor("--color-gray-500", { forceLight }),
+              color: themeColor("--color-gray-600", { forceLight }),
               fontSize: 11,
             },
             data: [
@@ -169,7 +172,10 @@ export function init(
               type: "dashed",
               color: themeColor("--color-gray-400", { forceLight }),
             },
-            label: { formatter: "ano selecionado" },
+            label: {
+              formatter: "ano selecionado",
+              color: themeColor("--color-gray-600", { forceLight }),
+            },
             data: [{ xAxis: selectedYear }],
           },
         },

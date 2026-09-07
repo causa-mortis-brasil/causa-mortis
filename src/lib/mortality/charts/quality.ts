@@ -184,7 +184,7 @@ export function init(
           map: MAP_NAME,
           aspectScale: 0.95,
           layoutCenter: ["50%", "46%"],
-          layoutSize: "96%",
+          layoutSize: "88%",
           roam: true,
           scaleLimit: { min: 1, max: 8 },
           ...(roam.center ? { center: roam.center } : {}),
