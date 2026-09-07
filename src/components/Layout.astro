@@ -18,7 +18,7 @@ const socialImage = new URL("/logo.svg", Astro.site);
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 ---
 
-<html lang="pt-BR" data-theme="light" class="scroll-pt-14 scroll-smooth">
+<html lang="pt-BR" data-theme="light" class="scroll-pt-16 scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <script is:inline>
@@ -34,7 +34,16 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#013e9a" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#172554"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#050a14"
+    />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <title>{title}</title>

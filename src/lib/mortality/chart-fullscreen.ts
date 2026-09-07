@@ -1,49 +1,5 @@
 const DESKTOP_QUERY = "(min-width: 768px)";
 
-interface PinnedFloatingBars {
-  offset: number;
-  restore: () => void;
-}
-
-function pinFloatingBars(
-  miniHeader: HTMLElement | null,
-  filtersFloating: HTMLElement | null,
-): PinnedFloatingBars {
-  const restoreFns: (() => void)[] = [];
-  let offset = 0;
-
-  if (miniHeader) {
-    const hadVisible = miniHeader.hasAttribute("data-visible");
-    const wasInert = miniHeader.inert;
-    miniHeader.setAttribute("data-visible", "");
-    miniHeader.inert = false;
-    offset += miniHeader.offsetHeight;
-    restoreFns.push(() => {
-      miniHeader.toggleAttribute("data-visible", hadVisible);
-      miniHeader.inert = wasInert;
-    });
-  }
-
-  if (filtersFloating) {
-    const previousTransform = filtersFloating.style.transform;
-    const wasInert = filtersFloating.inert;
-    filtersFloating.style.transform = `translateY(${offset}px)`;
-    filtersFloating.inert = false;
-    offset += filtersFloating.offsetHeight;
-    restoreFns.push(() => {
-      filtersFloating.style.transform = previousTransform;
-      filtersFloating.inert = wasInert;
-    });
-  }
-
-  return {
-    offset,
-    restore: () => {
-      for (const restoreFn of restoreFns) restoreFn();
-    },
-  };
-}
-
 interface SidebarBundle {
   sidebar: HTMLElement;
   content: HTMLElement;
@@ -219,20 +175,13 @@ function ensureChrome(): void {
     return;
   }
 
-  const miniHeader = document.getElementById("app-header-mini");
-  const filtersFloating = document.getElementById("filters-floating");
-
-  const { offset, restore: restoreBars } = pinFloatingBars(
-    miniHeader,
-    chromeSidebarMode ? null : filtersFloating,
-  );
+  const offset = document.getElementById("app-header")?.offsetHeight ?? 0;
   const restoreSidebar = sidebarBundle
     ? showFullscreenSidebar(sidebarBundle, offset)
     : null;
 
   chromeOffset = offset;
   chromeRestore = () => {
-    restoreBars();
     restoreSidebar?.();
   };
 }

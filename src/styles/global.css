@@ -3,15 +3,27 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme {
-  --color-primary-50: #f2f7ff;
-  --color-primary-100: #e1edfe;
-  --color-primary-200: #bcdafe;
-  --color-primary-300: #8fc0fe;
-  --color-primary-500: #0165fa;
-  --color-primary-600: #0156d5;
-  --color-primary-800: #013e9a;
-  --color-primary-900: #01326f;
-  --color-primary-950: #0a1a33;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+
+  --color-gray-50: #f4f7fb;
+  --color-gray-100: #e8eef6;
+  --color-gray-200: #d4deeb;
+  --color-gray-300: #aebdd2;
+  --color-gray-400: #8494b0;
+  --color-gray-500: #5e6e8c;
+  --color-gray-600: #445269;
+  --color-gray-700: #26334a;
+  --color-gray-800: #141e33;
+  --color-gray-900: #0b1322;
+  --color-gray-950: #050a14;
   --color-secondary: #ffc300;
   --color-tertiary: #fa0000;
   --color-quaternary: #ff4c00;
@@ -97,10 +109,6 @@
 
   .custom-select-trigger {
     @apply border border-primary-500/10 focus-visible:outline-primary-600 flex h-10 w-full cursor-pointer items-center gap-1.5 rounded-xl px-3 text-left font-medium text-gray-800 transition-colors hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 dark:border-primary-200/10 dark:text-gray-100 dark:hover:bg-white/5;
-  }
-
-  .custom-select[data-compact] .custom-select-trigger {
-    @apply h-9 px-2;
   }
 
   .custom-select-value {

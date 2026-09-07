@@ -28,8 +28,6 @@ const CHART_LOADERS: Record<string, () => Promise<ChartModule>> = {
   quality: () => import("./charts/quality"),
 };
 
-const FILTER_ID_SUFFIXES = ["", "-floating"] as const;
-
 function customSelect(
   scope: ParentNode,
   selector: string,
@@ -45,9 +43,8 @@ function setupLocationSelect(
   scope: ParentNode,
   dimensions: Dimensions,
   store: FiltersStore,
-  suffix: string,
 ): void {
-  const select = customSelect(scope, `#filter-location${suffix}`, (value) =>
+  const select = customSelect(scope, `#filter-location`, (value) =>
     store.setLocation(value),
   );
   select.setOptions(
@@ -63,9 +60,8 @@ function setupSexSelect(
   scope: ParentNode,
   dimensions: Dimensions,
   store: FiltersStore,
-  suffix: string,
 ): void {
-  const select = customSelect(scope, `#filter-sex${suffix}`, (value) =>
+  const select = customSelect(scope, `#filter-sex`, (value) =>
     store.setSex(value as Sex),
   );
   select.setOptions(
@@ -80,12 +76,9 @@ function setupSexSelect(
 function setupPyramidMeasureSelect(
   scope: ParentNode,
   store: FiltersStore,
-  suffix: string,
 ): void {
-  const select = customSelect(
-    scope,
-    `#filter-pyramid-measure${suffix}`,
-    (value) => store.setPyramidMeasure(value as PyramidMeasure),
+  const select = customSelect(scope, `#filter-pyramid-measure`, (value) =>
+    store.setPyramidMeasure(value as PyramidMeasure),
   );
   select.setOptions([
     { value: "rate", label: "Taxa relativa" },
@@ -180,14 +173,13 @@ export function setupYearControl(
   dimensions: Dimensions,
   store: FiltersStore,
   playback: YearPlayback,
-  suffix: string,
 ): void {
-  const input = scope.querySelector(`#filter-year${suffix}`);
-  const output = scope.querySelector(`#filter-year-value${suffix}`);
-  const toggleButton = scope.querySelector(`#filter-year-toggle${suffix}`);
-  const playIcon = scope.querySelector(`#filter-year-icon-play${suffix}`);
-  const pauseIcon = scope.querySelector(`#filter-year-icon-pause${suffix}`);
-  const speedButton = scope.querySelector(`#filter-year-speed${suffix}`);
+  const input = scope.querySelector(`#filter-year`);
+  const output = scope.querySelector(`#filter-year-value`);
+  const toggleButton = scope.querySelector(`#filter-year-toggle`);
+  const playIcon = scope.querySelector(`#filter-year-icon-play`);
+  const pauseIcon = scope.querySelector(`#filter-year-icon-pause`);
+  const speedButton = scope.querySelector(`#filter-year-speed`);
   if (!(input instanceof HTMLInputElement) || !output) return;
 
   const years = dimensions.years;
@@ -238,28 +230,21 @@ function setupCauseFilters(
   scope: ParentNode,
   dimensions: Dimensions,
   store: FiltersStore,
-  suffix: string,
 ): CauseFilters {
-  const causeGroupSelect = customSelect(
-    scope,
-    `#filter-cause-group${suffix}`,
-    (value) => store.setCauseGroup(value || null),
+  const causeGroupSelect = customSelect(scope, `#filter-cause-group`, (value) =>
+    store.setCauseGroup(value || null),
   );
-  const detailWrap = scope.querySelector(`#filter-detail-wrap${suffix}`);
-  const detailSelect = customSelect(scope, `#filter-detail${suffix}`, (value) =>
+  const detailWrap = scope.querySelector(`#filter-detail-wrap`);
+  const detailSelect = customSelect(scope, `#filter-detail`, (value) =>
     store.setDetailedSubgroup(value || null),
   );
-  const externalWrap = scope.querySelector(`#filter-external-wrap${suffix}`);
-  const externalSelect = customSelect(
-    scope,
-    `#filter-external${suffix}`,
-    (value) => store.setExternalCauseType(value || null),
+  const externalWrap = scope.querySelector(`#filter-external-wrap`);
+  const externalSelect = customSelect(scope, `#filter-external`, (value) =>
+    store.setExternalCauseType(value || null),
   );
-  const assaultWrap = scope.querySelector(`#filter-assault-wrap${suffix}`);
-  const assaultSelect = customSelect(
-    scope,
-    `#filter-assault${suffix}`,
-    (value) => store.setAssaultMeans(value || null),
+  const assaultWrap = scope.querySelector(`#filter-assault-wrap`);
+  const assaultSelect = customSelect(scope, `#filter-assault`, (value) =>
+    store.setAssaultMeans(value || null),
   );
 
   causeGroupSelect.setOptions([
@@ -519,16 +504,11 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   const playback = createYearPlayback(dimensions, store);
   const causeFilterControllers: CauseFilters[] = [];
 
-  for (const suffix of FILTER_ID_SUFFIXES) {
-    const scope: ParentNode = suffix ? document : root;
-    setupLocationSelect(scope, dimensions, store, suffix);
-    setupSexSelect(scope, dimensions, store, suffix);
-    setupPyramidMeasureSelect(scope, store, suffix);
-    setupYearControl(scope, dimensions, store, playback, suffix);
-    causeFilterControllers.push(
-      setupCauseFilters(scope, dimensions, store, suffix),
-    );
-  }
+  setupLocationSelect(root, dimensions, store);
+  setupSexSelect(root, dimensions, store);
+  setupPyramidMeasureSelect(root, store);
+  setupYearControl(root, dimensions, store, playback);
+  causeFilterControllers.push(setupCauseFilters(root, dimensions, store));
 
   const setDetailFiltersEnabled = (enabled: boolean): void => {
     for (const controller of causeFilterControllers)

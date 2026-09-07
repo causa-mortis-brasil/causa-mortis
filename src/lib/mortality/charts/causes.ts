@@ -56,8 +56,24 @@ interface CauseNode {
   value: number;
   stdRate: number;
   percent: number;
-  itemStyle?: { color: string };
+  causeGroupIndex: number;
   children?: CauseNode[];
+}
+
+type StyledCauseNode = Omit<CauseNode, "children"> & {
+  itemStyle: { color: string };
+  children?: StyledCauseNode[];
+};
+
+function withCauseColors(
+  nodes: CauseNode[],
+  forceLight: boolean,
+): StyledCauseNode[] {
+  return nodes.map(({ children, ...node }) => ({
+    ...node,
+    itemStyle: { color: causeGroupColor(node.causeGroupIndex, { forceLight }) },
+    ...(children ? { children: withCauseColors(children, forceLight) } : {}),
+  }));
 }
 
 function withPercent(nodes: Omit<CauseNode, "id" | "percent">[]): CauseNode[] {
@@ -235,8 +251,6 @@ export function init(
             yearIndex,
             causeGroupIndex,
           );
-          const color = causeGroupColor(causeGroupIndex);
-
           const detailIndices = causeGroupsForDetail(
             dimensions,
             causeGroupIndex,
@@ -257,7 +271,7 @@ export function init(
                     name: dimensions.detailed_subgroups[detailIndex],
                     value: subDeaths,
                     stdRate: subStdRate,
-                    itemStyle: { color },
+                    causeGroupIndex,
                   };
                 })
                 .filter((node) => node.value > 0),
@@ -276,7 +290,7 @@ export function init(
                     name: externalCauseType,
                     value: extDeaths,
                     stdRate: extStdRate,
-                    itemStyle: { color },
+                    causeGroupIndex,
                   };
                   if (externalCauseType === "Agressão") {
                     const assaultChildren = withPercent(
@@ -293,7 +307,7 @@ export function init(
                             name: means,
                             value: meansDeaths,
                             stdRate: meansStdRate,
-                            itemStyle: { color },
+                            causeGroupIndex,
                           };
                         })
                         .filter((child) => child.value > 0),
@@ -311,7 +325,7 @@ export function init(
             name: causeGroup,
             value: deaths,
             stdRate,
-            itemStyle: { color },
+            causeGroupIndex,
             children,
           };
         })
@@ -326,7 +340,11 @@ export function init(
     return `${params.name}\n${formatPercent(percent / 100)}`;
   }
 
-  function buildTreemapSeries(displayNodes: CauseNode[], bottom: number) {
+  function buildTreemapSeries(
+    displayNodes: CauseNode[],
+    bottom: number,
+    forceLight = false,
+  ) {
     return {
       name: "Todas as causas",
       type: "treemap" as const,
@@ -338,13 +356,16 @@ export function init(
       breadcrumb: { show: false },
       upperLabel: { show: false },
       label: { formatter: treemapLabelFormatter },
-      itemStyle: { borderColor: chartSurfaceColor(), gapWidth: 3 },
+      itemStyle: {
+        borderColor: chartSurfaceColor({ forceLight }),
+        gapWidth: 3,
+      },
       levels: [
         {},
         { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
         { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
       ],
-      data: displayNodes,
+      data: withCauseColors(displayNodes, forceLight),
     };
   }
 
@@ -391,7 +412,9 @@ export function init(
       data: displayNodes.map((node) => ({
         name: legendLabel(node),
         value: 1,
-        itemStyle: { color: node.itemStyle?.color ?? "#999" },
+        itemStyle: {
+          color: causeGroupColor(node.causeGroupIndex, { forceLight: true }),
+        },
       })),
     };
 
@@ -410,7 +433,7 @@ export function init(
         data: displayNodes.map(legendLabel),
       },
       series: [
-        buildTreemapSeries(displayNodes, EXPORT_LEGEND_HEIGHT),
+        buildTreemapSeries(displayNodes, EXPORT_LEGEND_HEIGHT, true),
         legendReferenceSeries,
       ],
     };

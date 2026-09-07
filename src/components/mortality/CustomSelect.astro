@@ -5,17 +5,12 @@ interface Props {
   id: string;
   name: string;
   class?: string;
-  compact?: boolean;
 }
 
-const { id, name, class: className, compact = false } = Astro.props;
+const { id, name, class: className } = Astro.props;
 ---
 
-<div
-  id={id}
-  data-compact={compact ? "" : undefined}
-  class:list={["custom-select group", className]}
->
+<div id={id} class:list={["custom-select group", className]}>
   <button
     type="button"
     data-select-trigger

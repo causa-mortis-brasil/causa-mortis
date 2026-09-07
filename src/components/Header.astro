@@ -5,14 +5,24 @@ import ThemeToggle from "./ThemeToggle.astro";
 import { siteNavLinks } from "../lib/nav";
 ---
 
-<div class="center w-full bg-primary-800 py-4">
+<div
+  id="app-header"
+  class="center group sticky top-0 z-30 w-full border-b border-white/10 bg-primary-950/80 py-3 backdrop-blur-xl transition-[padding] duration-200 ease-out data-scrolled:py-1.5 motion-reduce:transition-none dark:bg-gray-950/75"
+>
   <header
-    id="app-header"
     class="app-content items-center justify-between gap-4 px-4 text-white"
   >
     <a href="/" class="flex shrink-0 items-center gap-3">
-      <img src="/logo.svg" alt="" width="40" height="40" class="w-10 sm:w-12" />
-      <div class="flex flex-col gap-0 text-base *:leading-none sm:text-lg">
+      <img
+        src="/logo.svg"
+        alt=""
+        width="44"
+        height="44"
+        class="w-10 transition-[width] duration-200 ease-out group-data-scrolled:w-7 motion-reduce:transition-none sm:w-11"
+      />
+      <div
+        class="flex flex-col gap-0 text-base transition-[font-size] duration-200 ease-out *:leading-none group-data-scrolled:text-sm motion-reduce:transition-none sm:text-lg"
+      >
         <span>Causa</span>
         <span class="font-bold">Mortis</span>
       </div>
@@ -20,7 +30,9 @@ import { siteNavLinks } from "../lib/nav";
 
     <div class="flex items-center gap-2 sm:gap-6">
       <nav aria-label="Navegação principal" class="hidden sm:block">
-        <ul class="flex gap-6 text-base">
+        <ul
+          class="flex gap-6 text-base transition-[font-size] duration-200 ease-out group-data-scrolled:text-sm motion-reduce:transition-none"
+        >
           {
             siteNavLinks.map((link) => (
               <li>
@@ -30,7 +42,9 @@ import { siteNavLinks } from "../lib/nav";
                   rel={link.external ? "noopener noreferrer" : undefined}
                   class="flex items-center gap-1.5 text-white/85 transition-colors hover:text-white"
                 >
-                  {link.icon === "github" && <GithubIcon class="size-4" />}
+                  {link.icon === "github" && (
+                    <GithubIcon class="size-4 transition-[width,height] duration-200 ease-out group-data-scrolled:size-3.5 motion-reduce:transition-none" />
+                  )}
                   {link.label}
                 </a>
               </li>
@@ -46,7 +60,9 @@ import { siteNavLinks } from "../lib/nav";
           class="flex cursor-pointer list-none items-center rounded-lg p-2 text-white transition-colors select-none hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           aria-label="Abrir menu de navegação"
         >
-          <Menu class="size-5" />
+          <Menu
+            class="size-5 transition-[width,height] duration-200 ease-out group-data-scrolled:size-4 motion-reduce:transition-none"
+          />
         </summary>
         <nav aria-label="Menu de navegação" class="chart-export-menu right-0">
           <ul class="flex flex-col gap-1">
@@ -72,88 +88,18 @@ import { siteNavLinks } from "../lib/nav";
   </header>
 </div>
 
-<div
-  id="app-header-mini"
-  inert
-  class="fixed inset-x-0 top-0 z-20 -translate-y-full bg-primary-800 transition-transform duration-200 data-visible:translate-y-0"
->
-  <div class="center w-full">
-    <div
-      class="app-content items-center justify-between gap-4 px-4 py-2 text-white"
-    >
-      <a href="/" class="flex shrink-0 items-center gap-2">
-        <img src="/logo.svg" alt="" width="28" height="28" class="w-7" />
-        <span class="text-sm">Causa <span class="font-bold">Mortis</span></span>
-      </a>
-
-      <div class="flex items-center gap-2 sm:gap-6">
-        <nav aria-label="Navegação principal" class="hidden sm:block">
-          <ul class="flex gap-6 text-sm">
-            {
-              siteNavLinks.map((link) => (
-                <li>
-                  <a
-                    href={link.href}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noopener noreferrer" : undefined}
-                    class="flex items-center gap-1.5 text-white/85 transition-colors hover:text-white"
-                  >
-                    {link.icon === "github" && <GithubIcon class="size-3.5" />}
-                    {link.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
-
-        <ThemeToggle />
-
-        <details class="relative sm:hidden">
-          <summary
-            class="flex cursor-pointer list-none items-center rounded-lg p-2 text-white transition-colors select-none hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            aria-label="Abrir menu de navegação"
-          >
-            <Menu class="size-4" />
-          </summary>
-          <nav aria-label="Menu de navegação" class="chart-export-menu right-0">
-            <ul class="flex flex-col gap-1">
-              {
-                siteNavLinks.map((link) => (
-                  <li>
-                    <a
-                      href={link.href}
-                      target={link.external ? "_blank" : undefined}
-                      rel={link.external ? "noopener noreferrer" : undefined}
-                      class="chart-export-item"
-                    >
-                      {link.icon === "github" && <GithubIcon class="size-4" />}
-                      {link.label}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </nav>
-        </details>
-      </div>
-    </div>
-  </div>
-</div>
+<div id="app-header-sentinel" aria-hidden="true" class="h-px w-full"></div>
 
 <script>
   const header = document.getElementById("app-header");
-  const miniHeader = document.getElementById("app-header-mini");
+  const sentinel = document.getElementById("app-header-sentinel");
 
-  if (header && miniHeader) {
+  if (header && sentinel) {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        const visible = !entry.isIntersecting;
-        miniHeader.toggleAttribute("data-visible", visible);
-        miniHeader.inert = !visible;
-      },
+      ([entry]) =>
+        header.toggleAttribute("data-scrolled", !entry.isIntersecting),
       { threshold: 0 },
     );
-    observer.observe(header);
+    observer.observe(sentinel);
   }
 </script>

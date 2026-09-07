@@ -48,7 +48,6 @@ const charts = [
     </div>
   </div>
   <YearControl />
-  <div id="filters-sentinel" aria-hidden="true" class="-mt-4 h-px w-full"></div>
 
   <div class="flex flex-col items-start gap-4 md:flex-row">
     <nav
@@ -64,13 +63,14 @@ const charts = [
             type="button"
             id={`tab-${name}`}
             role="tab"
+            title={label}
             data-chart-tab={name}
             aria-selected={name === "map"}
             aria-controls={`panel-${name}`}
-            class="group/tab flex size-11 shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-2xl border border-gray-200 bg-white px-3 text-sm font-medium text-gray-600 transition-[width,background-color,border-color,color] duration-200 ease-out hover:w-44 hover:bg-gray-100 focus-visible:w-44 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 aria-selected:border-primary-200 aria-selected:bg-primary-50 aria-selected:text-primary-600 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:aria-selected:border-primary-800 dark:aria-selected:bg-primary-950 dark:aria-selected:text-primary-300"
+            class="flex size-13 shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 text-sm font-medium text-gray-600 transition-[background-color,border-color,color] duration-200 ease-out hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 aria-selected:border-primary-200 aria-selected:bg-primary-50 aria-selected:text-primary-600 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:aria-selected:border-primary-800 dark:aria-selected:bg-primary-950 dark:aria-selected:text-primary-300"
           >
             <Icon class="size-5 shrink-0" />
-            <span class="whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover/tab:opacity-100 group-focus-visible/tab:opacity-100 group-data-expanded/nav:opacity-100 motion-reduce:transition-none">
+            <span class="sr-only whitespace-nowrap group-data-expanded/nav:not-sr-only">
               {label}
             </span>
           </button>
@@ -200,85 +200,7 @@ const charts = [
       observer.observe(explorer);
     }
   </script>
-
-  <script>
-    const filtersSentinel = document.getElementById("filters-sentinel");
-    const filtersFloating = document.getElementById("filters-floating");
-    const miniHeader = document.getElementById("app-header-mini");
-
-    if (filtersSentinel && filtersFloating && miniHeader) {
-      const offset = miniHeader.offsetHeight;
-
-      const durationMs = 200;
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      let animationFrame: number | undefined;
-      let settleTimeout: ReturnType<typeof setTimeout> | undefined;
-      let visible = false;
-
-      const hiddenY = () => -filtersFloating.getBoundingClientRect().height;
-
-      const settle = (isVisible: boolean) => {
-        filtersFloating.style.transform = isVisible
-          ? `translateY(${offset}px)`
-          : `translateY(${hiddenY()}px)`;
-      };
-
-      const animateY = (from: number, to: number, isVisible: boolean) => {
-        if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
-        clearTimeout(settleTimeout);
-
-        if (reduceMotion) {
-          settle(isVisible);
-          return;
-        }
-
-        const start = performance.now();
-        const step = (now: number) => {
-          const t = Math.min((now - start) / durationMs, 1);
-          const eased = 1 - (1 - t) ** 3;
-          filtersFloating.style.transform = `translateY(${from + (to - from) * eased}px)`;
-          animationFrame = t < 1 ? requestAnimationFrame(step) : undefined;
-        };
-        animationFrame = requestAnimationFrame(step);
-        settleTimeout = setTimeout(() => settle(isVisible), durationMs + 50);
-      };
-
-      settle(false);
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          const shouldBeVisible =
-            !entry.isIntersecting && entry.boundingClientRect.top < offset;
-          if (shouldBeVisible === visible) return;
-          visible = shouldBeVisible;
-
-          filtersFloating.inert = !visible;
-          animateY(
-            visible ? hiddenY() : offset,
-            visible ? offset : hiddenY(),
-            visible,
-          );
-        },
-        { rootMargin: `-${offset}px 0px 0px 0px`, threshold: 0 },
-      );
-      observer.observe(filtersSentinel);
-    }
-  </script>
 </section>
-
-<div
-  id="filters-floating"
-  inert
-  class="fixed inset-x-0 top-0 z-10 hidden -translate-y-full border-b border-gray-200 bg-primary-100 md:block dark:border-gray-700 dark:bg-primary-950"
->
-  <div class="center w-full">
-    <div class="app-content items-center justify-between gap-x-3 px-4 py-1.5">
-      <FilterBar idSuffix="-floating" compact />
-    </div>
-  </div>
-</div>
 
 <aside
   id="chart-fullscreen-sidebar"
