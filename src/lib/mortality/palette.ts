@@ -28,12 +28,22 @@ export function isDarkTheme(): boolean {
 
 const themeColorCache = new Map<string, string>();
 
+let hexColorContext: CanvasRenderingContext2D | null | undefined;
+
+function toHexColor(value: string): string {
+  if (hexColorContext === undefined)
+    hexColorContext = document.createElement("canvas").getContext("2d");
+  if (!hexColorContext || !value) return value;
+  hexColorContext.fillStyle = value;
+  return hexColorContext.fillStyle;
+}
+
 function readCssColor(token: string): string {
   let color = themeColorCache.get(token);
   if (!color) {
-    color = getComputedStyle(document.documentElement)
-      .getPropertyValue(token)
-      .trim();
+    color = toHexColor(
+      getComputedStyle(document.documentElement).getPropertyValue(token).trim(),
+    );
     themeColorCache.set(token, color);
   }
   return color;
