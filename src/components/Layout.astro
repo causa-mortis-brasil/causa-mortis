@@ -2,6 +2,7 @@
 import { Font } from "astro:assets";
 import "../styles/global.css";
 import Loader from "./Loader.astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
 
 interface Props {
   title?: string;
@@ -70,5 +71,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <Loader />
 
     <slot />
+
+    <SpeedInsights />
   </body>
 </html>

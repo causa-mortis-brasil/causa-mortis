@@ -181,7 +181,6 @@ export async function exportChartImage(
   const descriptionColor = rootStyle
     .getPropertyValue("--color-gray-600")
     .trim();
-  const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
   const canvasBackgroundColor =
     rootStyle.getPropertyValue("--color-gray-100").trim() || "#f3f4f6";
 
@@ -286,14 +285,14 @@ export async function exportChartImage(
   ctx.drawImage(chartCanvas, offsetX, chartY);
 
   const footerCenterY = (chartStripBottom + squareSize) / 2;
-  ctx.fillStyle = footerColor || "#6b7280";
+  ctx.fillStyle = titleColor || "#1f2937";
   ctx.textBaseline = "alphabetic";
 
   const brandFontRegular = `500 ${footerFontSize}px ${fontFamily}`;
   const brandFontBold = `700 ${footerFontSize}px ${fontFamily}`;
   const brandBaselineY = textBaselineForCenter(ctx, footerCenterY, [
-    { text: "Causa ", font: brandFontRegular },
-    { text: "Mortis", font: brandFontBold },
+    { text: "causamortis", font: brandFontRegular },
+    { text: ".net", font: brandFontBold },
   ]);
 
   const logoSize = footerFontSize * 1.8;
@@ -309,12 +308,12 @@ export async function exportChartImage(
 
   ctx.textAlign = "left";
   ctx.font = brandFontRegular;
-  ctx.fillText("Causa ", brandLeftX + logoSize + logoGap, brandBaselineY);
-  const causaWidth = ctx.measureText("Causa ").width;
+  ctx.fillText("causamortis", brandLeftX + logoSize + logoGap, brandBaselineY);
+  const brandNameWidth = ctx.measureText("causamortis").width;
   ctx.font = brandFontBold;
   ctx.fillText(
-    "Mortis",
-    brandLeftX + logoSize + logoGap + causaWidth,
+    ".net",
+    brandLeftX + logoSize + logoGap + brandNameWidth,
     brandBaselineY,
   );
 
