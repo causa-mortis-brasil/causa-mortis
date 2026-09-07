@@ -1,0 +1,64 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import Layout from "../components/Layout.astro";
+
+interface Release {
+  date: string;
+  title: string;
+  items: string[];
+}
+
+const releases: Release[] = [
+  {
+    date: "4 de setembro de 2026",
+    title: "Lançamento do painel",
+    items: [
+      "Explorador interativo com mapa, evolução das taxas, causas de morte, composição por idade, pirâmide de mortalidade e indicador de qualidade do SIM.",
+      "Exportação de cada gráfico em PNG e dos dados em CSV ou XLSX.",
+      "Download dos microdados completos em JSON e CSV.",
+      "Página de fontes com as bases oficiais e as notas metodológicas utilizadas.",
+    ],
+  },
+];
+---
+
+<Layout
+  title="Release — Causa Mortis"
+  description="Novidades e atualizações do painel Causa Mortis."
+>
+  <Header />
+
+  <main class="center-col gap-4">
+    <div class="app-content-col">
+      <div class="flex flex-col gap-2 px-4 py-6">
+        <h1 class="text-3xl font-bold">Release</h1>
+        <p class="max-w-180">Novidades e atualizações do painel.</p>
+      </div>
+
+      <ul class="flex flex-col gap-4 px-4 pb-8">
+        {
+          releases.map((release) => (
+            <li class="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-medium text-primary-600 dark:text-primary-300">
+                  {release.date}
+                </span>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
+                  {release.title}
+                </h2>
+              </div>
+              <ul class="flex list-disc flex-col gap-2 pl-4 text-sm text-gray-600 dark:text-gray-400">
+                {release.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

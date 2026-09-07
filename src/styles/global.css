@@ -1,16 +1,23 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   --color-primary-50: #f2f7ff;
   --color-primary-100: #e1edfe;
   --color-primary-200: #bcdafe;
+  --color-primary-300: #8fc0fe;
   --color-primary-500: #0165fa;
   --color-primary-600: #0156d5;
   --color-primary-800: #013e9a;
+  --color-primary-900: #01326f;
   --color-primary-950: #0a1a33;
   --color-secondary: #ffc300;
   --color-tertiary: #fa0000;
   --color-quaternary: #ff4c00;
+
+  --color-sex-men: #135ae1;
+  --color-sex-women: #d94f8c;
 
   --color-cause-1: #135ae1;
   --color-cause-2: #2197ff;
@@ -26,13 +33,20 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-poppins);
+  --font-sans: var(--font-sora);
 }
 
 @layer base {
   html {
     scrollbar-gutter: stable;
-    color-scheme: light dark;
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
+  }
+
+  html[data-theme="dark"] {
+    color-scheme: dark;
   }
 
   button {

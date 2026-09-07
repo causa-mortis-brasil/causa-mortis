@@ -14,7 +14,13 @@ import { indexOf } from "../dimensions";
 import type { EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
-import { causeGroupColor, themeColor, tooltipStyle } from "../palette";
+import {
+  causeGroupColor,
+  chartGridColor,
+  chartSurfaceColor,
+  themeColor,
+  tooltipStyle,
+} from "../palette";
 import {
   isManualYearOnlyChange,
   isYearOnlyChange,
@@ -93,7 +99,7 @@ export function init(
 
     const series = stackedSeriesData.map(
       ({ causeGroupIndex, causeGroup, isHighlighted, shares }) => {
-        const color = causeGroupColor(causeGroupIndex);
+        const color = causeGroupColor(causeGroupIndex, { forceLight });
 
         return {
           name: causeGroup,
@@ -102,7 +108,7 @@ export function init(
           symbol: "none" as const,
           areaStyle: { opacity: isHighlighted ? 0.9 : 0.25 },
           lineStyle: {
-            color: "#fff",
+            color: chartSurfaceColor({ forceLight }),
             width: 1,
             opacity: isHighlighted ? 1 : 0.25,
           },
@@ -152,6 +158,7 @@ export function init(
               : "",
           color: axisLabelColor,
         },
+        axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisTick: {
           show: true,
           alignWithLabel: true,
@@ -166,6 +173,7 @@ export function init(
       yAxis: {
         type: "value",
         max: 1,
+        splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisLabel: {
           formatter: (value: number) => formatPercentInteger(value),
           color: axisLabelColor,

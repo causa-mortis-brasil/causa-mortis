@@ -1,0 +1,36 @@
+---
+import { Moon, Sun } from "@lucide/astro";
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  aria-label="Ativar modo escuro"
+  class="flex cursor-pointer items-center rounded-lg p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+>
+  <Moon class="size-5 dark:hidden" />
+  <Sun class="hidden size-5 dark:block" />
+</button>
+
+<script>
+  import { currentTheme, setTheme } from "../lib/theme";
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>(
+    "[data-theme-toggle]",
+  );
+
+  function syncLabels(): void {
+    const label =
+      currentTheme() === "dark" ? "Ativar modo claro" : "Ativar modo escuro";
+    for (const button of buttons) button.setAttribute("aria-label", label);
+  }
+
+  syncLabels();
+
+  for (const button of buttons) {
+    button.addEventListener("click", () => {
+      setTheme(currentTheme() === "dark" ? "light" : "dark");
+      syncLabels();
+    });
+  }
+</script>

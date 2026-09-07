@@ -1,3 +1,5 @@
+import { currentTheme } from "../theme";
+
 const CAUSE_TOKENS = [
   "--color-cause-1",
   "--color-cause-2",
@@ -21,7 +23,7 @@ const DARK_TOKEN_OVERRIDES: Record<string, string> = {
 };
 
 export function isDarkTheme(): boolean {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return currentTheme() === "dark";
 }
 
 const themeColorCache = new Map<string, string>();
@@ -41,14 +43,52 @@ export interface ThemeColorOptions {
   forceLight?: boolean;
 }
 
+function usesDark({ forceLight = false }: ThemeColorOptions): boolean {
+  return !forceLight && isDarkTheme();
+}
+
 export function themeColor(
   token: string,
-  { forceLight = false }: ThemeColorOptions = {},
+  options: ThemeColorOptions = {},
 ): string {
-  if (!forceLight && isDarkTheme()) {
+  if (usesDark(options)) {
     return readCssColor(DARK_TOKEN_OVERRIDES[token] ?? token);
   }
   return readCssColor(token);
+}
+
+export function chartSurfaceColor(options: ThemeColorOptions = {}): string {
+  return readCssColor(usesDark(options) ? "--color-gray-800" : "--color-white");
+}
+
+export function chartGridColor(options: ThemeColorOptions = {}): string {
+  return readCssColor(
+    usesDark(options) ? "--color-gray-700" : "--color-gray-200",
+  );
+}
+
+export interface MapLabelStyle {
+  color: string;
+  textBorderColor: string;
+}
+
+export function mapLabelStyle(
+  fillRatio: number,
+  options: ThemeColorOptions = {},
+): MapLabelStyle {
+  const brightFill = usesDark(options) ? fillRatio > 0.55 : fillRatio < 0.55;
+  return {
+    color: readCssColor(brightFill ? "--color-gray-800" : "--color-white"),
+    textBorderColor: readCssColor(
+      brightFill ? "--color-white" : "--color-gray-900",
+    ),
+  };
+}
+
+export function noDataColor(options: ThemeColorOptions = {}): string {
+  return readCssColor(
+    usesDark(options) ? "--color-gray-700" : "--color-gray-200",
+  );
 }
 
 export function tooltipStyle(): {
@@ -58,7 +98,7 @@ export function tooltipStyle(): {
 } {
   const dark = isDarkTheme();
   return {
-    backgroundColor: dark ? readCssColor("--color-gray-800") : "#fff",
+    backgroundColor: readCssColor(dark ? "--color-gray-800" : "--color-white"),
     borderColor: dark
       ? readCssColor("--color-gray-700")
       : readCssColor("--color-gray-200"),
@@ -68,13 +108,6 @@ export function tooltipStyle(): {
         : readCssColor("--color-gray-700"),
     },
   };
-}
-
-let causeColors: string[] | null = null;
-
-export function causeGroupColor(causeGroupIndex: number): string {
-  causeColors ??= CAUSE_TOKENS.map(readCssColor);
-  return causeColors[causeGroupIndex % causeColors.length];
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -90,28 +123,42 @@ function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-let mapScaleEndpoints: [string, string] | null = null;
+function mixColors(from: string, to: string, amount: number): string {
+  const fromRgb = hexToRgb(from);
+  const toRgb = hexToRgb(to);
+  return rgbToHex([
+    lerp(fromRgb[0], toRgb[0], amount),
+    lerp(fromRgb[1], toRgb[1], amount),
+    lerp(fromRgb[2], toRgb[2], amount),
+  ]);
+}
 
-function getMapScaleEndpoints(): [string, string] {
-  mapScaleEndpoints ??= [
-    readCssColor("--color-primary-50"),
-    readCssColor("--color-primary-800"),
-  ];
-  return mapScaleEndpoints;
+const CAUSE_DARK_MIX = 0.16;
+
+export function causeGroupColor(
+  causeGroupIndex: number,
+  options: ThemeColorOptions = {},
+): string {
+  const color = readCssColor(
+    CAUSE_TOKENS[causeGroupIndex % CAUSE_TOKENS.length],
+  );
+  if (!usesDark(options)) return color;
+  return mixColors(color, readCssColor("--color-gray-900"), CAUSE_DARK_MIX);
 }
 
 export const MAP_SCALE_STEPS = 7;
 
-export function mapScaleSteps(): string[] {
-  const [start, end] = getMapScaleEndpoints();
-  const startRgb = hexToRgb(start);
-  const endRgb = hexToRgb(end);
-  return Array.from({ length: MAP_SCALE_STEPS }, (_, i) => {
-    const t = i / (MAP_SCALE_STEPS - 1);
-    return rgbToHex([
-      lerp(startRgb[0], endRgb[0], t),
-      lerp(startRgb[1], endRgb[1], t),
-      lerp(startRgb[2], endRgb[2], t),
-    ]);
-  });
+const MAP_SCALE_ENDPOINT_TOKENS = {
+  light: ["--color-primary-50", "--color-primary-800"],
+  dark: ["--color-primary-900", "--color-primary-300"],
+} as const;
+
+export function mapScaleSteps(options: ThemeColorOptions = {}): string[] {
+  const [start, end] =
+    MAP_SCALE_ENDPOINT_TOKENS[usesDark(options) ? "dark" : "light"];
+  const startColor = readCssColor(start);
+  const endColor = readCssColor(end);
+  return Array.from({ length: MAP_SCALE_STEPS }, (_, i) =>
+    mixColors(startColor, endColor, i / (MAP_SCALE_STEPS - 1)),
+  );
 }

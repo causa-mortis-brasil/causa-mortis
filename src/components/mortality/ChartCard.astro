@@ -39,7 +39,7 @@ const {
 <div
   id={`panel-${chartName}`}
   class:list={[
-    "chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
+    "chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800",
     padding,
   ]}
   data-chart-panel={chartName}
@@ -48,14 +48,16 @@ const {
   hidden={!active}
 >
   <div class="flex flex-col items-center gap-3">
-    <div class="flex flex-col items-center gap-1 text-center">
+    <div
+      class="flex max-w-180 flex-col items-center gap-1 self-center text-center"
+    >
       <h2 data-chart-title class="flex flex-col text-xl font-bold uppercase">
         <span data-chart-title-line1>{title}</span>
         <span data-chart-title-line2 class="empty:hidden"></span>
       </h2>
       <p
         data-chart-subtitle
-        class="text-sm font-medium text-primary-600 empty:hidden"
+        class="text-sm font-medium text-primary-600 empty:hidden dark:text-primary-300"
       >
       </p>
       {
@@ -84,11 +86,11 @@ const {
     class={`relative w-full landscape:max-h-[70vh] ${height}`}
     data-chart={chartName}
   >
-    <p
-      class="chart-placeholder absolute inset-0 flex items-center justify-center text-sm text-gray-800 dark:text-gray-200"
+    <div
+      class="chart-placeholder absolute inset-0 animate-pulse rounded-xl bg-gray-200/70 motion-reduce:animate-none dark:bg-gray-700/50"
     >
-      Carregando gráfico…
-    </p>
+      <span class="sr-only">Carregando gráfico…</span>
+    </div>
   </div>
 
   <div
@@ -96,7 +98,10 @@ const {
   >
     <div class="flex flex-col gap-0.5">
       <span>Fonte: SIM/DATASUS · IBGE</span>
-      <a href="/fontes" class="text-primary-600 hover:underline">
+      <a
+        href="/fontes"
+        class="text-primary-600 hover:underline dark:text-primary-300"
+      >
         Notas técnicas e metodologia
       </a>
     </div>

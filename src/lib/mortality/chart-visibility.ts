@@ -1,3 +1,4 @@
+import { THEME_CHANGE_EVENT } from "../theme";
 import type { FiltersStore } from "./filters";
 
 export function subscribeWhenVisible(
@@ -7,6 +8,7 @@ export function subscribeWhenVisible(
 ): void {
   if (!(card instanceof HTMLElement)) {
     store.subscribe(() => void render());
+    document.addEventListener(THEME_CHANGE_EVENT, () => void render());
     return;
   }
 
@@ -18,12 +20,15 @@ export function subscribeWhenVisible(
     void render();
   };
 
+  const schedule = (): void => {
+    if (isVisible()) run();
+    else dirty = true;
+  };
+
   new MutationObserver(() => {
     if (isVisible() && dirty) run();
   }).observe(card, { attributes: true, attributeFilter: ["hidden"] });
 
-  store.subscribe(() => {
-    if (isVisible()) run();
-    else dirty = true;
-  });
+  store.subscribe(schedule);
+  document.addEventListener(THEME_CHANGE_EVENT, schedule);
 }

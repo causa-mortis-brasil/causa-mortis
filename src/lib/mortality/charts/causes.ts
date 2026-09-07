@@ -28,7 +28,7 @@ import type {
   TopLevelFormatterParams,
 } from "../echarts-core";
 import { echarts } from "../echarts-core";
-import { causeGroupColor, tooltipStyle } from "../palette";
+import { causeGroupColor, chartSurfaceColor, tooltipStyle } from "../palette";
 import { formatInteger, formatPercent, formatRate } from "../format";
 import {
   isManualYearOnlyChange,
@@ -45,6 +45,7 @@ const EXPORT_SIZE = {
   width: EXPORT_WIDTH,
   height: EXPORT_CHART_HEIGHT + EXPORT_LEGEND_HEIGHT,
 };
+const MIN_LABEL_PERCENT = 2.5;
 const NORMAL_TREEMAP_DURATION = 900;
 const FAST_TREEMAP_DURATION = 200;
 const PLAYBACK_ANIMATION_BUFFER_MS = 80;
@@ -320,7 +321,9 @@ export function init(
 
   function treemapLabelFormatter(params: CallbackDataParams): string {
     const node = params.data as CauseNode;
-    return `${params.name}\n${formatPercent((node.percent ?? 0) / 100)}`;
+    const percent = node.percent ?? 0;
+    if (percent < MIN_LABEL_PERCENT) return "";
+    return `${params.name}\n${formatPercent(percent / 100)}`;
   }
 
   function buildTreemapSeries(displayNodes: CauseNode[], bottom: number) {
@@ -333,9 +336,9 @@ export function init(
       nodeClick: false as const,
       leafDepth: 1,
       breadcrumb: { show: false },
-      upperLabel: { show: true, height: 24, color: "#fff" },
+      upperLabel: { show: false },
       label: { formatter: treemapLabelFormatter },
-      itemStyle: { borderColor: "#fff", gapWidth: 3 },
+      itemStyle: { borderColor: chartSurfaceColor(), gapWidth: 3 },
       levels: [
         {},
         { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },

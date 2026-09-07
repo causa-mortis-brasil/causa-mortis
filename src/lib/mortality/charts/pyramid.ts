@@ -15,14 +15,16 @@ import { indexOf } from "../dimensions";
 import type { CallbackDataParams, EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
-import { themeColor, tooltipStyle } from "../palette";
+import {
+  chartGridColor,
+  chartSurfaceColor,
+  themeColor,
+  tooltipStyle,
+} from "../palette";
 import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { crudeRate } from "../rate";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
-
-const MEN_COLOR = "#1e3a8a";
-const WOMEN_COLOR = "#fca5a5";
 
 const AXIS_SPLIT_COUNT = 5;
 const NICE_FRACTIONS = [1, 2, 5, 10];
@@ -124,7 +126,7 @@ export function init(
           top: 0,
           itemWidth: 12,
           itemHeight: 12,
-          textStyle: { fontWeight: 600 },
+          textStyle: { fontWeight: 600, color: barLabelColor },
         },
         {
           data: ["Mulheres"],
@@ -132,7 +134,7 @@ export function init(
           top: 0,
           itemWidth: 12,
           itemHeight: 12,
-          textStyle: { fontWeight: 600 },
+          textStyle: { fontWeight: 600, color: barLabelColor },
         },
       ],
       xAxis: [
@@ -143,6 +145,8 @@ export function init(
           max: maxAbs,
           interval: axisInterval,
           inverse: true,
+          splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
+          axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
           axisLabel: {
             formatter: (value: number) => formatCompact(value),
             color: axisLabelColor,
@@ -154,6 +158,8 @@ export function init(
           min: 0,
           max: maxAbs,
           interval: axisInterval,
+          splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
+          axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
           axisLabel: {
             formatter: (value: number) => formatCompact(value),
             color: axisLabelColor,
@@ -200,7 +206,7 @@ export function init(
           xAxisIndex: 0,
           yAxisIndex: 0,
           data: menValues,
-          color: MEN_COLOR,
+          color: themeColor("--color-sex-men", { forceLight }),
           ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
           label: {
             show: true,
@@ -219,7 +225,7 @@ export function init(
           xAxisIndex: 1,
           yAxisIndex: 1,
           data: womenValues,
-          color: WOMEN_COLOR,
+          color: themeColor("--color-sex-women", { forceLight }),
           ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
           label: {
             show: true,
@@ -246,10 +252,10 @@ export function init(
             position: "inside",
             formatter: (params: { dataIndex: number }) =>
               dimensions.age_groups[params.dataIndex],
-            color: themeColor("--color-gray-700"),
+            color: themeColor("--color-gray-700", { forceLight }),
             fontSize: 11,
             fontWeight: 600,
-            backgroundColor: "#fff",
+            backgroundColor: chartSurfaceColor({ forceLight }),
             padding: [2, 6],
             borderRadius: 4,
           },

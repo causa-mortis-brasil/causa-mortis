@@ -20,7 +20,10 @@ import { echarts } from "../echarts-core";
 import { formatRate } from "../format";
 import {
   MAP_SCALE_STEPS,
+  chartSurfaceColor,
+  mapLabelStyle,
   mapScaleSteps,
+  noDataColor,
   themeColor,
   tooltipStyle,
 } from "../palette";
@@ -138,9 +141,15 @@ export function init(
     forceLight = false,
   ): EChartsOption {
     const { data, domainMin } = optionData;
+    const noDataLabelColor = themeColor("--color-gray-500", { forceLight });
     const seriesData = data.map(({ name, value }) => ({
       name,
       value: value ?? ("-" as const),
+      label: hasValue(value)
+        ? mapLabelStyle((value - domainMin) / (MAX_COVERAGE - domainMin), {
+            forceLight,
+          })
+        : { color: noDataLabelColor, textBorderColor: "transparent" },
     }));
     return {
       tooltip: {
@@ -162,7 +171,7 @@ export function init(
         type: "continuous",
         splitNumber: MAP_SCALE_STEPS,
         itemGap: 2,
-        inRange: { color: mapScaleSteps() },
+        inRange: { color: mapScaleSteps({ forceLight }) },
         orient: "horizontal",
         left: "left",
         bottom: 0,
@@ -174,14 +183,20 @@ export function init(
           type: "map",
           map: MAP_NAME,
           aspectScale: 0.95,
+          layoutCenter: ["50%", "46%"],
+          layoutSize: "96%",
           roam: true,
           scaleLimit: { min: 1, max: 8 },
           ...(roam.center ? { center: roam.center } : {}),
           ...(roam.zoom ? { zoom: roam.zoom } : {}),
-          itemStyle: { borderColor: "#fff", borderWidth: 0.5 },
+          itemStyle: {
+            areaColor: noDataColor({ forceLight }),
+            borderColor: chartSurfaceColor({ forceLight }),
+            borderWidth: 0.5,
+          },
           emphasis: {
             itemStyle: {
-              borderColor: themeColor("--color-primary-500"),
+              borderColor: themeColor("--color-primary-500", { forceLight }),
               borderWidth: 1.5,
             },
             label: { color: "#fff" },
@@ -197,8 +212,6 @@ export function init(
             },
             fontSize: 10,
             fontWeight: 600,
-            color: "#fff",
-            textBorderColor: "rgba(0, 0, 0, 0.35)",
             textBorderWidth: 2,
           },
           data: seriesData,

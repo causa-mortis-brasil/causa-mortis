@@ -18,14 +18,16 @@ function renderRate(
   rate: number,
   previousRate: number | null,
 ): void {
-  if (valueEl) valueEl.textContent = `${formatRate(rate)} por 100 mil hab.`;
+  if (valueEl) valueEl.textContent = formatRate(rate);
   if (!deltaEl) return;
   if (previousRate == null || previousRate === 0) {
     deltaEl.textContent = "sem comparação";
+    delete deltaEl.dataset.direction;
     return;
   }
   const change = (rate - previousRate) / previousRate;
-  deltaEl.textContent = `(${formatSignedPercent(change)} no ano)`;
+  deltaEl.textContent = `${formatSignedPercent(change)} em relação ao ano anterior`;
+  deltaEl.dataset.direction = change > 0 ? "up" : change < 0 ? "down" : "flat";
 }
 
 export function initSummaryStats(

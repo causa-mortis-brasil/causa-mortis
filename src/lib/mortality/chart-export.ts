@@ -182,6 +182,8 @@ export async function exportChartImage(
     .getPropertyValue("--color-gray-600")
     .trim();
   const footerColor = rootStyle.getPropertyValue("--color-gray-500").trim();
+  const canvasBackgroundColor =
+    rootStyle.getPropertyValue("--color-gray-50").trim() || "#f9fafb";
 
   const padding = 24 * pixelRatio;
   const blockWidth = chartCanvas.width;
@@ -194,6 +196,7 @@ export async function exportChartImage(
   const blockGap = 4 * pixelRatio;
   const headerToChartGap = padding;
   const chartToFooterGap = padding;
+  const chartStripGap = 16 * pixelRatio;
 
   ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
   const wrappedTitleLines = titleLines
@@ -230,8 +233,24 @@ export async function exportChartImage(
   canvas.width = squareSize;
   canvas.height = squareSize;
 
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = canvasBackgroundColor;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const chartStripTop = padding + headerContentHeight + chartStripGap;
+  const chartStripBottom =
+    padding +
+    headerContentHeight +
+    effectiveHeaderToChartGap +
+    chartCanvas.height +
+    effectiveChartToFooterGap -
+    chartStripGap;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(
+    0,
+    chartStripTop,
+    canvas.width,
+    chartStripBottom - chartStripTop,
+  );
 
   const centerX = offsetX + blockWidth / 2;
   ctx.textBaseline = "top";

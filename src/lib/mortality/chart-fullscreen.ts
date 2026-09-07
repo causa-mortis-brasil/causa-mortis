@@ -84,15 +84,17 @@ function applySidebarNavLayout(nav: HTMLElement): () => void {
     overrideStyle(nav, {
       width: "100%",
       display: "grid",
-      gridTemplateColumns: "repeat(auto-fill, minmax(2.75rem, 1fr))",
-      gap: "0.75rem",
+      gridTemplateColumns: "1fr",
+      gap: "0.5rem",
     }),
   ];
   for (const child of nav.children)
     if (child instanceof HTMLElement)
-      restores.push(overrideStyle(child, { width: "100%", padding: "0px" }));
+      restores.push(overrideStyle(child, { width: "100%" }));
+  nav.setAttribute("data-expanded", "");
 
   return () => {
+    nav.removeAttribute("data-expanded");
     for (const restore of restores) restore();
   };
 }

@@ -13,7 +13,7 @@ import { echarts } from "../echarts-core";
 import { evolutionChartTitle, setChartTitle } from "../chart-titles";
 import { indexOf } from "../dimensions";
 import { formatInteger, formatRate } from "../format";
-import { themeColor, tooltipStyle } from "../palette";
+import { chartGridColor, themeColor, tooltipStyle } from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions } from "../types";
@@ -104,6 +104,7 @@ export function init(
         max: maxYear,
         interval: 5,
         splitLine: { show: false },
+        axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisLabel: {
           formatter: (value: number) => String(value),
           color: themeColor("--color-gray-500", { forceLight }),
@@ -118,6 +119,7 @@ export function init(
         type: "value",
         name: "Taxa (por 100 mil hab.)",
         min: 0,
+        splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisLabel: {
           formatter: (value: number | string) => formatInteger(Number(value)),
           color: themeColor("--color-gray-500", { forceLight }),
@@ -139,7 +141,10 @@ export function init(
           emphasis: { disabled: true },
           markArea: {
             silent: true,
-            itemStyle: { color: "rgba(0, 0, 0, 0.04)" },
+            itemStyle: {
+              color: themeColor("--color-gray-500", { forceLight }),
+              opacity: 0.1,
+            },
             label: {
               show: true,
               position: "insideTop",

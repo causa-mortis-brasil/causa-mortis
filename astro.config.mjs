@@ -15,8 +15,8 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.fontsource(),
-      name: "Poppins",
-      cssVariable: "--font-poppins",
+      name: "Sora",
+      cssVariable: "--font-sora",
       weights: [400, 500, 700, 800],
       styles: ["normal"],
     },
