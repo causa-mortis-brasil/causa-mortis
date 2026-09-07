@@ -1,5 +1,6 @@
 ---
 import GithubIcon from "./icons/GithubIcon.astro";
+import ThemeToggle from "./ThemeToggle.astro";
 import { siteNavLinks } from "../lib/nav";
 
 const year = new Date().getFullYear();
@@ -8,7 +9,7 @@ const year = new Date().getFullYear();
 <div
   class="center w-full border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
 >
-  <footer class="app-content-col gap-6 px-4 py-8 sm:py-10">
+  <footer class="app-content-col app-gutter gap-6 py-8 sm:py-10">
     <div class="flex flex-wrap items-center justify-between gap-6">
       <a href="/" class="flex items-center gap-3">
         <img src="/logo.svg" alt="" width="40" height="40" class="w-10" />
@@ -20,7 +21,7 @@ const year = new Date().getFullYear();
 
       <nav aria-label="Navegação do rodapé" class="flex flex-col gap-3">
         <ul
-          class="flex flex-wrap gap-6 text-sm text-gray-600 dark:text-gray-400"
+          class="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400"
         >
           {
             siteNavLinks.map((link) => (
@@ -37,6 +38,11 @@ const year = new Date().getFullYear();
               </li>
             ))
           }
+          <li>
+            <ThemeToggle
+              class="-my-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-primary-500 dark:text-gray-400 dark:hover:bg-gray-800"
+            />
+          </li>
         </ul>
       </nav>
     </div>

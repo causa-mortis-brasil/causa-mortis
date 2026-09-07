@@ -38,9 +38,9 @@ import {
 import { setupChartShare } from "../share";
 import type { CauseFilter, Dimensions, Filters } from "../types";
 
-const EXPORT_CHART_HEIGHT = 480;
+const EXPORT_CHART_HEIGHT = 544;
 const EXPORT_LEGEND_GAP = 16;
-const EXPORT_LEGEND_HEIGHT = 160;
+const EXPORT_LEGEND_HEIGHT = 112;
 const EXPORT_SIZE = {
   width: EXPORT_WIDTH,
   height: EXPORT_CHART_HEIGHT + EXPORT_LEGEND_HEIGHT,

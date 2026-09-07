@@ -285,8 +285,7 @@ export async function exportChartImage(
   const chartY = padding + headerContentHeight + effectiveHeaderToChartGap;
   ctx.drawImage(chartCanvas, offsetX, chartY);
 
-  const footerY = chartY + chartCanvas.height + effectiveChartToFooterGap;
-  const footerCenterY = footerY + footerFontSize / 2;
+  const footerCenterY = (chartStripBottom + squareSize) / 2;
   ctx.fillStyle = footerColor || "#6b7280";
   ctx.textBaseline = "alphabetic";
 

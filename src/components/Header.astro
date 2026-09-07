@@ -7,10 +7,10 @@ import { siteNavLinks } from "../lib/nav";
 
 <div
   id="app-header"
-  class="center group sticky top-0 z-30 w-full border-b border-white/10 bg-primary-950/80 py-3 backdrop-blur-xl transition-[padding] duration-200 ease-out data-scrolled:py-1.5 motion-reduce:transition-none dark:bg-gray-950/75"
+  class="center group fixed inset-x-0 top-0 z-30 h-16 border-b border-white/10 bg-primary-950/90 backdrop-blur-xl transition-[height] duration-200 ease-out data-scrolled:h-12 motion-reduce:transition-none dark:bg-gray-950/75"
 >
   <header
-    class="app-content items-center justify-between gap-4 px-4 text-white"
+    class="app-content app-gutter items-center justify-between gap-4 text-white"
   >
     <a href="/" class="flex shrink-0 items-center gap-3">
       <img
@@ -88,18 +88,18 @@ import { siteNavLinks } from "../lib/nav";
   </header>
 </div>
 
-<div id="app-header-sentinel" aria-hidden="true" class="h-px w-full"></div>
+<div id="app-header-spacer" aria-hidden="true" class="h-16 w-full"></div>
 
 <script>
   const header = document.getElementById("app-header");
-  const sentinel = document.getElementById("app-header-sentinel");
+  const spacer = document.getElementById("app-header-spacer");
 
-  if (header && sentinel) {
+  if (header && spacer) {
     const observer = new IntersectionObserver(
       ([entry]) =>
         header.toggleAttribute("data-scrolled", !entry.isIntersecting),
       { threshold: 0 },
     );
-    observer.observe(sentinel);
+    observer.observe(spacer);
   }
 </script>

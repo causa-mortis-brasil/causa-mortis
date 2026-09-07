@@ -142,15 +142,20 @@ export function init(
   ): EChartsOption {
     const { data, domainMin } = optionData;
     const noDataLabelColor = themeColor("--color-gray-500", { forceLight });
-    const seriesData = data.map(({ name, value }) => ({
-      name,
-      value: value ?? ("-" as const),
-      label: hasValue(value)
+    const seriesData = data.map(({ name, value }) => {
+      const label = hasValue(value)
         ? mapLabelStyle((value - domainMin) / (MAX_COVERAGE - domainMin), {
             forceLight,
           })
-        : { color: noDataLabelColor, textBorderColor: "transparent" },
-    }));
+        : { color: noDataLabelColor, textBorderColor: "transparent" };
+      return {
+        name,
+        value: value ?? ("-" as const),
+        label,
+        emphasis: { label },
+        select: { label },
+      };
+    });
     return {
       tooltip: {
         formatter: (raw: TopLevelFormatterParams) => {
@@ -199,10 +204,6 @@ export function init(
               borderColor: themeColor("--color-primary-500", { forceLight }),
               borderWidth: 1.5,
             },
-            label: { color: "#fff" },
-          },
-          select: {
-            label: { color: "#fff" },
           },
           label: {
             show: true,

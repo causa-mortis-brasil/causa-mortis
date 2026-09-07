@@ -3,11 +3,9 @@ import { ChartArea, ChartLine, LayoutPanelLeft } from "@lucide/astro";
 import BrazilIcon from "../icons/BrazilIcon.astro";
 import OneTwoThreeIcon from "../icons/OneTwoThreeIcon.astro";
 import PopulationPyramidIcon from "../icons/PopulationPyramidIcon.astro";
-import SimIcon from "../icons/SimIcon.astro";
 import ChartCard from "./ChartCard.astro";
 import ChartFullscreenToggle from "./ChartFullscreenToggle.astro";
 import FilterBar from "./FilterBar.astro";
-import QualityChartCard from "./QualityChartCard.astro";
 import SummaryStat from "./SummaryStat.astro";
 import YearControl from "./YearControl.astro";
 
@@ -22,7 +20,6 @@ const charts = [
   },
   { name: "pyramid", label: "Sexo", icon: PopulationPyramidIcon },
   { name: "stats", label: "Resumo", icon: OneTwoThreeIcon },
-  { name: "quality", label: "Qualidade", icon: SimIcon },
 ];
 ---
 
@@ -177,8 +174,6 @@ const charts = [
         height="h-96 md:h-120"
         fullscreenToggle
       />
-
-      <QualityChartCard />
     </div>
   </div>
 

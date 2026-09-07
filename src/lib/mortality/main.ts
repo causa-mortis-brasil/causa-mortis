@@ -25,7 +25,6 @@ const CHART_LOADERS: Record<string, () => Promise<ChartModule>> = {
   map: () => import("./charts/map"),
   "age-composition": () => import("./charts/age-composition"),
   pyramid: () => import("./charts/pyramid"),
-  quality: () => import("./charts/quality"),
 };
 
 function customSelect(
@@ -89,8 +88,6 @@ function setupPyramidMeasureSelect(
 
 const YEAR_PLAYBACK_INTERVAL_MS = 900;
 const YEAR_PLAYBACK_SPEEDS = [1, 2, 3];
-const RANDOM_TAB_EXCLUDED_CHARTS = ["quality"];
-
 export interface YearPlayback {
   toggle: () => void;
   stop: () => void;
@@ -357,9 +354,6 @@ function setupChartTabs(
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
-  const filtersPanelWraps = [
-    ...document.querySelectorAll<HTMLElement>('[id^="filters-panel-wrap"]'),
-  ];
   const yearWraps = [
     ...document.querySelectorAll<HTMLElement>('[id^="filter-year-wrap"]'),
   ];
@@ -436,22 +430,18 @@ function setupChartTabs(
       panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
     syncPanelsHeight();
 
-    setWrapsHidden(filtersPanelWraps, target === "quality");
-
     const hidesYear = target === "evolution";
     setWrapsHidden(yearWraps, hidesYear);
     if (hidesYear) stopYearPlayback();
 
-    if (target !== "quality") {
-      for (const wrap of sexWraps)
-        wrap.toggleAttribute("hidden", target === "pyramid");
-      for (const wrap of locationWraps)
-        wrap.toggleAttribute("hidden", target === "map");
-      for (const wrap of causeGroupWraps) wrap.hidden = false;
-      for (const wrap of pyramidMeasureWraps)
-        wrap.toggleAttribute("hidden", target !== "pyramid");
-      setDetailFiltersEnabled(target !== "age-composition");
-    }
+    for (const wrap of sexWraps)
+      wrap.toggleAttribute("hidden", target === "pyramid");
+    for (const wrap of locationWraps)
+      wrap.toggleAttribute("hidden", target === "map");
+    for (const wrap of causeGroupWraps) wrap.hidden = false;
+    for (const wrap of pyramidMeasureWraps)
+      wrap.toggleAttribute("hidden", target !== "pyramid");
+    setDetailFiltersEnabled(target !== "age-composition");
   }
 
   for (const tab of tabs) {
@@ -525,12 +515,9 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     sharedTab && ["stats", ...chartNames].includes(sharedTab)
       ? sharedTab
       : null;
-  const randomTabChoices = chartNames.filter(
-    (name) => !RANDOM_TAB_EXCLUDED_CHARTS.includes(name),
-  );
   activateChartTab(
     validSharedTab ??
-      randomTabChoices[Math.floor(Math.random() * randomTabChoices.length)] ??
+      chartNames[Math.floor(Math.random() * chartNames.length)] ??
       "map",
   );
   observeChartCards(root, store, dimensions);

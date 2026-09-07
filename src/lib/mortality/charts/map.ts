@@ -101,10 +101,12 @@ export function init(
     forceLight = false,
   ): EChartsOption {
     const { data, min, max } = optionData;
-    const seriesData = data.map((entry) => ({
-      ...entry,
-      label: mapLabelStyle((entry.value - min) / (max - min), { forceLight }),
-    }));
+    const seriesData = data.map((entry) => {
+      const label = mapLabelStyle((entry.value - min) / (max - min), {
+        forceLight,
+      });
+      return { ...entry, label, emphasis: { label }, select: { label } };
+    });
     return {
       tooltip: {
         formatter: (raw: TopLevelFormatterParams) => {
@@ -150,10 +152,6 @@ export function init(
               borderColor: themeColor("--color-primary-500", { forceLight }),
               borderWidth: 1.5,
             },
-            label: { color: "#fff" },
-          },
-          select: {
-            label: { color: "#fff" },
           },
           label: {
             show: true,

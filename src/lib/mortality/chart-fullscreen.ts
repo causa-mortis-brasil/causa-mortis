@@ -127,7 +127,7 @@ function showFullscreenSidebar(
   const restoreFilterLayout = applySidebarFilterLayout(filtersPanelWrap);
   const restoreYearLayout = applySidebarYearLayout(yearControl);
 
-  sidebar.style.top = `${topOffset}px`;
+  sidebar.style.paddingTop = `${topOffset}px`;
   sidebar.hidden = false;
   sidebar.inert = false;
 
@@ -140,7 +140,7 @@ function showFullscreenSidebar(
     yearAnchor.replaceWith(yearControl);
     sidebar.hidden = true;
     sidebar.inert = true;
-    sidebar.style.top = "";
+    sidebar.style.paddingTop = "";
   };
 }
 
@@ -175,13 +175,18 @@ function ensureChrome(): void {
     return;
   }
 
-  const offset = document.getElementById("app-header")?.offsetHeight ?? 0;
+  const header = document.getElementById("app-header");
+  const headerWasScrolled = header?.hasAttribute("data-scrolled") ?? false;
+  header?.setAttribute("data-scrolled", "");
+
+  const offset = header?.offsetHeight ?? 0;
   const restoreSidebar = sidebarBundle
     ? showFullscreenSidebar(sidebarBundle, offset)
     : null;
 
   chromeOffset = offset;
   chromeRestore = () => {
+    header?.toggleAttribute("data-scrolled", headerWasScrolled);
     restoreSidebar?.();
   };
 }
