@@ -9,25 +9,20 @@ import MortalityExplorer from "../components/mortality/MortalityExplorer.astro";
   <Header />
 
   <main class="center-col gap-4">
-    <section id="app-charts" class="app-content-col app-gutter gap-6 py-6">
+    <section id="app-charts" class="app-content-col app-gutter gap-6 py-6 pb-2">
       <h1 class="sr-only">Mortalidade no Brasil, causa por causa</h1>
 
       <MortalityExplorer />
     </section>
 
-    <div
-      id="app-sobre"
-      class="center w-full border-t border-gray-200 bg-primary-50 dark:border-gray-800 dark:bg-gray-800"
-    >
-      <section class="app-content-col app-gutter gap-4 py-12 sm:py-16">
-        <p class="text-gray-700 dark:text-gray-300">
-          Para análise técnica e formulação de política pública, recomenda-se a
-          extração dos dados diretamente no DataSUS (SIM e projeções
-          populacionais do IBGE), onde estão disponíveis os microdados
-          completos, as revisões posteriores e as notas técnicas de cada base.
-        </p>
-      </section>
-    </div>
+    <section id="app-sobre" class="app-content-col app-gutter pb-12 sm:pb-16">
+      <p class="text-center text-gray-700 md:ml-17 dark:text-gray-300">
+        Para análise técnica e formulação de política pública, recomenda-se a
+        extração dos dados diretamente no DataSUS (SIM e projeções populacionais
+        do IBGE), onde estão disponíveis os microdados completos, as revisões
+        posteriores e as notas técnicas de cada base.
+      </p>
+    </section>
   </main>
 
   <Footer />

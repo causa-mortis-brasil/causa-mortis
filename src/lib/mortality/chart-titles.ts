@@ -15,14 +15,13 @@ function syncTitleSeparator(titleEl: Element): void {
   if (!(line1El instanceof HTMLElement) || !(line2El instanceof HTMLElement))
     return;
 
-  line2El.toggleAttribute("data-inline", true);
   const line1Rects = line1El.getClientRects();
   const lastLine1 = line1Rects[line1Rects.length - 1];
   const sameLine =
     lastLine1 !== undefined &&
     Math.abs(lastLine1.top - line2El.getBoundingClientRect().top) <
       SAME_LINE_TOLERANCE;
-  line2El.toggleAttribute("data-inline", sameLine);
+  line2El.toggleAttribute("data-stacked", !sameLine);
 }
 
 function observeTitleWidth(titleEl: Element): void {
