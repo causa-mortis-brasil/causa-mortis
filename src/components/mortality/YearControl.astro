@@ -22,14 +22,14 @@ const maxYear = Math.max(...years);
   <div class="overflow-hidden">
     <div
       data-year-control
-      class="flex w-full items-center gap-2 rounded-2xl bg-primary-100 p-2 pr-4 dark:bg-primary-950"
+      class="flex w-full items-center gap-2 rounded-ui-lg bg-primary-100 p-2 pr-4 dark:bg-primary-950"
     >
       <div data-year-playback-group class="flex gap-2">
         <button
           type="button"
           id="filter-year-speed"
           aria-label="Velocidade de reprodução: 1x"
-          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-sm font-medium text-gray-600 tabular-nums transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-ui-md bg-white text-sm font-medium text-gray-600 tabular-nums transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           1x
         </button>
@@ -38,7 +38,7 @@ const maxYear = Math.max(...years);
           id="filter-year-toggle"
           aria-pressed="false"
           aria-label="Reproduzir evolução dos anos"
-          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl bg-white text-gray-600 transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-ui-md bg-white text-gray-600 transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           <span id="filter-year-icon-play"><Play class="size-4" /></span>
           <span id="filter-year-icon-pause" hidden

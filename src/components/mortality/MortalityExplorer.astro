@@ -31,7 +31,7 @@ const charts = [
     <div data-filters-panel-clip>
       <div
         id="filters-panel"
-        class="w-full rounded-2xl bg-primary-100 dark:bg-primary-950"
+        class="w-full rounded-ui-lg bg-primary-100 dark:bg-primary-950"
       >
         <div class="center w-full">
           <div
@@ -64,7 +64,7 @@ const charts = [
             data-chart-tab={name}
             aria-selected={name === "map"}
             aria-controls={`panel-${name}`}
-            class="flex size-13 shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 text-sm font-medium text-gray-600 transition-[background-color,border-color,color] duration-200 ease-out hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 aria-selected:border-primary-200 aria-selected:bg-primary-50 aria-selected:text-primary-600 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:aria-selected:border-primary-800 dark:aria-selected:bg-primary-950 dark:aria-selected:text-primary-300"
+            class="flex size-13 shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-ui-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-600 transition-[background-color,border-color,color] duration-200 ease-out hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 aria-selected:border-primary-200 aria-selected:bg-primary-50 aria-selected:text-primary-600 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:aria-selected:border-primary-800 dark:aria-selected:bg-primary-950 dark:aria-selected:text-primary-300"
           >
             <Icon class="size-5 shrink-0" />
             <span class="sr-only whitespace-nowrap group-data-expanded/nav:not-sr-only">
@@ -81,7 +81,7 @@ const charts = [
     >
       <div
         id="panel-stats"
-        class="chart-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
+        class="chart-card flex flex-col gap-4 rounded-ui-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
         data-chart-panel="stats"
         role="tabpanel"
         aria-labelledby="tab-stats"

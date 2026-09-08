@@ -158,7 +158,7 @@ const bundleSize = formatSize(
     <a
       href={bundleHref}
       download
-      class="flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors select-none hover:bg-primary-600 sm:w-auto"
+      class="flex w-full shrink-0 items-center justify-center gap-2 rounded-ui-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors select-none hover:bg-primary-600 sm:w-auto"
     >
       <PackageOpen class="size-4" />
       Baixar tudo em CSV ({bundleSize})
@@ -168,8 +168,8 @@ const bundleSize = formatSize(
   <ul class="flex flex-col gap-2">
     {
       files.map((file) => (
-        <li class="flex items-center gap-3 rounded-2xl border border-gray-200 p-3 dark:border-gray-700">
-          <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-500">
+        <li class="flex items-center gap-3 rounded-ui-lg border border-gray-200 p-3 dark:border-gray-700">
+          <span class="grid size-9 shrink-0 place-items-center rounded-ui-md bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-500">
             {file.isGeo ? <Map class="size-4" /> : <Braces class="size-4" />}
           </span>
           <span class="flex min-w-0 grow flex-col">
@@ -184,7 +184,7 @@ const bundleSize = formatSize(
                 href={file.csvHref}
                 download
                 title={`CSV (${file.csvSize})`}
-                class="flex items-center gap-1 rounded-xl border border-gray-200 px-2 py-1.5 text-xs text-gray-600 transition-colors select-none hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                class="flex items-center gap-1 rounded-ui-md border border-gray-200 px-2 py-1.5 text-xs text-gray-600 transition-colors select-none hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
               >
                 <FileSpreadsheet class="size-3.5" />
                 CSV
@@ -194,7 +194,7 @@ const bundleSize = formatSize(
               href={file.jsonHref}
               download
               title={`JSON (${file.jsonSize})`}
-              class="flex items-center gap-1 rounded-xl border border-gray-200 px-2 py-1.5 text-xs text-gray-600 transition-colors select-none hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+              class="flex items-center gap-1 rounded-ui-md border border-gray-200 px-2 py-1.5 text-xs text-gray-600 transition-colors select-none hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
             >
               <Download class="size-3.5" />
               JSON
