@@ -122,6 +122,82 @@
     @apply focus-visible:outline-primary-500 flex w-full cursor-pointer items-center gap-2 rounded-ui-md px-3 py-2 text-left text-sm text-gray-600 transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 dark:text-gray-400 dark:hover:bg-gray-700;
   }
 
+  .year-slider {
+    --year-slider-thumb-size: 1rem;
+    --year-slider-thumb-ring: var(--color-primary-100);
+    --year-slider-thumb-focus: var(--color-primary-900);
+    @apply relative flex h-9 w-full min-w-0 items-center;
+  }
+
+  [data-theme="dark"] .year-slider {
+    --year-slider-thumb-ring: var(--color-primary-950);
+    --year-slider-thumb-focus: var(--color-primary-200);
+  }
+
+  .year-slider-track,
+  .year-slider-fill {
+    @apply pointer-events-none absolute h-1.5 rounded-full;
+  }
+
+  .year-slider-track {
+    @apply inset-x-0 bg-primary-500/20 dark:bg-primary-200/20;
+  }
+
+  .year-slider-fill {
+    @apply bg-primary-500;
+  }
+
+  .year-slider-input {
+    @apply pointer-events-auto absolute inset-x-0 m-0 h-full w-full cursor-pointer appearance-none bg-transparent;
+  }
+
+  .year-slider[data-range] .year-slider-input {
+    @apply pointer-events-none;
+  }
+
+  .year-slider-input:disabled {
+    @apply cursor-default;
+  }
+
+  .year-slider-input:focus-visible {
+    @apply outline-none;
+  }
+
+  .year-slider-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    pointer-events: auto;
+    box-sizing: border-box;
+    width: var(--year-slider-thumb-size);
+    height: var(--year-slider-thumb-size);
+    border: 2px solid var(--year-slider-thumb-ring);
+    border-radius: 9999px;
+    background-color: var(--color-primary-500);
+  }
+
+  .year-slider-input::-moz-range-track {
+    background: transparent;
+  }
+
+  .year-slider-input::-moz-range-thumb {
+    pointer-events: auto;
+    box-sizing: border-box;
+    width: var(--year-slider-thumb-size);
+    height: var(--year-slider-thumb-size);
+    border: 2px solid var(--year-slider-thumb-ring);
+    border-radius: 9999px;
+    background-color: var(--color-primary-500);
+  }
+
+  .year-slider-input:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--year-slider-thumb-focus);
+    outline-offset: 2px;
+  }
+
+  .year-slider-input:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--year-slider-thumb-focus);
+    outline-offset: 2px;
+  }
+
   .custom-select {
     @apply relative;
   }

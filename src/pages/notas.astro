@@ -108,6 +108,8 @@ import YearControl from "../components/mortality/YearControl.astro";
           location: "BR",
           sex: "Ambos",
           year: quality.findLatestCoverageYear(dimensions, coverageTable),
+          yearStart: Math.min(...dimensions.years),
+          yearEnd: Math.max(...dimensions.years),
           causeGroup: null,
           detailedSubgroup: null,
           externalCauseType: null,

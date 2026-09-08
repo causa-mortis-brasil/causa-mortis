@@ -19,17 +19,29 @@ export function parseSharedState(
   const location = params.get("loc");
   const sex = params.get("sex");
   const year = Number(params.get("year"));
+  const start = Number(params.get("from"));
+  const end = Number(params.get("to"));
   const causeGroup = params.get("cause");
   const detailedSubgroup = params.get("detail");
   const externalCauseType = params.get("ext");
   const assaultMeans = params.get("assault");
   const measure = params.get("measure");
 
+  const yearEnd = dimensions.years.includes(end)
+    ? end
+    : Math.max(...dimensions.years);
+  const yearStart =
+    dimensions.years.includes(start) && start < yearEnd
+      ? start
+      : Math.min(...dimensions.years);
+
   const filters: Filters = {
     location:
       location && dimensions.locations.includes(location) ? location : "BR",
     sex: sex && SEX_VALUES.includes(sex as Sex) ? (sex as Sex) : "Ambos",
     year: dimensions.years.includes(year) ? year : defaultYear,
+    yearStart,
+    yearEnd,
     causeGroup:
       causeGroup && dimensions.cause_groups.includes(causeGroup)
         ? causeGroup
@@ -67,6 +79,10 @@ export function buildShareUrl(filters: Filters, chartName: string): string {
   if (filters.detailedSubgroup) params.set("detail", filters.detailedSubgroup);
   if (filters.externalCauseType) params.set("ext", filters.externalCauseType);
   if (filters.assaultMeans) params.set("assault", filters.assaultMeans);
+  if (chartName === "evolution") {
+    params.set("from", String(filters.yearStart));
+    params.set("to", String(filters.yearEnd));
+  }
   if (chartName === "pyramid") params.set("measure", filters.pyramidMeasure);
 
   const url = new URL(window.location.href);

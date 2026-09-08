@@ -170,28 +170,69 @@ export function setupYearControl(
   dimensions: Dimensions,
   store: FiltersStore,
   playback: YearPlayback,
-): void {
-  const input = scope.querySelector(`#filter-year`);
+): (rangeMode: boolean) => void {
+  const playbackGroup = scope.querySelector(`[data-year-playback-group]`);
+  const slider = scope.querySelector(`[data-year-slider]`);
+  const fill = scope.querySelector(`[data-year-slider-fill]`);
+  const yearInput = scope.querySelector(`#filter-year`);
+  const startInput = scope.querySelector(`#filter-year-start`);
+  const endInput = scope.querySelector(`#filter-year-end`);
   const output = scope.querySelector(`#filter-year-value`);
   const toggleButton = scope.querySelector(`#filter-year-toggle`);
   const playIcon = scope.querySelector(`#filter-year-icon-play`);
   const pauseIcon = scope.querySelector(`#filter-year-icon-pause`);
   const speedButton = scope.querySelector(`#filter-year-speed`);
-  if (!(input instanceof HTMLInputElement) || !output) return;
+  if (
+    !(playbackGroup instanceof HTMLElement) ||
+    !(slider instanceof HTMLElement) ||
+    !(fill instanceof HTMLElement) ||
+    !(yearInput instanceof HTMLInputElement) ||
+    !(startInput instanceof HTMLInputElement) ||
+    !(endInput instanceof HTMLInputElement) ||
+    !output
+  )
+    return () => {};
 
-  const years = dimensions.years;
-  input.min = String(Math.min(...years));
-  input.max = String(Math.max(...years));
-  input.step = "1";
+  const minYear = Math.min(...dimensions.years);
+  const maxYear = Math.max(...dimensions.years);
+  const inputs = [yearInput, startInput, endInput];
+  let rangeMode = false;
 
-  const sync = (year: number): void => {
-    input.value = String(year);
-    output.textContent = String(year);
+  for (const input of inputs) {
+    input.min = String(minYear);
+    input.max = String(maxYear);
+    input.step = "1";
+  }
+
+  const percentOf = (year: number): number =>
+    ((year - minYear) / (maxYear - minYear)) * 100;
+
+  const sync = (filters: Filters): void => {
+    yearInput.value = String(filters.year);
+    startInput.value = String(filters.yearStart);
+    endInput.value = String(filters.yearEnd);
+
+    const from = rangeMode ? filters.yearStart : minYear;
+    const to = rangeMode ? filters.yearEnd : filters.year;
+    output.textContent = rangeMode ? `${from}-${to}` : String(to);
+    fill.style.left = `${percentOf(from)}%`;
+    fill.style.right = `${100 - percentOf(to)}%`;
   };
-  sync(store.get().year);
-  store.subscribe((filters) => sync(filters.year));
+  store.subscribe(sync);
 
-  input.addEventListener("input", () => store.setYear(Number(input.value)));
+  yearInput.addEventListener("input", () =>
+    store.setYear(Number(yearInput.value)),
+  );
+  startInput.addEventListener("input", () =>
+    store.setYearStart(
+      Math.min(Number(startInput.value), store.get().yearEnd - 1),
+    ),
+  );
+  endInput.addEventListener("input", () =>
+    store.setYearEnd(
+      Math.max(Number(endInput.value), store.get().yearStart + 1),
+    ),
+  );
 
   if (toggleButton instanceof HTMLButtonElement && playIcon && pauseIcon) {
     playback.subscribe((playing) => {
@@ -202,7 +243,7 @@ export function setupYearControl(
       );
       playIcon.toggleAttribute("hidden", playing);
       pauseIcon.toggleAttribute("hidden", !playing);
-      input.disabled = playing;
+      for (const input of inputs) input.disabled = playing;
     });
     toggleButton.addEventListener("click", () => playback.toggle());
   }
@@ -217,6 +258,21 @@ export function setupYearControl(
     });
     speedButton.addEventListener("click", () => playback.cycleSpeed());
   }
+
+  return (enabled: boolean): void => {
+    rangeMode = enabled;
+    if (enabled) playback.stop();
+    playbackGroup.hidden = enabled;
+    slider.toggleAttribute("data-range", enabled);
+    yearInput.hidden = enabled;
+    startInput.hidden = !enabled;
+    endInput.hidden = !enabled;
+    output.setAttribute(
+      "for",
+      enabled ? "filter-year-start filter-year-end" : "filter-year",
+    );
+    sync(store.get());
+  };
 }
 
 interface CauseFilters {
@@ -313,40 +369,9 @@ function setupCauseFilters(
   };
 }
 
-function setWrapsHidden(wraps: HTMLElement[], shouldHide: boolean): void {
-  for (const wrap of wraps) {
-    const clip = wrap.querySelector<HTMLElement>("[data-filters-panel-clip]");
-    if (shouldHide) {
-      if (wrap.hidden || wrap.hasAttribute("data-hiding")) continue;
-      clip?.classList.add("overflow-hidden");
-      wrap.setAttribute("data-hiding", "");
-      wrap.addEventListener(
-        "transitionend",
-        () => {
-          if (wrap.hasAttribute("data-hiding")) wrap.hidden = true;
-        },
-        { once: true },
-      );
-    } else {
-      if (!wrap.hidden && !wrap.hasAttribute("data-hiding")) {
-        clip?.classList.remove("overflow-hidden");
-        continue;
-      }
-      wrap.hidden = false;
-      void wrap.offsetWidth;
-      wrap.removeAttribute("data-hiding");
-      wrap.addEventListener(
-        "transitionend",
-        () => clip?.classList.remove("overflow-hidden"),
-        { once: true },
-      );
-    }
-  }
-}
-
 function setupChartTabs(
   root: ParentNode,
-  stopYearPlayback: () => void,
+  setYearRangeMode: (enabled: boolean) => void,
   setDetailFiltersEnabled: (enabled: boolean) => void,
 ): (target: string) => void {
   const tabs = [
@@ -354,9 +379,6 @@ function setupChartTabs(
   ];
   const panels = [...root.querySelectorAll<HTMLElement>("[data-chart-panel]")];
   const panelsWrap = root.querySelector<HTMLElement>("[data-chart-panels]");
-  const yearWraps = [
-    ...document.querySelectorAll<HTMLElement>('[id^="filter-year-wrap"]'),
-  ];
   const sexWraps = [
     ...document.querySelectorAll<HTMLElement>('[id^="filter-sex-wrap"]'),
   ];
@@ -430,9 +452,7 @@ function setupChartTabs(
       panel.toggleAttribute("hidden", panel.dataset.chartPanel !== target);
     syncPanelsHeight();
 
-    const hidesYear = target === "evolution";
-    setWrapsHidden(yearWraps, hidesYear);
-    if (hidesYear) stopYearPlayback();
+    setYearRangeMode(target === "evolution");
 
     for (const wrap of sexWraps)
       wrap.toggleAttribute("hidden", target === "pyramid");
@@ -497,7 +517,7 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
   setupLocationSelect(root, dimensions, store);
   setupSexSelect(root, dimensions, store);
   setupPyramidMeasureSelect(root, store);
-  setupYearControl(root, dimensions, store, playback);
+  const setYearRangeMode = setupYearControl(root, dimensions, store, playback);
   causeFilterControllers.push(setupCauseFilters(root, dimensions, store));
 
   const setDetailFiltersEnabled = (enabled: boolean): void => {
@@ -507,7 +527,7 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
 
   const activateChartTab = setupChartTabs(
     root,
-    playback.stop,
+    setYearRangeMode,
     setDetailFiltersEnabled,
   );
   const chartNames = Object.keys(CHART_LOADERS);

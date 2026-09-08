@@ -60,7 +60,7 @@ function applySidebarYearLayout(yearControl: HTMLElement): () => void {
   const playbackGroup = yearControl.querySelector<HTMLElement>(
     "[data-year-playback-group]",
   );
-  const range = yearControl.querySelector<HTMLElement>('input[type="range"]');
+  const range = yearControl.querySelector<HTMLElement>("[data-year-slider]");
   if (!row || !playbackGroup || !range) return () => {};
 
   const restores = [

@@ -16,7 +16,7 @@ import { formatInteger, formatRate } from "../format";
 import { chartGridColor, themeColor, tooltipStyle } from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
-import type { Dimensions } from "../types";
+import type { Dimensions, Filters } from "../types";
 
 const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 560 };
 const GRID_TOP = 24;
@@ -72,9 +72,11 @@ export function init(
     years: number[];
     standardized: number[];
     crude: number[];
-    minYear: number;
-    maxYear: number;
+    startYear: number;
+    endYear: number;
+    dataMaxYear: number;
     selectedYear: number;
+    animate: boolean;
   }
 
   let lastOptionData: EvolutionOptionData | null = null;
@@ -83,7 +85,16 @@ export function init(
     data: EvolutionOptionData,
     forceLight = false,
   ): EChartsOption {
-    const { years, standardized, crude, minYear, maxYear, selectedYear } = data;
+    const {
+      years,
+      standardized,
+      crude,
+      startYear,
+      endYear,
+      dataMaxYear,
+      selectedYear,
+      animate,
+    } = data;
     const lastIndex = years.length - 1;
     const standardizedIsHigher =
       (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
@@ -95,6 +106,7 @@ export function init(
     };
 
     return {
+      animation: animate,
       grid: { left: 48, right: 80, top: GRID_TOP, bottom: GRID_BOTTOM },
       tooltip: {
         trigger: "axis",
@@ -103,9 +115,9 @@ export function init(
       },
       xAxis: {
         type: "value",
-        min: minYear,
-        max: maxYear,
-        interval: 5,
+        min: startYear,
+        max: endYear,
+        minInterval: 1,
         splitLine: { show: false },
         axisLine: { lineStyle: axisLineStyle },
         axisLabel: {
@@ -163,9 +175,9 @@ export function init(
               [
                 {
                   name: "preliminar",
-                  xAxis: maxYear - 1 + PRELIMINARY_AREA_START_OFFSET,
+                  xAxis: dataMaxYear - 1 + PRELIMINARY_AREA_START_OFFSET,
                 },
-                { xAxis: maxYear },
+                { xAxis: dataMaxYear },
               ],
             ],
           },
@@ -180,7 +192,10 @@ export function init(
               formatter: "ano selecionado",
               color: themeColor("--color-gray-600", { forceLight }),
             },
-            data: [{ xAxis: selectedYear }],
+            data:
+              selectedYear >= startYear && selectedYear <= endYear
+                ? [{ xAxis: selectedYear }]
+                : [],
           },
         },
         {
@@ -201,9 +216,25 @@ export function init(
     };
   }
 
+  let previousFilters: Filters | null = null;
+
+  function isSameSeries(filters: Filters): boolean {
+    return (
+      previousFilters !== null &&
+      previousFilters.location === filters.location &&
+      previousFilters.sex === filters.sex &&
+      previousFilters.causeGroup === filters.causeGroup &&
+      previousFilters.detailedSubgroup === filters.detailedSubgroup &&
+      previousFilters.externalCauseType === filters.externalCauseType &&
+      previousFilters.assaultMeans === filters.assaultMeans
+    );
+  }
+
   async function render(): Promise<void> {
     const token = ++renderToken;
     const filters = store.get();
+    const animate = !isSameSeries(filters);
+    previousFilters = filters;
     const level = resolveCauseLevel(filters);
     const pointGetter = await loadLocationRatePointGetter(
       level,
@@ -215,26 +246,27 @@ export function init(
     setChartTitle(titleEl, evolutionChartTitle(filters, dimensions));
 
     const sexIndex = indexOf(dimensions.sexes, filters.sex);
+    const startIndex = indexOf(dimensions.years, filters.yearStart);
+    const endIndex = indexOf(dimensions.years, filters.yearEnd);
 
+    const years = dimensions.years.slice(startIndex, endIndex + 1);
     const crude: number[] = [];
     const standardized: number[] = [];
-    for (let yearIndex = 0; yearIndex < dimensions.years.length; yearIndex++) {
+    for (let yearIndex = startIndex; yearIndex <= endIndex; yearIndex++) {
       const point = pointGetter(sexIndex, yearIndex);
       crude.push(point.crudeRate);
       standardized.push(point.stdRate);
     }
 
-    const lastIndex = dimensions.years.length - 1;
-    const minYear = dimensions.years[0] ?? 0;
-    const maxYear = dimensions.years[lastIndex] ?? 0;
-
     lastOptionData = {
-      years: dimensions.years,
+      years,
       standardized,
       crude,
-      minYear,
-      maxYear,
+      startYear: filters.yearStart,
+      endYear: filters.yearEnd,
+      dataMaxYear: Math.max(...dimensions.years),
       selectedYear: filters.year,
+      animate,
     };
     chart.setOption(buildOption(lastOptionData), { notMerge: true });
 
@@ -244,7 +276,7 @@ export function init(
         "Taxa padronizada (por 100 mil hab.)",
         "Taxa bruta (por 100 mil hab.)",
       ],
-      rows: dimensions.years.map((year, i) => [
+      rows: years.map((year, i) => [
         year,
         roundTo(standardized[i] ?? 0, 1),
         roundTo(crude[i] ?? 0, 1),

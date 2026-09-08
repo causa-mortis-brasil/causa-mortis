@@ -13,56 +13,74 @@ const { years } = JSON.parse(fs.readFileSync(dimensionsPath, "utf-8")) as {
 };
 const minYear = Math.min(...years);
 const maxYear = Math.max(...years);
+
+const sliders = [
+  { id: "filter-year", label: "Ano", value: DEFAULT_YEAR, hidden: false },
+  {
+    id: "filter-year-start",
+    label: "Ano inicial",
+    value: minYear,
+    hidden: true,
+  },
+  { id: "filter-year-end", label: "Ano final", value: maxYear, hidden: true },
+];
 ---
 
-<div
-  id="filter-year-wrap"
-  class="grid w-full grid-rows-[1fr] transition-[grid-template-rows,opacity,margin-bottom] duration-200 ease-in-out data-hiding:-mb-4 data-hiding:grid-rows-[0fr] data-hiding:opacity-0 motion-reduce:transition-none"
->
-  <div class="overflow-hidden">
-    <div
-      data-year-control
-      class="flex w-full items-center gap-2 rounded-ui-lg bg-primary-100 p-2 pr-4 dark:bg-primary-950"
-    >
-      <div data-year-playback-group class="flex gap-2">
-        <button
-          type="button"
-          id="filter-year-speed"
-          aria-label="Velocidade de reprodução: 1x"
-          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-ui-md bg-white text-sm font-medium text-gray-600 tabular-nums transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-        >
-          1x
-        </button>
-        <button
-          type="button"
-          id="filter-year-toggle"
-          aria-pressed="false"
-          aria-label="Reproduzir evolução dos anos"
-          class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-ui-md bg-white text-gray-600 transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-        >
-          <span id="filter-year-icon-play"><Play class="size-4" /></span>
-          <span id="filter-year-icon-pause" hidden
-            ><Pause class="size-4" /></span
-          >
-        </button>
-      </div>
-
-      <label for="filter-year" class="sr-only">Ano</label>
-      <input
-        type="range"
-        id="filter-year"
-        min={minYear}
-        max={maxYear}
-        step="1"
-        value={DEFAULT_YEAR}
-        class="w-full accent-primary-500"
-      />
-      <output
-        id="filter-year-value"
-        for="filter-year"
-        class="shrink-0 text-sm font-medium text-gray-700 tabular-nums dark:text-gray-300"
-        >{DEFAULT_YEAR}</output
+<div id="filter-year-wrap" class="w-full">
+  <div
+    data-year-control
+    class="flex w-full items-center gap-2 rounded-ui-lg bg-primary-100 p-2 pr-4 has-data-range:pl-4 dark:bg-primary-950"
+  >
+    <div data-year-playback-group class="flex gap-2">
+      <button
+        type="button"
+        id="filter-year-speed"
+        aria-label="Velocidade de reprodução: 1x"
+        class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-ui-md bg-white text-sm font-medium text-gray-600 tabular-nums transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
       >
+        1x
+      </button>
+      <button
+        type="button"
+        id="filter-year-toggle"
+        aria-pressed="false"
+        aria-label="Reproduzir evolução dos anos"
+        class="grid size-9 shrink-0 cursor-pointer place-items-center rounded-ui-md bg-white text-gray-600 transition-colors hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+      >
+        <span id="filter-year-icon-play"><Play class="size-4" /></span>
+        <span id="filter-year-icon-pause" hidden><Pause class="size-4" /></span>
+      </button>
     </div>
+
+    <div data-year-slider class="year-slider">
+      <span class="year-slider-track"></span>
+      <span data-year-slider-fill class="year-slider-fill"></span>
+      {
+        sliders.map(({ id, label, value, hidden }) => (
+          <>
+            <label for={id} class="sr-only">
+              {label}
+            </label>
+            <input
+              type="range"
+              id={id}
+              min={minYear}
+              max={maxYear}
+              step="1"
+              value={value}
+              hidden={hidden}
+              class="year-slider-input"
+            />
+          </>
+        ))
+      }
+    </div>
+
+    <output
+      id="filter-year-value"
+      for="filter-year"
+      class="shrink-0 text-sm font-medium text-gray-700 tabular-nums dark:text-gray-300"
+      >{DEFAULT_YEAR}</output
+    >
   </div>
 </div>

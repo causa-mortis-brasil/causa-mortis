@@ -58,6 +58,14 @@ export class FiltersStore {
     this.#set({ ...this.#filters, year });
   }
 
+  setYearStart(yearStart: number): void {
+    this.#set({ ...this.#filters, yearStart });
+  }
+
+  setYearEnd(yearEnd: number): void {
+    this.#set({ ...this.#filters, yearEnd });
+  }
+
   setCauseGroup(causeGroup: string | null): void {
     this.#set({
       ...this.#filters,

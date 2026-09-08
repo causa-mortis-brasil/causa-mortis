@@ -110,5 +110,7 @@ export interface Filters extends CauseFilter {
   location: string;
   sex: Sex;
   year: number;
+  yearStart: number;
+  yearEnd: number;
   pyramidMeasure: PyramidMeasure;
 }

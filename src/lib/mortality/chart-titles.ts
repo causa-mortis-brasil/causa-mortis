@@ -75,12 +75,6 @@ export function yearLabel(year: number, dimensions: Dimensions): string {
   return year === maxYear ? `${year} (preliminar)` : String(year);
 }
 
-export function yearRangeLabel(dimensions: Dimensions): string {
-  const minYear = Math.min(...dimensions.years);
-  const maxYear = Math.max(...dimensions.years);
-  return `${minYear}-${maxYear}`;
-}
-
 export function locationLabel(
   dimensions: Dimensions,
   location: string,
@@ -104,7 +98,7 @@ export function evolutionChartTitle(
 ): ChartTitle {
   return {
     line1: `Histórico de óbitos - ${causePathLabel(filters)}`,
-    line2: `${yearRangeLabel(dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`,
+    line2: `${filters.yearStart}-${filters.yearEnd} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`,
   };
 }
 
