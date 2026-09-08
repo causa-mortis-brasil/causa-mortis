@@ -150,7 +150,9 @@ const bundleSize = formatSize(
 <div class="flex w-full flex-col gap-4">
   <div class="flex flex-wrap items-start justify-between gap-4">
     <div class="flex flex-col gap-4">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
+      <h1
+        class="text-2xl font-bold text-gray-800 lg:text-3xl dark:text-gray-100"
+      >
         Baixe os dados
       </h1>
     </div>
@@ -168,17 +170,19 @@ const bundleSize = formatSize(
   <ul class="flex flex-col gap-2">
     {
       files.map((file) => (
-        <li class="flex items-center gap-3 rounded-ui-lg border border-gray-200 p-3 dark:border-gray-700">
-          <span class="grid size-9 shrink-0 place-items-center rounded-ui-md bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-500">
-            {file.isGeo ? <Map class="size-4" /> : <Braces class="size-4" />}
-          </span>
-          <span class="flex min-w-0 grow flex-col">
-            <span class="truncate text-sm font-medium">{file.label}</span>
-            <span class="truncate text-xs text-gray-600 dark:text-gray-400">
-              {file.description}
+        <li class="flex flex-col gap-3 rounded-ui-lg border border-gray-200 p-3 sm:flex-row sm:items-center dark:border-gray-700">
+          <span class="flex min-w-0 grow items-center gap-3">
+            <span class="grid size-9 shrink-0 place-items-center rounded-ui-md bg-primary-50 text-primary-600 dark:bg-primary-950 dark:text-primary-500">
+              {file.isGeo ? <Map class="size-4" /> : <Braces class="size-4" />}
+            </span>
+            <span class="flex min-w-0 grow flex-col">
+              <span class="text-sm font-medium sm:truncate">{file.label}</span>
+              <span class="text-xs text-gray-600 sm:truncate dark:text-gray-400">
+                {file.description}
+              </span>
             </span>
           </span>
-          <span class="flex shrink-0 items-center gap-1">
+          <span class="flex shrink-0 items-center gap-1 self-end sm:self-auto">
             {file.csvHref && (
               <a
                 href={file.csvHref}

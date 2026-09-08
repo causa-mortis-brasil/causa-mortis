@@ -29,6 +29,7 @@ import type { Dimensions, Filters } from "../types";
 const AXIS_SPLIT_COUNT = 5;
 const NICE_FRACTIONS = [1, 2, 5, 10];
 const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 600 };
+const WIDE_LAYOUT_MIN_WIDTH = 480;
 
 function niceStepBounds(roughStep: number): { down: number; up: number } {
   const magnitude = 10 ** Math.floor(Math.log10(roughStep));
@@ -65,7 +66,11 @@ export function init(
   dimensions: Dimensions,
 ): void {
   const chart = echarts.init(container);
-  new ResizeObserver(() => chart.resize()).observe(container);
+  new ResizeObserver(() => {
+    chart.resize();
+    if (container.clientWidth === 0) return;
+    if (isWide() !== renderedWide) applyOption();
+  }).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
   const titleEl = card.querySelector("[data-chart-title]");
@@ -85,6 +90,11 @@ export function init(
   }
 
   let lastOptionData: PyramidOptionData | null = null;
+  let renderedWide: boolean | null = null;
+
+  function isWide(): boolean {
+    return container.clientWidth >= WIDE_LAYOUT_MIN_WIDTH;
+  }
 
   function buildOption(
     data: PyramidOptionData,
@@ -106,12 +116,14 @@ export function init(
     const dataLabelFormatter = (value: number): string =>
       measure === "deaths" ? formatInteger(value) : `${formatRate(value)}`;
     const labelMargin = wide ? 116 : 72;
+    const centerGutter = wide ? "53%" : "57%";
+    const gridBottom = wide ? 32 : 8;
 
     return {
       grid: [
-        { left: labelMargin, right: "53%", top: 40, bottom: 32 },
-        { left: "53%", right: labelMargin, top: 40, bottom: 32 },
-        { left: 0, right: 0, top: 40, bottom: 32 },
+        { left: labelMargin, right: centerGutter, top: 40, bottom: gridBottom },
+        { left: centerGutter, right: labelMargin, top: 40, bottom: gridBottom },
+        { left: 0, right: 0, top: 40, bottom: gridBottom },
       ],
       tooltip: {
         trigger: "axis",
@@ -148,6 +160,7 @@ export function init(
           splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
           axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
           axisLabel: {
+            show: wide,
             formatter: (value: number) => formatCompact(value),
             color: axisLabelColor,
           },
@@ -161,6 +174,7 @@ export function init(
           splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
           axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
           axisLabel: {
+            show: wide,
             formatter: (value: number) => formatCompact(value),
             color: axisLabelColor,
           },
@@ -264,6 +278,14 @@ export function init(
     };
   }
 
+  function applyOption(): void {
+    if (!lastOptionData) return;
+    renderedWide = isWide();
+    chart.setOption(buildOption(lastOptionData, renderedWide), {
+      notMerge: true,
+    });
+  }
+
   async function render(): Promise<void> {
     const token = ++renderToken;
     const filters = store.get();
@@ -346,8 +368,7 @@ export function init(
       axisInterval,
       useFastAnimation,
     };
-    const wide = container.clientWidth >= 480;
-    chart.setOption(buildOption(lastOptionData, wide), { notMerge: true });
+    applyOption();
 
     const measureLabel =
       measure === "deaths" ? "Óbitos" : "Taxa por faixa (por 100 mil hab.)";

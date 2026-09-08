@@ -1,6 +1,6 @@
 export type Theme = "light" | "dark";
 
-export const THEME_STORAGE_KEY = "theme";
+export const THEME_STORAGE_KEY = "theme-preference";
 export const THEME_CHANGE_EVENT = "theme-change";
 
 export function currentTheme(): Theme {

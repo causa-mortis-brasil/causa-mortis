@@ -36,6 +36,7 @@ const LABEL_FONT_WEIGHT = 600;
 const LABEL_LINE_HEIGHT = 12;
 const LABEL_PADDING_Y = 1;
 const MIN_AGE_LABEL_SLOT = 40;
+const MIN_ROTATED_AGE_LABEL_SLOT = 14;
 const ROTATED_LABEL_HEIGHT = 28;
 const FAST_AREA_DURATION = 200;
 const NORMAL_AREA_DURATION = 400;
@@ -55,7 +56,8 @@ export function init(
     const rendered = chartLayout(renderedWidth);
     if (
       current.isNarrow !== rendered.isNarrow ||
-      current.rotateAgeLabels !== rendered.rotateAgeLabels
+      current.rotateAgeLabels !== rendered.rotateAgeLabels ||
+      current.ageLabelInterval !== rendered.ageLabelInterval
     )
       applyOption();
   }).observe(container);
@@ -85,6 +87,7 @@ export function init(
     gridLeft: number;
     gridBottom: number;
     rotateAgeLabels: boolean;
+    ageLabelInterval: number;
     axisNameGap: number;
   }
 
@@ -93,9 +96,9 @@ export function init(
     const labelWidth = isNarrow ? 80 : 168;
     const rightMargin = labelWidth + 16;
     const gridLeft = isNarrow ? 36 : 48;
-    const rotateAgeLabels =
-      (width - gridLeft - rightMargin) / dimensions.age_groups.length <
-      MIN_AGE_LABEL_SLOT;
+    const labelSlot =
+      (width - gridLeft - rightMargin) / dimensions.age_groups.length;
+    const rotateAgeLabels = labelSlot < MIN_AGE_LABEL_SLOT;
     return {
       isNarrow,
       labelWidth,
@@ -104,6 +107,8 @@ export function init(
       gridBottom:
         (isNarrow ? 40 : 48) + (rotateAgeLabels ? ROTATED_LABEL_HEIGHT : 0),
       rotateAgeLabels,
+      ageLabelInterval:
+        rotateAgeLabels && labelSlot < MIN_ROTATED_AGE_LABEL_SLOT ? 1 : 0,
       axisNameGap: 24 + (rotateAgeLabels ? ROTATED_LABEL_HEIGHT : 0),
     };
   }
@@ -127,6 +132,7 @@ export function init(
       gridLeft,
       gridBottom,
       rotateAgeLabels,
+      ageLabelInterval,
       axisNameGap,
     } = chartLayout(width);
     const gridTop = 16;
@@ -169,6 +175,7 @@ export function init(
             fontSize: LABEL_FONT_SIZE,
             fontWeight: LABEL_FONT_WEIGHT,
             width: labelWidth,
+            overflow: "break" as const,
             lineHeight: LABEL_LINE_HEIGHT,
             padding: [LABEL_PADDING_Y, 0] as [number, number],
           },
@@ -199,7 +206,7 @@ export function init(
         nameGap: axisNameGap,
         nameTextStyle: { color: axisLabelColor },
         axisLabel: {
-          interval: 0,
+          interval: ageLabelInterval,
           rotate: rotateAgeLabels ? 90 : 0,
           color: axisLabelColor,
         },

@@ -23,13 +23,13 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <script is:inline>
-      const storedTheme = localStorage.getItem("theme");
+      const storedTheme = localStorage.getItem("theme-preference");
       document.documentElement.dataset.theme =
         storedTheme === "light" ? "light" : "dark";
     </script>
     <link rel="icon" href="/favicon.ico" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#050a14" />
     <meta name="description" content={description} />

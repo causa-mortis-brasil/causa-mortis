@@ -169,12 +169,6 @@ function ensureChrome(): void {
 
   document.body.classList.add("overflow-hidden");
 
-  if (!desktop) {
-    chromeOffset = 0;
-    chromeRestore = () => {};
-    return;
-  }
-
   const header = document.getElementById("app-header");
   const headerWasScrolled = header?.hasAttribute("data-scrolled") ?? false;
   header?.setAttribute("data-scrolled", "");

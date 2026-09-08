@@ -51,7 +51,7 @@ const {
     <div
       class="flex max-w-232 flex-col items-center gap-1 self-center text-center"
     >
-      <h2 data-chart-title class="text-xl font-bold uppercase">
+      <h2 data-chart-title class="text-base font-bold uppercase sm:text-xl">
         <span data-chart-title-line1>{title}</span>{" "}<span
           data-chart-title-line2
           class="inline-block before:mr-1.5 before:content-['\00b7'] empty:hidden data-stacked:before:invisible"
@@ -108,7 +108,7 @@ const {
       </a>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
       <details data-chart-export class="group relative">
         <summary class="chart-export-trigger" data-chart-export-trigger>
           <span data-export-icon-default>
@@ -122,7 +122,9 @@ const {
           </span>
           Exportar
         </summary>
-        <div class="chart-export-menu">
+        <div
+          class="chart-export-menu right-auto left-0 sm:right-0 sm:left-auto"
+        >
           <button
             type="button"
             data-export-format="png"
