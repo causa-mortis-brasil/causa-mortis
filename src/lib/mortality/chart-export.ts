@@ -1,3 +1,4 @@
+import type { ChartTitle } from "./chart-titles";
 import type { EChartsOption } from "./echarts-core";
 import { echarts } from "./echarts-core";
 import type { Filters } from "./types";
@@ -20,6 +21,10 @@ export interface ChartExportSize {
 }
 
 export const EXPORT_WIDTH = 820;
+
+const TITLE_MIN_FONT_SCALE = 0.8;
+const TITLE_FONT_SCALE_STEP = 0.02;
+const TITLE_SHORT_LAST_LINE_RATIO = 0.4;
 
 export function roundTo(value: number, decimals: number): number {
   const factor = 10 ** decimals;
@@ -148,9 +153,48 @@ async function captureOffscreen(
   }
 }
 
+interface FittedText {
+  lines: string[];
+  fontSize: number;
+}
+
+function fitHeadingLines(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  baseFontSize: number,
+  fontFamily: string,
+): FittedText {
+  const wrapAt = (fontSize: number): string[] => {
+    ctx.font = `700 ${fontSize}px ${fontFamily}`;
+    return wrapText(ctx, text, maxWidth);
+  };
+
+  const baseLines = wrapAt(baseFontSize);
+  const lastLine = baseLines[baseLines.length - 1];
+  if (baseLines.length < 2 || lastLine === undefined)
+    return { lines: baseLines, fontSize: baseFontSize };
+
+  ctx.font = `700 ${baseFontSize}px ${fontFamily}`;
+  if (ctx.measureText(lastLine).width >= maxWidth * TITLE_SHORT_LAST_LINE_RATIO)
+    return { lines: baseLines, fontSize: baseFontSize };
+
+  for (
+    let scale = 1 - TITLE_FONT_SCALE_STEP;
+    scale >= TITLE_MIN_FONT_SCALE;
+    scale -= TITLE_FONT_SCALE_STEP
+  ) {
+    const fontSize = baseFontSize * scale;
+    const lines = wrapAt(fontSize);
+    if (lines.length < baseLines.length) return { lines, fontSize };
+  }
+
+  return { lines: baseLines, fontSize: baseFontSize };
+}
+
 export async function exportChartImage(
   exportSize: ChartExportSize,
-  titleLines: string[],
+  title: ChartTitle,
   subtitle: string,
   description: string,
   filenameBase: string,
@@ -175,6 +219,8 @@ export async function exportChartImage(
   const fontFamily = getComputedStyle(document.body).fontFamily;
   const rootStyle = getComputedStyle(document.documentElement);
   const titleColor = rootStyle.getPropertyValue("--color-gray-800").trim();
+  const titleMetaColor =
+    rootStyle.getPropertyValue("--color-gray-500").trim() || "#5e6e8c";
   const secondaryTextColor =
     rootStyle.getPropertyValue("--color-gray-600").trim() || "#445269";
   const canvasBackgroundColor =
@@ -184,7 +230,7 @@ export async function exportChartImage(
   const blockWidth = chartCanvas.width;
   const contentWidth = blockWidth - padding * 2;
   const titleFontSize = 22 * pixelRatio;
-  const subtitleFontSize = 14 * pixelRatio;
+  const metaFontSize = 15 * pixelRatio;
   const descriptionFontSize = 14 * pixelRatio;
   const footerFontSize = 12 * pixelRatio;
   const lineGap = 6 * pixelRatio;
@@ -193,18 +239,28 @@ export async function exportChartImage(
   const chartToFooterGap = padding;
   const chartStripGap = 16 * pixelRatio;
 
-  ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-  const wrappedTitleLines = titleLines
-    .filter((line) => line.length > 0)
-    .flatMap((line) => wrapText(ctx, line.toUpperCase(), contentWidth));
+  const { lines: headingLines, fontSize: headingFontSize } = fitHeadingLines(
+    ctx,
+    title.line1.toUpperCase(),
+    contentWidth,
+    titleFontSize,
+    fontFamily,
+  );
+
+  ctx.font = `400 ${metaFontSize}px ${fontFamily}`;
+  const titleMetaLines = title.line2
+    ? wrapText(ctx, title.line2.toUpperCase(), contentWidth)
+    : [];
 
   ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
   const descriptionLines = description
     ? wrapText(ctx, description, contentWidth)
     : [];
 
-  const titleHeight = wrappedTitleLines.length * (titleFontSize + lineGap);
-  const subtitleHeight = subtitle ? subtitleFontSize + lineGap + blockGap : 0;
+  const titleHeight =
+    headingLines.length * (headingFontSize + lineGap) +
+    titleMetaLines.length * (metaFontSize + lineGap);
+  const subtitleHeight = subtitle ? metaFontSize + lineGap + blockGap : 0;
   const descriptionHeight = descriptionLines.length
     ? descriptionLines.length * (descriptionFontSize + lineGap) + blockGap
     : 0;
@@ -253,18 +309,25 @@ export async function exportChartImage(
 
   let y = padding;
   ctx.fillStyle = titleColor || "#1f2937";
-  ctx.font = `700 ${titleFontSize}px ${fontFamily}`;
-  for (const line of wrappedTitleLines) {
+  ctx.font = `700 ${headingFontSize}px ${fontFamily}`;
+  for (const line of headingLines) {
     ctx.fillText(line, centerX, y);
-    y += titleFontSize + lineGap;
+    y += headingFontSize + lineGap;
+  }
+
+  ctx.fillStyle = titleMetaColor;
+  ctx.font = `400 ${metaFontSize}px ${fontFamily}`;
+  for (const line of titleMetaLines) {
+    ctx.fillText(line, centerX, y);
+    y += metaFontSize + lineGap;
   }
 
   if (subtitle) {
     y += blockGap;
-    ctx.fillStyle = secondaryTextColor;
-    ctx.font = `500 ${subtitleFontSize}px ${fontFamily}`;
+    ctx.fillStyle = titleMetaColor;
+    ctx.font = `400 ${metaFontSize}px ${fontFamily}`;
     ctx.fillText(subtitle, centerX, y);
-    y += subtitleFontSize + lineGap;
+    y += metaFontSize + lineGap;
   }
 
   if (descriptionLines.length) {
@@ -499,8 +562,8 @@ export function setupChartExport(
       const titleLine2 =
         card.querySelector("[data-chart-title-line2]")?.textContent?.trim() ??
         "";
-      const titleLines = [titleLine1, titleLine2].filter(Boolean);
-      const title = titleLines.join(" ");
+      const title = { line1: titleLine1, line2: titleLine2 };
+      const sheetTitle = [titleLine1, titleLine2].filter(Boolean).join(" ");
       const subtitle =
         card.querySelector("[data-chart-subtitle]")?.textContent?.trim() ?? "";
       const description =
@@ -514,7 +577,7 @@ export function setupChartExport(
         setBusy(true);
         exportChartImage(
           exportSize,
-          titleLines,
+          title,
           subtitle,
           description,
           filenameBase,
@@ -530,7 +593,7 @@ export function setupChartExport(
         exportCsv(headers, rows, filenameBase);
       } else if (format === "xlsx") {
         const { headers, rows } = source.getRows();
-        exportXlsx(headers, rows, filenameBase, title);
+        exportXlsx(headers, rows, filenameBase, sheetTitle);
       }
     });
   }
