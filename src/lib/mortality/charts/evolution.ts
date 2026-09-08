@@ -21,6 +21,7 @@ import type { Dimensions } from "../types";
 const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 560 };
 const GRID_TOP = 24;
 const GRID_BOTTOM = 32;
+const AXIS_LINE_WIDTH = 2;
 const PRELIMINARY_AREA_START_OFFSET = 0.4;
 
 type YearPoint = [number, number];
@@ -86,10 +87,12 @@ export function init(
     const lastIndex = years.length - 1;
     const standardizedIsHigher =
       (standardized[lastIndex] ?? 0) >= (crude[lastIndex] ?? 0);
-    const standardizedColor = themeColor("--color-primary-500", {
-      forceLight,
-    });
+    const standardizedColor = themeColor("--color-rate-500", { forceLight });
     const crudeColor = themeColor("--color-gray-500", { forceLight });
+    const axisLineStyle = {
+      color: themeColor("--color-gray-500", { forceLight }),
+      width: AXIS_LINE_WIDTH,
+    };
 
     return {
       grid: { left: 48, right: 80, top: GRID_TOP, bottom: GRID_BOTTOM },
@@ -104,7 +107,7 @@ export function init(
         max: maxYear,
         interval: 5,
         splitLine: { show: false },
-        axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
+        axisLine: { lineStyle: axisLineStyle },
         axisLabel: {
           formatter: (value: number) => String(value),
           color: themeColor("--color-gray-600", { forceLight }),
@@ -122,6 +125,7 @@ export function init(
           color: themeColor("--color-gray-600", { forceLight }),
         },
         min: 0,
+        axisLine: { show: true, lineStyle: axisLineStyle },
         splitLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
         axisLabel: {
           formatter: (value: number | string) => formatInteger(Number(value)),

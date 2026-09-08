@@ -175,12 +175,8 @@ export async function exportChartImage(
   const fontFamily = getComputedStyle(document.body).fontFamily;
   const rootStyle = getComputedStyle(document.documentElement);
   const titleColor = rootStyle.getPropertyValue("--color-gray-800").trim();
-  const subtitleColor = rootStyle
-    .getPropertyValue("--color-primary-600")
-    .trim();
-  const descriptionColor = rootStyle
-    .getPropertyValue("--color-gray-600")
-    .trim();
+  const secondaryTextColor =
+    rootStyle.getPropertyValue("--color-gray-600").trim() || "#445269";
   const canvasBackgroundColor =
     rootStyle.getPropertyValue("--color-gray-100").trim() || "#f3f4f6";
 
@@ -265,7 +261,7 @@ export async function exportChartImage(
 
   if (subtitle) {
     y += blockGap;
-    ctx.fillStyle = subtitleColor || "#0156d5";
+    ctx.fillStyle = secondaryTextColor;
     ctx.font = `500 ${subtitleFontSize}px ${fontFamily}`;
     ctx.fillText(subtitle, centerX, y);
     y += subtitleFontSize + lineGap;
@@ -273,7 +269,7 @@ export async function exportChartImage(
 
   if (descriptionLines.length) {
     y += blockGap;
-    ctx.fillStyle = descriptionColor || "#4b5563";
+    ctx.fillStyle = secondaryTextColor;
     ctx.font = `400 ${descriptionFontSize}px ${fontFamily}`;
     for (const line of descriptionLines) {
       ctx.fillText(line, centerX, y);
@@ -285,7 +281,7 @@ export async function exportChartImage(
   ctx.drawImage(chartCanvas, offsetX, chartY);
 
   const footerCenterY = (chartStripBottom + squareSize) / 2;
-  ctx.fillStyle = titleColor || "#1f2937";
+  ctx.fillStyle = secondaryTextColor;
   ctx.textBaseline = "alphabetic";
 
   const brandFontRegular = `500 ${footerFontSize}px ${fontFamily}`;

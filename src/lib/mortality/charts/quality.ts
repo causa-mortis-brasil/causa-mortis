@@ -144,9 +144,7 @@ export function init(
     const noDataLabelColor = themeColor("--color-gray-500", { forceLight });
     const seriesData = data.map(({ name, value }) => {
       const label = hasValue(value)
-        ? mapLabelStyle((value - domainMin) / (MAX_COVERAGE - domainMin), {
-            forceLight,
-          })
+        ? mapLabelStyle((value - domainMin) / (MAX_COVERAGE - domainMin))
         : { color: noDataLabelColor, textBorderColor: "transparent" };
       return {
         name,
@@ -176,7 +174,7 @@ export function init(
         type: "continuous",
         splitNumber: MAP_SCALE_STEPS,
         itemGap: 2,
-        inRange: { color: mapScaleSteps({ forceLight }) },
+        inRange: { color: mapScaleSteps("coverage", { forceLight }) },
         orient: "horizontal",
         left: "left",
         bottom: 0,

@@ -2,7 +2,7 @@
 import { Moon, Sun } from "@lucide/astro";
 
 interface Props {
-  class?: string;
+  class: string;
 }
 
 const { class: className } = Astro.props;
@@ -11,10 +11,10 @@ const { class: className } = Astro.props;
 <button
   type="button"
   data-theme-toggle
-  aria-label="Ativar modo escuro"
+  aria-label="Ativar modo claro"
   class:list={[
     "flex cursor-pointer items-center rounded-lg p-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
-    className ?? "text-white hover:bg-white/10 focus-visible:outline-white",
+    className,
   ]}
 >
   <Moon class="size-5 dark:hidden" />

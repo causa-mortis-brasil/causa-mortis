@@ -82,11 +82,8 @@ export interface MapLabelStyle {
   textBorderColor: string;
 }
 
-export function mapLabelStyle(
-  fillRatio: number,
-  options: ThemeColorOptions = {},
-): MapLabelStyle {
-  const brightFill = usesDark(options) ? fillRatio > 0.55 : fillRatio < 0.55;
+export function mapLabelStyle(fillRatio: number): MapLabelStyle {
+  const brightFill = fillRatio < 0.55;
   return {
     color: readCssColor(brightFill ? "--color-gray-800" : "--color-white"),
     textBorderColor: readCssColor(
@@ -158,14 +155,25 @@ export function causeGroupColor(
 
 export const MAP_SCALE_STEPS = 7;
 
+export type MapScale = "rate" | "coverage";
+
 const MAP_SCALE_ENDPOINT_TOKENS = {
-  light: ["--color-primary-50", "--color-primary-800"],
-  dark: ["--color-primary-900", "--color-primary-300"],
+  rate: {
+    light: ["--color-rate-50", "--color-rate-800"],
+    dark: ["--color-rate-300", "--color-rate-900"],
+  },
+  coverage: {
+    light: ["--color-primary-50", "--color-primary-800"],
+    dark: ["--color-primary-300", "--color-primary-900"],
+  },
 } as const;
 
-export function mapScaleSteps(options: ThemeColorOptions = {}): string[] {
+export function mapScaleSteps(
+  scale: MapScale,
+  options: ThemeColorOptions = {},
+): string[] {
   const [start, end] =
-    MAP_SCALE_ENDPOINT_TOKENS[usesDark(options) ? "dark" : "light"];
+    MAP_SCALE_ENDPOINT_TOKENS[scale][usesDark(options) ? "dark" : "light"];
   const startColor = readCssColor(start);
   const endColor = readCssColor(end);
   return Array.from({ length: MAP_SCALE_STEPS }, (_, i) =>

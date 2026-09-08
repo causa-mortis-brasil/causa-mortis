@@ -72,39 +72,16 @@ export function init(
     max: number;
   }
 
-  interface RoamState {
-    center?: [number, number];
-    zoom?: number;
-  }
-
   let lastOptionData: MapOptionData | null = null;
-
-  function readRoamState(): RoamState {
-    const option = chart.getOption();
-    const series = option?.series;
-    const first = Array.isArray(series) ? series[0] : undefined;
-    if (!first || typeof first !== "object") return {};
-    const { center, zoom } = first as { center?: unknown; zoom?: unknown };
-    return {
-      center:
-        Array.isArray(center) && center.length === 2
-          ? (center as [number, number])
-          : undefined,
-      zoom: typeof zoom === "number" ? zoom : undefined,
-    };
-  }
 
   function buildOption(
     optionData: MapOptionData,
-    roam: RoamState,
     useFastAnimation: boolean,
     forceLight = false,
   ): EChartsOption {
     const { data, min, max } = optionData;
     const seriesData = data.map((entry) => {
-      const label = mapLabelStyle((entry.value - min) / (max - min), {
-        forceLight,
-      });
+      const label = mapLabelStyle((entry.value - min) / (max - min));
       return { ...entry, label, emphasis: { label }, select: { label } };
     });
     return {
@@ -124,7 +101,7 @@ export function init(
         type: "continuous",
         splitNumber: MAP_SCALE_STEPS,
         itemGap: 2,
-        inRange: { color: mapScaleSteps({ forceLight }) },
+        inRange: { color: mapScaleSteps("rate", { forceLight }) },
         orient: "horizontal",
         left: "left",
         bottom: 0,
@@ -138,10 +115,7 @@ export function init(
           aspectScale: 0.95,
           layoutCenter: ["50%", "46%"],
           layoutSize: "88%",
-          roam: true,
-          scaleLimit: { min: 1, max: 8 },
-          ...(roam.center ? { center: roam.center } : {}),
-          ...(roam.zoom ? { zoom: roam.zoom } : {}),
+          roam: false,
           ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
           itemStyle: {
             borderColor: chartSurfaceColor({ forceLight }),
@@ -149,7 +123,7 @@ export function init(
           },
           emphasis: {
             itemStyle: {
-              borderColor: themeColor("--color-primary-500", { forceLight }),
+              borderColor: themeColor("--color-rate-500", { forceLight }),
               borderWidth: 1.5,
             },
           },
@@ -219,7 +193,7 @@ export function init(
     });
 
     lastOptionData = { data, min, max };
-    chart.setOption(buildOption(lastOptionData, {}, useFastAnimation), {
+    chart.setOption(buildOption(lastOptionData, useFastAnimation), {
       notMerge: true,
     });
 
@@ -239,7 +213,7 @@ export function init(
     getExportOption: () =>
       lastOptionData
         ? {
-            ...buildOption(lastOptionData, readRoamState(), false, true),
+            ...buildOption(lastOptionData, false, true),
             animation: false,
           }
         : {},

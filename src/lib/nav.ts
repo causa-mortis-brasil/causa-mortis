@@ -8,8 +8,8 @@ export interface SiteNavLink {
 export const siteNavLinks: SiteNavLink[] = [
   { href: "/", label: "Explorar" },
   { href: "/release", label: "Release" },
-  { href: "/fontes", label: "Notas" },
-  { href: "/baixar-dados", label: "Dados" },
+  { href: "/notas", label: "Notas" },
+  { href: "/dados", label: "Dados" },
   {
     href: "https://github.com/causa-mortis-brasil",
     label: "GitHub",

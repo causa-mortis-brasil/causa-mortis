@@ -777,6 +777,18 @@ Antes de adicionar estado ou lógica JavaScript para uma interação visual, ver
 
 resolvem o problema.
 
+## 7.25 Temas
+
+O site adota o tema escuro como padrão. Ele não segue `prefers-color-scheme`: sem
+escolha explícita do usuário, o tema é sempre escuro.
+
+O tema claro continua sendo um tema suportado, alternável apenas pelo botão no
+rodapé, e a escolha do usuário é persistida.
+
+Toda alteração visual deve funcionar corretamente nos dois temas. Ao estilizar,
+mantenha as variantes `dark:` e os equivalentes para o tema claro, e não remova
+tratamento de tema claro por ele não ser o padrão.
+
 ---
 
 # 8. HTML

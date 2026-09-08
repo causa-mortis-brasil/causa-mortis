@@ -35,6 +35,8 @@ const LABEL_FONT_SIZE = 10;
 const LABEL_FONT_WEIGHT = 600;
 const LABEL_LINE_HEIGHT = 12;
 const LABEL_PADDING_Y = 1;
+const MIN_AGE_LABEL_SLOT = 40;
+const ROTATED_LABEL_HEIGHT = 28;
 const FAST_AREA_DURATION = 200;
 const NORMAL_AREA_DURATION = 400;
 const PLAYBACK_ANIMATION_BUFFER_MS = 80;
@@ -47,6 +49,15 @@ export function init(
   const chart = echarts.init(container);
   new ResizeObserver(() => {
     chart.resize();
+    const width = container.clientWidth;
+    if (width === 0) return;
+    const current = chartLayout(width);
+    const rendered = chartLayout(renderedWidth);
+    if (
+      current.isNarrow !== rendered.isNarrow ||
+      current.rotateAgeLabels !== rendered.rotateAgeLabels
+    )
+      applyOption();
   }).observe(container);
 
   const card = container.closest(".chart-card") ?? document;
@@ -65,10 +76,41 @@ export function init(
   }
 
   let lastOptionData: AgeCompositionOptionData | null = null;
+  let renderedWidth = 0;
+
+  interface AgeChartLayout {
+    isNarrow: boolean;
+    labelWidth: number;
+    rightMargin: number;
+    gridLeft: number;
+    gridBottom: number;
+    rotateAgeLabels: boolean;
+    axisNameGap: number;
+  }
+
+  function chartLayout(width: number): AgeChartLayout {
+    const isNarrow = width < 480;
+    const labelWidth = isNarrow ? 80 : 168;
+    const rightMargin = labelWidth + 16;
+    const gridLeft = isNarrow ? 36 : 48;
+    const rotateAgeLabels =
+      (width - gridLeft - rightMargin) / dimensions.age_groups.length <
+      MIN_AGE_LABEL_SLOT;
+    return {
+      isNarrow,
+      labelWidth,
+      rightMargin,
+      gridLeft,
+      gridBottom:
+        (isNarrow ? 40 : 48) + (rotateAgeLabels ? ROTATED_LABEL_HEIGHT : 0),
+      rotateAgeLabels,
+      axisNameGap: 24 + (rotateAgeLabels ? ROTATED_LABEL_HEIGHT : 0),
+    };
+  }
 
   function buildOption(
     data: AgeCompositionOptionData,
-    wide: boolean,
+    width: number,
     forceLight = false,
   ): EChartsOption {
     const {
@@ -79,11 +121,15 @@ export function init(
       animationDuration,
     } = data;
     const axisLabelColor = themeColor("--color-gray-600", { forceLight });
-    const isNarrow = !wide && container.clientWidth < 480;
-    const labelWidth = wide ? 168 : isNarrow ? 80 : 116;
-    const rightMargin = labelWidth + 16;
+    const {
+      labelWidth,
+      rightMargin,
+      gridLeft,
+      gridBottom,
+      rotateAgeLabels,
+      axisNameGap,
+    } = chartLayout(width);
     const gridTop = 16;
-    const gridBottom = isNarrow ? 40 : 48;
 
     const stackedSeriesData = stackedFromBase.map((causeGroupIndex) => {
       const causeGroup = dimensions.cause_groups[causeGroupIndex];
@@ -134,7 +180,7 @@ export function init(
 
     return {
       grid: {
-        left: isNarrow ? 36 : 48,
+        left: gridLeft,
         right: rightMargin,
         top: gridTop,
         bottom: gridBottom,
@@ -148,15 +194,13 @@ export function init(
       xAxis: {
         type: "category",
         data: dimensions.age_groups,
-        name: "Faixa de idade (anos)",
+        name: "Faixa etária (anos)",
         nameLocation: "middle",
-        nameGap: 24,
+        nameGap: axisNameGap,
         nameTextStyle: { color: axisLabelColor },
         axisLabel: {
-          formatter: (value: string, index: number) =>
-            index % 2 === 0 || index === dimensions.age_groups.length - 1
-              ? value
-              : "",
+          interval: 0,
+          rotate: rotateAgeLabels ? 90 : 0,
           color: axisLabelColor,
         },
         axisLine: { lineStyle: { color: chartGridColor({ forceLight }) } },
@@ -182,6 +226,14 @@ export function init(
       },
       series,
     };
+  }
+
+  function applyOption(): void {
+    if (!lastOptionData) return;
+    renderedWidth = container.clientWidth;
+    chart.setOption(buildOption(lastOptionData, renderedWidth), {
+      notMerge: true,
+    });
   }
 
   chart.getZr().on("click", (event) => {
@@ -268,8 +320,7 @@ export function init(
       totalByAge,
       animationDuration,
     };
-    const wide = container.clientWidth >= 480;
-    chart.setOption(buildOption(lastOptionData, wide), { notMerge: true });
+    applyOption();
 
     seriesOrder = stackedFromBase.map(
       (causeGroupIndex) => dimensions.cause_groups[causeGroupIndex] ?? "",
@@ -305,7 +356,10 @@ export function init(
     getRows: () => exportRows,
     getExportOption: () =>
       lastOptionData
-        ? { ...buildOption(lastOptionData, true, true), animation: false }
+        ? {
+            ...buildOption(lastOptionData, EXPORT_WIDTH, true),
+            animation: false,
+          }
         : {},
   });
 

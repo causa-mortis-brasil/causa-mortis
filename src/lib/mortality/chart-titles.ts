@@ -5,6 +5,41 @@ export interface ChartTitle {
   line2: string;
 }
 
+const SAME_LINE_TOLERANCE = 8;
+
+const observedTitles = new WeakSet<Element>();
+
+function syncTitleSeparator(titleEl: Element): void {
+  const line1El = titleEl.querySelector("[data-chart-title-line1]");
+  const line2El = titleEl.querySelector("[data-chart-title-line2]");
+  if (!(line1El instanceof HTMLElement) || !(line2El instanceof HTMLElement))
+    return;
+
+  line2El.toggleAttribute("data-inline", true);
+  const line1Rects = line1El.getClientRects();
+  const lastLine1 = line1Rects[line1Rects.length - 1];
+  const sameLine =
+    lastLine1 !== undefined &&
+    Math.abs(lastLine1.top - line2El.getBoundingClientRect().top) <
+      SAME_LINE_TOLERANCE;
+  line2El.toggleAttribute("data-inline", sameLine);
+}
+
+function observeTitleWidth(titleEl: Element): void {
+  if (observedTitles.has(titleEl)) return;
+  observedTitles.add(titleEl);
+  const card = titleEl.closest(".chart-card");
+  if (!card) return;
+
+  let observedWidth = 0;
+  new ResizeObserver((entries) => {
+    const width = entries[0]?.contentRect.width ?? 0;
+    if (width === observedWidth) return;
+    observedWidth = width;
+    syncTitleSeparator(titleEl);
+  }).observe(card);
+}
+
 export function setChartTitle(
   titleEl: Element | null,
   title: ChartTitle,
@@ -14,6 +49,8 @@ export function setChartTitle(
   const line2El = titleEl.querySelector("[data-chart-title-line2]");
   if (line1El) line1El.textContent = title.line1;
   if (line2El) line2El.textContent = title.line2;
+  syncTitleSeparator(titleEl);
+  observeTitleWidth(titleEl);
   titleEl.dispatchEvent(
     new CustomEvent("chart-title-change", { bubbles: true }),
   );

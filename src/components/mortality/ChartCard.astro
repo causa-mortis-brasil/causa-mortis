@@ -51,9 +51,11 @@ const {
     <div
       class="flex max-w-180 flex-col items-center gap-1 self-center text-center"
     >
-      <h2 data-chart-title class="flex flex-col text-xl font-bold uppercase">
-        <span data-chart-title-line1>{title}</span>
-        <span data-chart-title-line2 class="empty:hidden"></span>
+      <h2 data-chart-title class="text-xl font-bold uppercase">
+        <span data-chart-title-line1>{title}</span>{" "}<span
+          data-chart-title-line2
+          class="inline-block empty:hidden data-inline:before:mr-1.5 data-inline:before:content-['\00b7']"
+        ></span>
       </h2>
       <p
         data-chart-subtitle
@@ -99,7 +101,7 @@ const {
     <div class="flex flex-col gap-0.5">
       <span>Fonte: SIM/DATASUS · IBGE</span>
       <a
-        href="/fontes"
+        href="/notas"
         class="text-primary-600 hover:underline dark:text-primary-300"
       >
         Notas técnicas e metodologia
