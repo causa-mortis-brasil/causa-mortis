@@ -112,16 +112,6 @@ function textBaselineForCenter(
   return centerY + (ascent - descent) / 2;
 }
 
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () =>
-      reject(new Error("Falha ao carregar a imagem do gráfico."));
-    image.src = src;
-  });
-}
-
 function nextPaint(): Promise<void> {
   return new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
@@ -209,8 +199,6 @@ export async function exportChartImage(
     pixelRatio,
     getExportOption(),
   );
-
-  const logoImage = await loadImage("/logo.svg");
 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -344,35 +332,34 @@ export async function exportChartImage(
   ctx.drawImage(chartCanvas, offsetX, chartY);
 
   const footerCenterY = (chartStripBottom + squareSize) / 2;
-  ctx.fillStyle = secondaryTextColor;
   ctx.textBaseline = "alphabetic";
 
-  const brandFontRegular = `500 ${footerFontSize}px ${fontFamily}`;
-  const brandFontBold = `700 ${footerFontSize}px ${fontFamily}`;
+  const brandFontSize = footerFontSize * 1.35;
+  const brandFontLight = `300 ${brandFontSize}px ${fontFamily}`;
+  const brandFontBold = `800 ${brandFontSize}px ${fontFamily}`;
   const brandBaselineY = textBaselineForCenter(ctx, footerCenterY, [
-    { text: "causamortis", font: brandFontRegular },
-    { text: ".net", font: brandFontBold },
+    { text: "causa", font: brandFontLight },
+    { text: "mortis", font: brandFontBold },
+    { text: ".net", font: brandFontLight },
   ]);
 
-  const logoSize = footerFontSize * 1.8;
-  const logoGap = 6 * pixelRatio;
   const brandLeftX = offsetX + padding;
-  ctx.drawImage(
-    logoImage,
-    brandLeftX,
-    footerCenterY - logoSize / 2,
-    logoSize,
-    logoSize,
-  );
-
   ctx.textAlign = "left";
-  ctx.font = brandFontRegular;
-  ctx.fillText("causamortis", brandLeftX + logoSize + logoGap, brandBaselineY);
-  const brandNameWidth = ctx.measureText("causamortis").width;
+  ctx.fillStyle = secondaryTextColor;
+  ctx.font = brandFontLight;
+  ctx.fillText("causa", brandLeftX, brandBaselineY);
+  const brandCausaWidth = ctx.measureText("causa").width;
+
+  ctx.fillStyle = titleColor || "#1f2937";
   ctx.font = brandFontBold;
+  ctx.fillText("mortis", brandLeftX + brandCausaWidth, brandBaselineY);
+  const brandMortisWidth = ctx.measureText("mortis").width;
+
+  ctx.fillStyle = secondaryTextColor;
+  ctx.font = brandFontLight;
   ctx.fillText(
     ".net",
-    brandLeftX + logoSize + logoGap + brandNameWidth,
+    brandLeftX + brandCausaWidth + brandMortisWidth,
     brandBaselineY,
   );
 
@@ -381,6 +368,7 @@ export async function exportChartImage(
   const sourceBaselineY = textBaselineForCenter(ctx, footerCenterY, [
     { text: sourceText, font: sourceFont },
   ]);
+  ctx.fillStyle = secondaryTextColor;
   ctx.font = sourceFont;
   ctx.textAlign = "right";
   ctx.fillText(sourceText, offsetX + blockWidth - padding, sourceBaselineY);

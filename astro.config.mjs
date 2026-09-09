@@ -17,7 +17,7 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: "Sora",
       cssVariable: "--font-sora",
-      weights: [400, 500, 700, 800],
+      weights: [300, 400, 500, 700, 800],
       styles: ["normal"],
     },
   ],
