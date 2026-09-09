@@ -141,16 +141,26 @@ function mixColors(from: string, to: string, amount: number): string {
 }
 
 const CAUSE_DARK_MIX = 0.16;
+const CAUSE_SUBGROUP_SHADE_STEP = 0.1;
+const CAUSE_SUBGROUP_SHADE_MAX = 0.4;
 
 export function causeGroupColor(
   causeGroupIndex: number,
-  options: ThemeColorOptions = {},
+  options: ThemeColorOptions & { depth?: number; siblingIndex?: number } = {},
 ): string {
+  const { depth = 0, siblingIndex = 0 } = options;
   const color = readCssColor(
     CAUSE_TOKENS[causeGroupIndex % CAUSE_TOKENS.length],
   );
-  if (!usesDark(options)) return color;
-  return mixColors(color, readCssColor("--color-gray-900"), CAUSE_DARK_MIX);
+  const base = usesDark(options)
+    ? mixColors(color, readCssColor("--color-gray-900"), CAUSE_DARK_MIX)
+    : color;
+  if (depth === 0) return base;
+  const shade = Math.min(
+    siblingIndex * CAUSE_SUBGROUP_SHADE_STEP,
+    CAUSE_SUBGROUP_SHADE_MAX,
+  );
+  return mixColors(base, readCssColor("--color-gray-900"), shade);
 }
 
 export const MAP_SCALE_STEPS = 7;

@@ -68,11 +68,31 @@ type StyledCauseNode = Omit<CauseNode, "children"> & {
 function withCauseColors(
   nodes: CauseNode[],
   forceLight: boolean,
+  depth = 0,
 ): StyledCauseNode[] {
-  return nodes.map(({ children, ...node }) => ({
+  return nodes.map(({ children, ...node }, siblingIndex) => ({
     ...node,
-    itemStyle: { color: causeGroupColor(node.causeGroupIndex, { forceLight }) },
-    ...(children ? { children: withCauseColors(children, forceLight) } : {}),
+    itemStyle: {
+      color: causeGroupColor(node.causeGroupIndex, {
+        forceLight,
+        depth,
+        siblingIndex,
+      }),
+    },
+    ...(children
+      ? { children: withCauseColors(children, forceLight, depth + 1) }
+      : {}),
+  }));
+}
+
+function withDistinctColors(
+  nodes: CauseNode[],
+  forceLight: boolean,
+): StyledCauseNode[] {
+  return nodes.map(({ children, ...node }, index) => ({
+    ...node,
+    itemStyle: { color: causeGroupColor(index, { forceLight }) },
+    ...(children ? { children: withDistinctColors(children, forceLight) } : {}),
   }));
 }
 
@@ -341,7 +361,7 @@ export function init(
   }
 
   function buildTreemapSeries(
-    displayNodes: CauseNode[],
+    data: StyledCauseNode[],
     bottom: number,
     forceLight = false,
   ) {
@@ -365,7 +385,7 @@ export function init(
         { itemStyle: { borderColorSaturation: 0.4, gapWidth: 5 } },
         { colorSaturation: [0.3, 0.6], itemStyle: { gapWidth: 3 } },
       ],
-      data: withCauseColors(displayNodes, forceLight),
+      data,
     };
   }
 
@@ -409,12 +429,10 @@ export function init(
       animation: false,
       label: { show: false },
       tooltip: { show: false },
-      data: displayNodes.map((node) => ({
+      data: displayNodes.map((node, index) => ({
         name: legendLabel(node),
         value: 1,
-        itemStyle: {
-          color: causeGroupColor(node.causeGroupIndex, { forceLight: true }),
-        },
+        itemStyle: { color: causeGroupColor(index, { forceLight: true }) },
       })),
     };
 
@@ -433,7 +451,11 @@ export function init(
         data: displayNodes.map(legendLabel),
       },
       series: [
-        buildTreemapSeries(displayNodes, EXPORT_LEGEND_HEIGHT, true),
+        buildTreemapSeries(
+          withDistinctColors(displayNodes, true),
+          EXPORT_LEGEND_HEIGHT,
+          true,
+        ),
         legendReferenceSeries,
       ],
     };
@@ -453,7 +475,10 @@ export function init(
         tooltip: treemapTooltip(),
         series: [
           {
-            ...buildTreemapSeries(displayNodes, 0),
+            ...buildTreemapSeries(
+              withCauseColors(displayNodes, false, path.length),
+              0,
+            ),
             animationDurationUpdate,
           },
         ],
