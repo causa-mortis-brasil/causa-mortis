@@ -12,7 +12,7 @@ import {
   type ChartExportRows,
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
-import { subscribeWhenVisible } from "../chart-visibility";
+import { subscribeWhenVisible, type RenderOptions } from "../chart-visibility";
 import { causesChartTitle, setChartTitle } from "../chart-titles";
 import { causeGroupsForDetail, indexOf } from "../dimensions";
 import {
@@ -506,7 +506,11 @@ export function init(
     };
   }
 
-  function treemapAnimationDuration(filters: Filters): number {
+  function treemapAnimationDuration(
+    filters: Filters,
+    instant: boolean,
+  ): number {
+    if (instant) return 0;
     const origin = store.getLastYearOrigin();
     if (isManualYearOnlyChange(origin, previousFilters, filters))
       return FAST_TREEMAP_DURATION;
@@ -526,9 +530,9 @@ export function init(
     return NORMAL_TREEMAP_DURATION;
   }
 
-  async function render(): Promise<void> {
+  async function render({ instant }: RenderOptions): Promise<void> {
     const filters = store.get();
-    const animationDurationUpdate = treemapAnimationDuration(filters);
+    const animationDurationUpdate = treemapAnimationDuration(filters, instant);
     previousFilters = filters;
 
     setChartTitle(titleEl, causesChartTitle(filters, dimensions));
@@ -555,5 +559,5 @@ export function init(
   setupChartFullscreen(card, container);
   setupChartShare(card, store);
 
-  subscribeWhenVisible(card, store, () => render());
+  subscribeWhenVisible(card, store, render);
 }

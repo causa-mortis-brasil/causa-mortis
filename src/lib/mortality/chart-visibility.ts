@@ -1,34 +1,34 @@
 import { THEME_CHANGE_EVENT } from "../theme";
 import type { FiltersStore } from "./filters";
 
+export interface RenderOptions {
+  instant: boolean;
+}
+
 export function subscribeWhenVisible(
   card: ParentNode,
   store: FiltersStore,
-  render: () => void | Promise<void>,
+  render: (options: RenderOptions) => void | Promise<void>,
 ): void {
   if (!(card instanceof HTMLElement)) {
-    store.subscribe(() => void render());
-    document.addEventListener(THEME_CHANGE_EVENT, () => void render());
+    store.subscribe(() => void render({ instant: false }));
+    document.addEventListener(
+      THEME_CHANGE_EVENT,
+      () => void render({ instant: false }),
+    );
     return;
   }
 
-  let dirty = false;
   const isVisible = (): boolean => !card.hasAttribute("hidden");
 
-  const run = (): void => {
-    dirty = false;
-    void render();
-  };
-
-  const schedule = (): void => {
-    if (isVisible()) run();
-    else dirty = true;
+  const renderIfVisible = (): void => {
+    if (isVisible()) void render({ instant: false });
   };
 
   new MutationObserver(() => {
-    if (isVisible() && dirty) run();
+    if (isVisible()) void render({ instant: true });
   }).observe(card, { attributes: true, attributeFilter: ["hidden"] });
 
-  store.subscribe(schedule);
-  document.addEventListener(THEME_CHANGE_EVENT, schedule);
+  store.subscribe(renderIfVisible);
+  document.addEventListener(THEME_CHANGE_EVENT, renderIfVisible);
 }

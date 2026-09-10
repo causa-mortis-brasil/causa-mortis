@@ -8,7 +8,7 @@ import {
   type ChartExportRows,
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
-import { subscribeWhenVisible } from "../chart-visibility";
+import { subscribeWhenVisible, type RenderOptions } from "../chart-visibility";
 import { fetchDeathsByCauseGroupAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
 import type { EChartsOption } from "../echarts-core";
@@ -264,7 +264,11 @@ export function init(
     }
   });
 
-  function areaAnimationDuration(filters: Filters): number | undefined {
+  function areaAnimationDuration(
+    filters: Filters,
+    instant: boolean,
+  ): number | undefined {
+    if (instant) return 0;
     const origin = store.getLastYearOrigin();
     if (isManualYearOnlyChange(origin, previousFilters, filters))
       return FAST_AREA_DURATION;
@@ -285,10 +289,10 @@ export function init(
     return undefined;
   }
 
-  async function render(): Promise<void> {
+  async function render({ instant }: RenderOptions): Promise<void> {
     const filters = store.get();
     setChartTitle(titleEl, ageCompositionChartTitle(filters, dimensions));
-    const animationDuration = areaAnimationDuration(filters);
+    const animationDuration = areaAnimationDuration(filters, instant);
     previousFilters = filters;
 
     const table = await fetchDeathsByCauseGroupAgeForLocation(filters.location);
@@ -327,6 +331,7 @@ export function init(
       totalByAge,
       animationDuration,
     };
+    chart.resize();
     applyOption();
 
     seriesOrder = stackedFromBase.map(

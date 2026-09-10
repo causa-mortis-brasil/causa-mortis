@@ -9,7 +9,7 @@ import {
   type ChartExportRows,
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
-import { subscribeWhenVisible } from "../chart-visibility";
+import { subscribeWhenVisible, type RenderOptions } from "../chart-visibility";
 import { fetchPopulationByAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
 import type { CallbackDataParams, EChartsOption } from "../echarts-core";
@@ -86,7 +86,7 @@ export function init(
     womenValues: number[];
     maxAbs: number;
     axisInterval: number;
-    useFastAnimation: boolean;
+    animationDurationUpdate: number | undefined;
   }
 
   let lastOptionData: PyramidOptionData | null = null;
@@ -107,7 +107,7 @@ export function init(
       womenValues,
       maxAbs,
       axisInterval,
-      useFastAnimation,
+      animationDurationUpdate,
     } = data;
     const axisLabelColor = themeColor("--color-gray-600", { forceLight });
     const barLabelColor = themeColor("--color-gray-700", { forceLight });
@@ -221,7 +221,9 @@ export function init(
           yAxisIndex: 0,
           data: menValues,
           color: themeColor("--color-sex-men", { forceLight }),
-          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
+          ...(animationDurationUpdate !== undefined
+            ? { animationDurationUpdate }
+            : {}),
           label: {
             show: true,
             position: "left",
@@ -240,7 +242,9 @@ export function init(
           yAxisIndex: 1,
           data: womenValues,
           color: themeColor("--color-sex-women", { forceLight }),
-          ...(useFastAnimation ? { animationDurationUpdate: 200 } : {}),
+          ...(animationDurationUpdate !== undefined
+            ? { animationDurationUpdate }
+            : {}),
           label: {
             show: true,
             position: "right",
@@ -286,7 +290,7 @@ export function init(
     });
   }
 
-  async function render(): Promise<void> {
+  async function render({ instant }: RenderOptions): Promise<void> {
     const token = ++renderToken;
     const filters = store.get();
     const level = resolveCauseLevel(filters);
@@ -295,6 +299,11 @@ export function init(
       previousFilters,
       filters,
     );
+    const animationDurationUpdate = instant
+      ? 0
+      : useFastAnimation
+        ? 200
+        : undefined;
     previousFilters = filters;
 
     const [deathsByAgeGetter, populationTable] = await Promise.all([
@@ -366,8 +375,9 @@ export function init(
       womenValues,
       maxAbs,
       axisInterval,
-      useFastAnimation,
+      animationDurationUpdate,
     };
+    chart.resize();
     applyOption();
 
     const measureLabel =

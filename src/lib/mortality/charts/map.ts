@@ -193,6 +193,7 @@ export function init(
     });
 
     lastOptionData = { data, min, max };
+    chart.resize();
     chart.setOption(buildOption(lastOptionData, useFastAnimation), {
       notMerge: true,
     });

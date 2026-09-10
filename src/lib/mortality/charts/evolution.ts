@@ -268,6 +268,7 @@ export function init(
       selectedYear: filters.year,
       animate,
     };
+    chart.resize();
     chart.setOption(buildOption(lastOptionData), { notMerge: true });
 
     exportRows = {
