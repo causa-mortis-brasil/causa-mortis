@@ -17,32 +17,32 @@ distingue os dois casos e a conclusão "fora do ar" não se sustenta.
 
 ## 2. Duas formas de endereço para o mesmo objeto
 
-| Forma | Exemplo | Observação |
-|---|---|---|
-| *path-style* (a que o portal publica) | `https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIM/csv/...` | funciona no navegador, com HTTPS |
-| *virtual-hosted* | `http://ckan.saude.gov.br.s3.sa-east-1.amazonaws.com/SIM/csv/...` | HTTPS falha: o certificado da AWS não cobre nome de bucket com pontos |
+| Forma                                 | Exemplo                                                            | Observação                                                            |
+| ------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| _path-style_ (a que o portal publica) | `https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SIM/csv/...` | funciona no navegador, com HTTPS                                      |
+| _virtual-hosted_                      | `http://ckan.saude.gov.br.s3.sa-east-1.amazonaws.com/SIM/csv/...`  | HTTPS falha: o certificado da AWS não cobre nome de bucket com pontos |
 
 A tabela traz as duas em colunas separadas. Para download manual, use a primeira.
 
 ## 3. Cobertura por formato
 
-| Formato | Arquivos | Anos |
-|---|---|---|
-| CSV | 49 | 1979–2026, **exceto 2022** |
-| JSON | 48 | 1979–2026 |
-| XML | 48 | 1979–2026 |
+| Formato | Arquivos | Anos                       |
+| ------- | -------- | -------------------------- |
+| CSV     | 49       | 1979–2026, **exceto 2022** |
+| JSON    | 48       | 1979–2026                  |
+| XML     | 48       | 1979–2026                  |
 
 **2022 não tem variante CSV.** A variante JSON contém os fragmentos `DO22OPEN_*.json`.
 
 ## 4. O que a revisão usa, e por quê
 
-| Ano | Arquivo | Formato | Registros | vs TabNet |
-|---|---|---|---|---|
-| 2000–2021 | `Mortalidade_Geral_AAAA_csv.zip` | csv | — | exato, 84 recortes por ano |
-| 2022 | `Mortalidade_Geral_2022_json.zip` | json | 1.544.266 | exato, 84 recortes |
-| 2023 | `Mortalidade_Geral_2023_json.zip` | json | 1.465.610 | exato, 84 recortes |
-| 2024 | `DO24OPEN_csv.zip` | csv | 1.532.015 | exato, 84 recortes |
-| 2025 | `DO25OPEN_csv.zip` | csv | 1.507.424 | −1,8%, nos 84 recortes |
+| Ano       | Arquivo                           | Formato | Registros | vs TabNet                  |
+| --------- | --------------------------------- | ------- | --------- | -------------------------- |
+| 2000–2021 | `Mortalidade_Geral_AAAA_csv.zip`  | csv     | —         | exato, 84 recortes por ano |
+| 2022      | `Mortalidade_Geral_2022_json.zip` | json    | 1.544.266 | exato, 84 recortes         |
+| 2023      | `Mortalidade_Geral_2023_json.zip` | json    | 1.465.610 | exato, 84 recortes         |
+| 2024      | `DO24OPEN_csv.zip`                | csv     | 1.532.015 | exato, 84 recortes         |
+| 2025      | `DO25OPEN_csv.zip`                | csv     | 1.507.424 | −1,8%, nos 84 recortes     |
 
 A coluna acima dizia "não verificado" para 2000, 2001, 2020 e 2021, e "—" para 2002–2019.
 Estava **desatualizada**: foi escrita no momento do download, quando só os anos recentes
