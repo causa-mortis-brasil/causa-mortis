@@ -896,7 +896,7 @@ BR;Brasil;Homens;2025;Órgãos digestivos;47067;45.236;46.125
 BR;Brasil;Homens;2025;"Pulmão, traqueia e brônquios";16806;16.152;16.542
 BR;Brasil;Homens;2025;Mama;306;0.294;0.301
 BR;Brasil;Homens;2025;Próstata;17884;17.188;18.241
-BR;Brasil;Homens;2025;Demais localizações;49920;47.978;49.008
+BR;Brasil;Homens;2025;Demais localizações;49926;47.984;49.014
 BR;Brasil;Homens;2025;Isquêmicas do coração;67948;65.305;66.873
 BR;Brasil;Homens;2025;Cerebrovasculares;53515;51.434;53.53
 BR;Brasil;Homens;2025;Demais cardiovasculares;81624;78.449;81.768
@@ -1270,7 +1270,7 @@ BR;Brasil;Mulheres;2021;Órgãos digestivos;33429;31.081;29.061
 BR;Brasil;Mulheres;2021;"Pulmão, traqueia e brônquios";12977;12.066;11.336
 BR;Brasil;Mulheres;2021;Mama;18139;16.865;16.092
 BR;Brasil;Mulheres;2021;Colo de útero;6606;6.142;5.955
-BR;Brasil;Mulheres;2021;Demais localizações;39310;36.549;34.446
+BR;Brasil;Mulheres;2021;Demais localizações;39311;36.55;34.447
 BR;Brasil;Mulheres;2021;Isquêmicas do coração;47579;44.238;40.532
 BR;Brasil;Mulheres;2021;Cerebrovasculares;50793;47.226;42.931
 BR;Brasil;Mulheres;2021;Demais cardiovasculares;83818;77.932;70.334
@@ -1338,7 +1338,7 @@ BR;Brasil;Mulheres;2025;Órgãos digestivos;38065;34.802;29.369
 BR;Brasil;Mulheres;2025;"Pulmão, traqueia e brônquios";14921;13.642;11.467
 BR;Brasil;Mulheres;2025;Mama;21039;19.236;16.91
 BR;Brasil;Mulheres;2025;Colo de útero;7264;6.641;6.067
-BR;Brasil;Mulheres;2025;Demais localizações;44356;40.554;34.798
+BR;Brasil;Mulheres;2025;Demais localizações;44381;40.577;34.816
 BR;Brasil;Mulheres;2025;Isquêmicas do coração;44980;41.125;33.857
 BR;Brasil;Mulheres;2025;Cerebrovasculares;50841;46.483;37.947
 BR;Brasil;Mulheres;2025;Demais cardiovasculares;83594;76.429;62
@@ -2690,7 +2690,7 @@ AC;Acre;Mulheres;2025;Órgãos digestivos;86;19.515;26.683
 AC;Acre;Mulheres;2025;"Pulmão, traqueia e brônquios";53;12.027;17.189
 AC;Acre;Mulheres;2025;Mama;45;10.211;12.942
 AC;Acre;Mulheres;2025;Colo de útero;44;9.985;12.224
-AC;Acre;Mulheres;2025;Demais localizações;111;25.188;33.162
+AC;Acre;Mulheres;2025;Demais localizações;112;25.415;33.484
 AC;Acre;Mulheres;2025;Isquêmicas do coração;80;18.154;25.505
 AC;Acre;Mulheres;2025;Cerebrovasculares;164;37.215;52.754
 AC;Acre;Mulheres;2025;Demais cardiovasculares;137;31.088;44.721
@@ -4042,7 +4042,7 @@ AL;Alagoas;Mulheres;2025;Órgãos digestivos;360;21.578;21.292
 AL;Alagoas;Mulheres;2025;"Pulmão, traqueia e brônquios";141;8.451;8.349
 AL;Alagoas;Mulheres;2025;Mama;245;14.685;14.565
 AL;Alagoas;Mulheres;2025;Colo de útero;133;7.972;7.889
-AL;Alagoas;Mulheres;2025;Demais localizações;529;31.708;31.301
+AL;Alagoas;Mulheres;2025;Demais localizações;530;31.768;31.358
 AL;Alagoas;Mulheres;2025;Isquêmicas do coração;777;46.573;45.831
 AL;Alagoas;Mulheres;2025;Cerebrovasculares;916;54.904;53.843
 AL;Alagoas;Mulheres;2025;Demais cardiovasculares;1380;82.716;81.305
@@ -8098,7 +8098,7 @@ BA;Bahia;Mulheres;2025;Órgãos digestivos;2248;29.4;25.493
 BA;Bahia;Mulheres;2025;"Pulmão, traqueia e brônquios";756;9.887;8.541
 BA;Bahia;Mulheres;2025;Mama;1399;18.296;16.348
 BA;Bahia;Mulheres;2025;Colo de útero;496;6.487;5.926
-BA;Bahia;Mulheres;2025;Demais localizações;2763;36.135;31.674
+BA;Bahia;Mulheres;2025;Demais localizações;2767;36.187;31.715
 BA;Bahia;Mulheres;2025;Isquêmicas do coração;2689;35.167;29.47
 BA;Bahia;Mulheres;2025;Cerebrovasculares;3942;51.554;42.382
 BA;Bahia;Mulheres;2025;Demais cardiovasculares;5801;75.866;61.803
@@ -9450,7 +9450,7 @@ CE;Ceará;Mulheres;2025;Órgãos digestivos;1509;31.65;27.588
 CE;Ceará;Mulheres;2025;"Pulmão, traqueia e brônquios";711;14.913;12.981
 CE;Ceará;Mulheres;2025;Mama;886;18.583;16.93
 CE;Ceará;Mulheres;2025;Colo de útero;332;6.964;6.485
-CE;Ceará;Mulheres;2025;Demais localizações;1974;41.403;36.909
+CE;Ceará;Mulheres;2025;Demais localizações;1976;41.445;36.945
 CE;Ceará;Mulheres;2025;Isquêmicas do coração;1876;39.348;32.93
 CE;Ceará;Mulheres;2025;Cerebrovasculares;2156;45.221;37.129
 CE;Ceará;Mulheres;2025;Demais cardiovasculares;2891;60.637;49.318
@@ -13506,7 +13506,7 @@ GO;Goiás;Mulheres;2025;Órgãos digestivos;1085;28.857;27.641
 GO;Goiás;Mulheres;2025;"Pulmão, traqueia e brônquios";453;12.048;11.532
 GO;Goiás;Mulheres;2025;Mama;664;17.66;16.825
 GO;Goiás;Mulheres;2025;Colo de útero;283;7.527;7.193
-GO;Goiás;Mulheres;2025;Demais localizações;1270;33.777;32.484
+GO;Goiás;Mulheres;2025;Demais localizações;1271;33.804;32.511
 GO;Goiás;Mulheres;2025;Isquêmicas do coração;1175;31.25;30.045
 GO;Goiás;Mulheres;2025;Cerebrovasculares;1295;34.442;33.259
 GO;Goiás;Mulheres;2025;Demais cardiovasculares;2625;69.815;67.511
@@ -14790,7 +14790,7 @@ MA;Maranhão;Mulheres;2021;Órgãos digestivos;528;14.927;18.009
 MA;Maranhão;Mulheres;2021;"Pulmão, traqueia e brônquios";229;6.474;7.849
 MA;Maranhão;Mulheres;2021;Mama;283;8.001;9.414
 MA;Maranhão;Mulheres;2021;Colo de útero;375;10.601;12.53
-MA;Maranhão;Mulheres;2021;Demais localizações;808;22.843;26.773
+MA;Maranhão;Mulheres;2021;Demais localizações;809;22.871;26.808
 MA;Maranhão;Mulheres;2021;Isquêmicas do coração;1381;39.042;46.273
 MA;Maranhão;Mulheres;2021;Cerebrovasculares;1595;45.092;52.924
 MA;Maranhão;Mulheres;2021;Demais cardiovasculares;1884;53.262;62.228
@@ -15768,7 +15768,7 @@ MG;Minas Gerais;Homens;2025;Órgãos digestivos;5160;49.196;44.105
 MG;Minas Gerais;Homens;2025;"Pulmão, traqueia e brônquios";1701;16.218;14.378
 MG;Minas Gerais;Homens;2025;Mama;25;0.238;0.213
 MG;Minas Gerais;Homens;2025;Próstata;1751;16.694;14.912
-MG;Minas Gerais;Homens;2025;Demais localizações;5512;52.552;47.579
+MG;Minas Gerais;Homens;2025;Demais localizações;5514;52.571;47.597
 MG;Minas Gerais;Homens;2025;Isquêmicas do coração;4789;45.659;40.971
 MG;Minas Gerais;Homens;2025;Cerebrovasculares;5002;47.69;42.918
 MG;Minas Gerais;Homens;2025;Demais cardiovasculares;8651;82.48;74.458
@@ -16210,7 +16210,7 @@ MG;Minas Gerais;Mulheres;2025;Órgãos digestivos;3832;35.14;26.799
 MG;Minas Gerais;Mulheres;2025;"Pulmão, traqueia e brônquios";1295;11.875;9
 MG;Minas Gerais;Mulheres;2025;Mama;1872;17.167;14.03
 MG;Minas Gerais;Mulheres;2025;Colo de útero;521;4.778;4.102
-MG;Minas Gerais;Mulheres;2025;Demais localizações;4698;43.082;33.591
+MG;Minas Gerais;Mulheres;2025;Demais localizações;4700;43.1;33.604
 MG;Minas Gerais;Mulheres;2025;Isquêmicas do coração;2998;27.492;20.157
 MG;Minas Gerais;Mulheres;2025;Cerebrovasculares;4693;43.036;31.222
 MG;Minas Gerais;Mulheres;2025;Demais cardiovasculares;8966;82.22;58.876
@@ -21618,7 +21618,7 @@ PB;Paraíba;Mulheres;2025;Órgãos digestivos;652;30.348;25.269
 PB;Paraíba;Mulheres;2025;"Pulmão, traqueia e brônquios";279;12.986;10.889
 PB;Paraíba;Mulheres;2025;Mama;320;14.895;13.078
 PB;Paraíba;Mulheres;2025;Colo de útero;122;5.679;5.126
-PB;Paraíba;Mulheres;2025;Demais localizações;873;40.635;34.675
+PB;Paraíba;Mulheres;2025;Demais localizações;874;40.682;34.705
 PB;Paraíba;Mulheres;2025;Isquêmicas do coração;1110;51.667;40.893
 PB;Paraíba;Mulheres;2025;Cerebrovasculares;938;43.661;34.068
 PB;Paraíba;Mulheres;2025;Demais cardiovasculares;1539;71.635;53.968
@@ -22528,7 +22528,7 @@ PE;Pernambuco;Homens;2025;Órgãos digestivos;1618;35.225;38.75
 PE;Pernambuco;Homens;2025;"Pulmão, traqueia e brônquios";574;12.497;13.91
 PE;Pernambuco;Homens;2025;Mama;13;0.283;0.314
 PE;Pernambuco;Homens;2025;Próstata;886;19.289;21.981
-PE;Pernambuco;Homens;2025;Demais localizações;1830;39.841;43.459
+PE;Pernambuco;Homens;2025;Demais localizações;1832;39.884;43.504
 PE;Pernambuco;Homens;2025;Isquêmicas do coração;3550;77.287;84.808
 PE;Pernambuco;Homens;2025;Cerebrovasculares;2318;50.465;56.229
 PE;Pernambuco;Homens;2025;Demais cardiovasculares;3234;70.407;78.262
@@ -22970,7 +22970,7 @@ PE;Pernambuco;Mulheres;2025;Órgãos digestivos;1571;31.618;27.63
 PE;Pernambuco;Mulheres;2025;"Pulmão, traqueia e brônquios";577;11.613;10.186
 PE;Pernambuco;Mulheres;2025;Mama;850;17.107;15.527
 PE;Pernambuco;Mulheres;2025;Colo de útero;366;7.366;6.868
-PE;Pernambuco;Mulheres;2025;Demais localizações;1920;38.642;34.352
+PE;Pernambuco;Mulheres;2025;Demais localizações;1922;38.682;34.383
 PE;Pernambuco;Mulheres;2025;Isquêmicas do coração;2553;51.381;43.945
 PE;Pernambuco;Mulheres;2025;Cerebrovasculares;2284;45.968;38.777
 PE;Pernambuco;Mulheres;2025;Demais cardiovasculares;3407;68.569;57.509
@@ -25674,7 +25674,7 @@ PR;Paraná;Mulheres;2025;Órgãos digestivos;2467;40.556;33.071
 PR;Paraná;Mulheres;2025;"Pulmão, traqueia e brônquios";1041;17.113;13.852
 PR;Paraná;Mulheres;2025;Mama;1228;20.187;17.336
 PR;Paraná;Mulheres;2025;Colo de útero;417;6.855;6.078
-PR;Paraná;Mulheres;2025;Demais localizações;2723;44.764;37.067
+PR;Paraná;Mulheres;2025;Demais localizações;2725;44.797;37.094
 PR;Paraná;Mulheres;2025;Isquêmicas do coração;1930;31.728;25.452
 PR;Paraná;Mulheres;2025;Cerebrovasculares;3135;51.537;41.03
 PR;Paraná;Mulheres;2025;Demais cardiovasculares;4693;77.149;61.315
@@ -27026,7 +27026,7 @@ RJ;Rio de Janeiro;Mulheres;2025;Órgãos digestivos;4057;44.887;32.45
 RJ;Rio de Janeiro;Mulheres;2025;"Pulmão, traqueia e brônquios";1498;16.574;11.749
 RJ;Rio de Janeiro;Mulheres;2025;Mama;2526;27.948;21.743
 RJ;Rio de Janeiro;Mulheres;2025;Colo de útero;647;7.158;6.149
-RJ;Rio de Janeiro;Mulheres;2025;Demais localizações;4380;48.461;36.252
+RJ;Rio de Janeiro;Mulheres;2025;Demais localizações;4382;48.483;36.266
 RJ;Rio de Janeiro;Mulheres;2025;Isquêmicas do coração;4164;46.071;32.465
 RJ;Rio de Janeiro;Mulheres;2025;Cerebrovasculares;5276;58.374;40.858
 RJ;Rio de Janeiro;Mulheres;2025;Demais cardiovasculares;9362;103.582;71.504
@@ -28378,7 +28378,7 @@ RN;Rio Grande do Norte;Mulheres;2025;Órgãos digestivos;589;33.221;28.263
 RN;Rio Grande do Norte;Mulheres;2025;"Pulmão, traqueia e brônquios";267;15.059;12.709
 RN;Rio Grande do Norte;Mulheres;2025;Mama;352;19.854;17.367
 RN;Rio Grande do Norte;Mulheres;2025;Colo de útero;97;5.471;5.021
-RN;Rio Grande do Norte;Mulheres;2025;Demais localizações;712;40.158;34.658
+RN;Rio Grande do Norte;Mulheres;2025;Demais localizações;713;40.215;34.708
 RN;Rio Grande do Norte;Mulheres;2025;Isquêmicas do coração;1065;60.068;48.851
 RN;Rio Grande do Norte;Mulheres;2025;Cerebrovasculares;738;41.625;33.253
 RN;Rio Grande do Norte;Mulheres;2025;Demais cardiovasculares;1029;58.038;46.212
@@ -31992,7 +31992,7 @@ RS;Rio Grande do Sul;Homens;2025;Órgãos digestivos;3724;68.306;57.308
 RS;Rio Grande do Sul;Homens;2025;"Pulmão, traqueia e brônquios";1846;33.859;27.852
 RS;Rio Grande do Sul;Homens;2025;Mama;29;0.532;0.442
 RS;Rio Grande do Sul;Homens;2025;Próstata;1284;23.551;19.922
-RS;Rio Grande do Sul;Homens;2025;Demais localizações;3484;63.904;54.521
+RS;Rio Grande do Sul;Homens;2025;Demais localizações;3485;63.922;54.535
 RS;Rio Grande do Sul;Homens;2025;Isquêmicas do coração;3816;69.993;59.352
 RS;Rio Grande do Sul;Homens;2025;Cerebrovasculares;3327;61.024;51.626
 RS;Rio Grande do Sul;Homens;2025;Demais cardiovasculares;4116;75.496;64.623
@@ -36048,7 +36048,7 @@ SP;São Paulo;Homens;2025;Órgãos digestivos;12036;53.963;52.912
 SP;São Paulo;Homens;2025;"Pulmão, traqueia e brônquios";3915;17.553;17.287
 SP;São Paulo;Homens;2025;Mama;68;0.305;0.3
 SP;São Paulo;Homens;2025;Próstata;3601;16.145;16.636
-SP;São Paulo;Homens;2025;Demais localizações;12445;55.797;55.081
+SP;São Paulo;Homens;2025;Demais localizações;12446;55.801;55.085
 SP;São Paulo;Homens;2025;Isquêmicas do coração;19798;88.764;87.497
 SP;São Paulo;Homens;2025;Cerebrovasculares;11615;52.076;52.332
 SP;São Paulo;Homens;2025;Demais cardiovasculares;20095;90.095;90.747
@@ -36490,7 +36490,7 @@ SP;São Paulo;Mulheres;2025;Órgãos digestivos;9578;40.282;31.46
 SP;São Paulo;Mulheres;2025;"Pulmão, traqueia e brônquios";3608;15.174;11.808
 SP;São Paulo;Mulheres;2025;Mama;5303;22.302;18.356
 SP;São Paulo;Mulheres;2025;Colo de útero;1137;4.782;4.176
-SP;São Paulo;Mulheres;2025;Demais localizações;11085;46.619;37.223
+SP;São Paulo;Mulheres;2025;Demais localizações;11091;46.645;37.241
 SP;São Paulo;Mulheres;2025;Isquêmicas do coração;13434;56.498;43.113
 SP;São Paulo;Mulheres;2025;Cerebrovasculares;10870;45.715;34.706
 SP;São Paulo;Mulheres;2025;Demais cardiovasculares;21477;90.324;68.193
