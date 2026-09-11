@@ -2,6 +2,30 @@
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import Layout from "../components/Layout.astro";
+
+interface TeamMember {
+  name: string;
+  photo: string;
+  bio: string;
+}
+
+const team: TeamMember[] = [
+  {
+    name: "Celso Zanchetti",
+    photo: "/team/celso.jpeg",
+    bio: "Engenheiro civil pela Poli-USP, mestre em Saúde Ambiental pela FMU e doutorando na Faculdade de Saúde Pública da USP, onde estuda a mortalidade no trânsito com métodos de análise espacial e inferência causal. Trabalha com infraestrutura de transportes e dirige a Vortex, consultoria de engenharia de infraestrutura e inteligência territorial de dados. No Causa Mortis, cuida do pipeline de dados e da metodologia dos indicadores.",
+  },
+  {
+    name: "Franklin Weise",
+    photo: "/team/franklin.jpeg",
+    bio: "Engenheiro com ampla vivência em marketing técnico nas multinacionais do setor químico, colunista do Estadão, apresentador do podcast Triturando Dados, fundador do hub Desvendados.com. No Causa Mortis, é responsável pela estruturação dos infográficos.",
+  },
+  {
+    name: "Pedro Veloso",
+    photo: "/team/pedro.jpeg",
+    bio: "Graduando em Inteligência Artificial e em Análise e Desenvolvimento de Sistemas. Atua como desenvolvedor de software na criação de sites, aplicativos e sistemas escaláveis. No Causa Mortis, é responsável pelo desenvolvimento do website.",
+  },
+];
 ---
 
 <Layout
@@ -10,18 +34,141 @@ import Layout from "../components/Layout.astro";
 >
   <Header />
 
-  <main class="center-col gap-4">
+  <main class="center-col gap-2 pb-8">
     <div class="app-content-col">
-      <div class="app-gutter flex flex-col gap-2 pt-6 pb-2 lg:pt-10">
+      <div class="app-gutter flex flex-col gap-2 pt-6 lg:pt-10">
         <h1 class="text-2xl font-bold lg:text-3xl">Release</h1>
       </div>
+    </div>
 
-      <div class="app-gutter flex min-h-200 flex-1 flex-col gap-4 pb-8">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam, eligendi
-        voluptatum ipsam nihil iure sapiente, provident necessitatibus odit sit
-        harum tempora veritatis similique. Vero magni earum doloremque velit,
-        nulla dicta!
-      </div>
+    <div class="app-content-col app-gutter flex flex-col gap-6">
+      <section class="flex flex-col gap-3 text-gray-700 dark:text-gray-300">
+        <p>
+          O Brasil tem um excelente sistema de registro de óbitos: o SIM
+          (Sistema de Informações sobre Mortalidade). Os dados são acessíveis
+          tanto via web (<a
+            class="underline transition-opacity duration-200 hover:opacity-70"
+            href="https://tabnet.datasus.gov.br/cgi/deftohtm.exe?sim/cnv/obt10uf.def"
+            target="_blank">Tabnet</a
+          >) quanto para <a
+            class="underline transition-opacity duration-200 hover:opacity-70"
+            href="https://datasus.saude.gov.br/transferencia-de-arquivos/"
+            target="_blank">download</a
+          > dos microdados (também acessíveis pelo portal <a
+            class="underline transition-opacity duration-200 hover:opacity-70"
+            href="https://dadosabertos.saude.gov.br/dataset/sim"
+            target="_blank">Dados Abertos</a
+          >).
+        </p>
+        <p>
+          No entanto, o Tabnet/DataSUS não possui alguns recursos interessantes
+          que o seu equivalente dos Estados Unidos, o <a
+            class="underline transition-opacity duration-200 hover:opacity-70"
+            href="https://wonder.cdc.gov/controller/datarequest/D158"
+            target="_blank">CDC Wonder</a
+          >, contém: plotagem do histórico em gráficos e cálculo dos índices de
+          mortalidade (padronizados por idade).
+        </p>
+        <p>
+          A ideia do painel <a
+            class="underline transition-opacity duration-200 hover:opacity-70"
+            href="https://causamortis.net"
+            target="_blank">CausaMortis.net</a
+          > é trazer estes recursos ainda indisponíveis no Tabnet para a realidade
+          brasileira e, simultaneamente, fazê-lo num formato que facilite e encoraje
+          o uso pelo cidadão médio sem conhecimento prévio das terminologias e do
+          painel de dados mantido pelo Ministério da Saúde.
+        </p>
+
+        <p>
+          Considerando que estamos em tempos de mídia social ditando o discurso,
+          incluímos opções para compartilhar facilmente os gráficos via links ou
+          como imagem, já devidamente dimensionadas no formato quadrado, que
+          funciona bem tanto em telas verticais quanto horizontais.
+        </p>
+        <p>
+          Outro ponto importante pensado na usabilidade do cidadão médio:
+          diferente de painéis governamentais que acessam o banco de dados
+          completo e, por isso, têm um certo atraso até que a consulta gere a
+          resposta para o usuário, no painel <a
+            class="underline transition-opacity duration-200 hover:opacity-70"
+            href="https://causamortis.net"
+            target="_blank">CausaMortis.net</a
+          > usamos um banco de dados compactado, menos detalhado e, portanto, menos
+          pesado, fazendo com que a resposta seja quase momentânea — diminuindo a
+          taxa de abandono do site.
+        </p>
+        <p>
+          Um ponto fundamental: a pandemia introduziu variações atípicas e
+          consideramos que isto precisa ser explicitado nos gráficos, portanto
+          os anos correspondentes foram ressaltados visualmente.
+        </p>
+
+        <p>
+          Em nome da simplicidade e facilidade de uso, optamos em omitir parte
+          da granularidade dos dados:
+        </p>
+        <ul class="flex list-disc flex-col gap-2 pl-4">
+          <li>
+            <strong>Geográfica:</strong> apenas estados, sem detalhamento por municípios.
+          </li>
+          <li>
+            <strong>Causas:</strong> apenas grandes grupos de causas, sem categorias
+            CID-10 individuais.
+          </li>
+          <li>
+            <strong>Temporalidade:</strong> apenas óbitos anuais, não mensais.
+          </li>
+        </ul>
+
+        <p>Este painel tem algumas limitações:</p>
+        <ul class="flex list-disc flex-col gap-2 pl-4">
+          <li>
+            <strong>Intervalo temporal:</strong> a despeito de os dados de mortalidade
+            com a CID-10 estarem disponíveis desde 1996, optamos em iniciar a série
+            no ano 2000 devido à disponibilização das estimativas intercensitárias
+            e projeções futuras do IBGE a partir deste ano.
+          </li>
+          <li>
+            <strong>Não-consolidação:</strong> no momento do lançamento do painel
+            (setembro/26), os dados do ano mais recente (2025) ainda estão em status
+            provisório e apenas serão consolidados ao longo dos próximos meses. Optamos
+            em incluir estes dados no painel mesmo com esta condição, incluindo uma
+            indicação visual do status preliminar.
+          </li>
+        </ul>
+
+        <p class="font-bold">
+          Em suma, esta é uma ferramenta para trazer ao cidadão comum respostas
+          para a pergunta: “Do que morremos?”.
+        </p>
+      </section>
+
+      <section class="flex flex-col gap-2">
+        <h2 class="text-xl font-bold lg:text-2xl">O time:</h2>
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-3 lg:gap-4">
+          {
+            team.map((member) => (
+              <div class="flex flex-col items-center gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                <img
+                  src={member.photo}
+                  alt={member.name}
+                  width="112"
+                  height="112"
+                  loading="lazy"
+                  class="size-28 shrink-0 rounded-full object-cover"
+                />
+                <div class="flex flex-col gap-1">
+                  <span class="text-center font-bold">{member.name}</span>
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    {member.bio}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </section>
     </div>
   </main>
 

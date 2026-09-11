@@ -1,7 +1,5 @@
 ---
-import GithubIcon from "./icons/GithubIcon.astro";
-import ThemeToggle from "./ThemeToggle.astro";
-import { siteNavLinks } from "../lib/nav";
+import DesvendadosLogo from "./icons/DesvendadosLogo.astro";
 
 const year = new Date().getFullYear();
 ---
@@ -21,38 +19,22 @@ const year = new Date().getFullYear();
         >
       </a>
 
-      <nav aria-label="Navegação do rodapé" class="flex flex-col gap-3">
-        <ul
-          class="flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400"
+      <div class="flex items-center gap-6">
+        <a
+          href="https://desvendados.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
         >
-          {
-            siteNavLinks.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  target={link.external ? "_blank" : undefined}
-                  rel={link.external ? "noopener noreferrer" : undefined}
-                  class="flex items-center gap-1.5 transition-colors hover:text-gray-900 dark:hover:text-gray-100"
-                >
-                  {link.icon === "github" && <GithubIcon class="size-4" />}
-                  {link.label}
-                </a>
-              </li>
-            ))
-          }
-          <li>
-            <ThemeToggle
-              class="-my-2 text-gray-600 hover:bg-gray-100 focus-visible:outline-primary-500 dark:text-gray-400 dark:hover:bg-gray-800"
-            />
-          </li>
-        </ul>
-      </nav>
+          <span class="mt-0.5">Em parceria com</span>
+          <DesvendadosLogo class="h-7 w-auto" />
+        </a>
+      </div>
     </div>
 
     <p class="max-w-140 text-sm text-gray-600 dark:text-gray-400">
-      Painel de infográficos sobre mortalidade no Brasil, construído a partir
-      dos microdados do SIM/DATASUS e das projeções populacionais do IBGE.
-      Finalidade didática e de divulgação.
+      Painel de infográficos sobre mortalidade no Brasil. Finalidade didática e
+      de divulgação.
     </p>
 
     <p class="text-xs text-gray-500 dark:text-gray-400">
