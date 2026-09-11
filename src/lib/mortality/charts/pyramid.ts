@@ -12,6 +12,12 @@ import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible, type RenderOptions } from "../chart-visibility";
 import { fetchPopulationByAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
+import { BarChart, ScatterChart } from "echarts/charts";
+import {
+  GridComponent,
+  LegendComponent,
+  TooltipComponent,
+} from "echarts/components";
 import type { CallbackDataParams, EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatCompact, formatInteger, formatRate } from "../format";
@@ -25,6 +31,14 @@ import { isManualYearOnlyChange, type FiltersStore } from "../filters";
 import { crudeRate } from "../rate";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
+
+echarts.use([
+  BarChart,
+  ScatterChart,
+  GridComponent,
+  LegendComponent,
+  TooltipComponent,
+]);
 
 const AXIS_SPLIT_COUNT = 5;
 const NICE_FRACTIONS = [1, 2, 5, 10];

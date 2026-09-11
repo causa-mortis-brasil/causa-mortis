@@ -21,6 +21,8 @@ import {
   fetchDeathsByDetailedSubgroupForLocation,
   fetchDeathsByExternalCauseForLocation,
 } from "../data";
+import { PieChart, TreemapChart } from "echarts/charts";
+import { LegendComponent, TooltipComponent } from "echarts/components";
 import type {
   CallbackDataParams,
   ECElementEvent,
@@ -37,6 +39,8 @@ import {
 } from "../filters";
 import { setupChartShare } from "../share";
 import type { CauseFilter, Dimensions, Filters } from "../types";
+
+echarts.use([PieChart, TreemapChart, LegendComponent, TooltipComponent]);
 
 const EXPORT_CHART_HEIGHT = 544;
 const EXPORT_LEGEND_GAP = 16;

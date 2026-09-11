@@ -8,6 +8,12 @@ import {
 } from "../chart-export";
 import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible } from "../chart-visibility";
+import { LineChart } from "echarts/charts";
+import {
+  GridComponent,
+  MarkAreaComponent,
+  TooltipComponent,
+} from "echarts/components";
 import type { EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { evolutionChartTitle, setChartTitle } from "../chart-titles";
@@ -17,6 +23,8 @@ import { chartGridColor, themeColor, tooltipStyle } from "../palette";
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
+
+echarts.use([LineChart, GridComponent, MarkAreaComponent, TooltipComponent]);
 
 const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 560 };
 const GRID_TOP = 24;

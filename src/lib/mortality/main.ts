@@ -27,6 +27,8 @@ const CHART_LOADERS: Record<string, () => Promise<ChartModule>> = {
   pyramid: () => import("./charts/pyramid"),
 };
 
+const DEFAULT_CHART_TAB = "causes";
+
 function customSelect(
   scope: ParentNode,
   selector: string,
@@ -535,11 +537,7 @@ export async function mountMortalityExplorer(root: HTMLElement): Promise<void> {
     sharedTab && ["stats", ...chartNames].includes(sharedTab)
       ? sharedTab
       : null;
-  activateChartTab(
-    validSharedTab ??
-      chartNames[Math.floor(Math.random() * chartNames.length)] ??
-      "map",
-  );
+  activateChartTab(validSharedTab ?? DEFAULT_CHART_TAB);
   observeChartCards(root, store, dimensions);
   initSummaryStats(root, store, dimensions);
 

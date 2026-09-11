@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://causa-mortis.vercel.app",
+  site: "https://causamortis.net",
   build: {
     inlineStylesheets: "always",
   },

@@ -11,6 +11,8 @@ import { subscribeWhenVisible } from "../chart-visibility";
 import { qualityChartTitle, setChartTitle } from "../chart-titles";
 import { fetchBrazilStatesGeoJson, fetchCoverage } from "../data";
 import { indexOf } from "../dimensions";
+import { MapChart } from "echarts/charts";
+import { TooltipComponent, VisualMapComponent } from "echarts/components";
 import type {
   CallbackDataParams,
   EChartsOption,
@@ -30,6 +32,8 @@ import {
 import type { FiltersStore } from "../filters";
 import { setupChartShare } from "../share";
 import type { CoverageTable, Dimensions } from "../types";
+
+echarts.use([MapChart, TooltipComponent, VisualMapComponent]);
 
 const MAP_NAME = "brazil-states";
 const MAX_COVERAGE = 100;

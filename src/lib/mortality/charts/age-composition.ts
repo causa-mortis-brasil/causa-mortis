@@ -11,6 +11,9 @@ import { setupChartFullscreen } from "../chart-fullscreen";
 import { subscribeWhenVisible, type RenderOptions } from "../chart-visibility";
 import { fetchDeathsByCauseGroupAgeForLocation } from "../data";
 import { indexOf } from "../dimensions";
+import { LineChart } from "echarts/charts";
+import { GridComponent, TooltipComponent } from "echarts/components";
+import { LabelLayout } from "echarts/features";
 import type { EChartsOption } from "../echarts-core";
 import { echarts } from "../echarts-core";
 import { formatPercent, formatPercentInteger } from "../format";
@@ -28,6 +31,8 @@ import {
 } from "../filters";
 import { setupChartShare } from "../share";
 import type { Dimensions, Filters } from "../types";
+
+echarts.use([LineChart, GridComponent, TooltipComponent, LabelLayout]);
 
 const EXPORT_SIZE = { width: EXPORT_WIDTH, height: 620 };
 const MIN_ANNUAL_DEATHS_TO_INCLUDE = 20;
