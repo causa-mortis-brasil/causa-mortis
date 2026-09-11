@@ -8,7 +8,7 @@ import YearControl from "../components/mortality/YearControl.astro";
 
 <Layout
   title="Notas - Causa Mortis"
-  description="De onde vêm os números do painel: fontes oficiais (SIM/DATASUS, IBGE, RIPSA), conferências realizadas e notas metodológicas."
+  description="De onde vêm os números do painel: fontes oficiais (SIM/DATASUS, IBGE, RIPSA), metodologia de cálculo das taxas e limitações."
 >
   <Header />
 
@@ -18,9 +18,9 @@ import YearControl from "../components/mortality/YearControl.astro";
         <h1 class="text-2xl font-bold lg:text-3xl">De onde vêm os números</h1>
 
         <p class="max-w-180 text-gray-700 dark:text-gray-300">
-          Todo valor foi calculado a partir de microdados públicos e conferido
-          contra as fichas de qualificação da RIPSA. Nada foi estimado,
-          interpolado ou suavizado.
+          Os valores do painel foram calculados a partir de microdados públicos
+          e conferido contra os indicadores oficiais publicados pela RIPSA (Rede
+          Interagencial de Informações para a Saúde).
         </p>
       </div>
     </div>
@@ -34,21 +34,24 @@ import YearControl from "../components/mortality/YearControl.astro";
           class="flex list-disc flex-col gap-2 pl-4 text-gray-700 dark:text-gray-300"
         >
           <li>
-            <strong>Óbitos:</strong> SIM, microdados do Portal de Dados Abertos do
-            SUS, integridade de cada arquivo anual verificada por SHA-256.
+            <strong>Óbitos.</strong> Microdados do SIM (Sistema de Informações sobre
+            Mortalidade), obtidos no Portal de Dados Abertos do Ministério da Saúde.
           </li>
           <li>
-            <strong>População:</strong> IBGE, projeções revisão 2024.
+            <strong>População.</strong> Estimativas e projeções populacionais do IBGE,
+            revisão 2024, por unidade da federação, sexo e faixa etária. São o denominador
+            de todas as taxas.
           </li>
           <li>
-            <strong>Cobertura do SIM:</strong> indicador DEM.4.02 da RIPSA.
+            <strong>Cobertura do SIM.</strong> Indicador DEM.4.02 da RIPSA, que estima
+            a proporção dos óbitos ocorridos que foram efetivamente registrados no
+            sistema. Publicado até 2023.
           </li>
           <li>
-            <strong>Padronização:</strong> NT nº 51/2025-CGIAE — direta, 18 faixas,
-            população-padrão Brasil 2022.
-          </li>
-          <li>
-            <strong>Causas:</strong> fichas MRT.3.01, MRT.4.01–04, MRT.5.02 e MRT.5.04.
+            <strong>Agrupamento de causas.</strong> Segue as fichas de qualificação
+            da RIPSA: MRT.3.01 (grupos de causas), MRT.4.01 a MRT.4.04 (causas externas
+            por tipo e meio da agressão), MRT.5.02 (neoplasias malignas) e MRT.5.04
+            (doenças do aparelho circulatório).
           </li>
         </ul>
       </div>
@@ -56,32 +59,60 @@ import YearControl from "../components/mortality/YearControl.astro";
 
     <div class="app-content-col app-gutter gap-2 md:gap-4">
       <div
+        class="flex flex-col gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <h2 class="font-bold">Como as taxas são calculadas</h2>
+        <div class="flex flex-col gap-3 text-gray-700 dark:text-gray-300">
+          <p>
+            A taxa bruta é a razão entre óbitos e população, por 100 mil
+            habitantes. Ela depende da estrutura etária: um estado mais
+            envelhecido tende a ter taxa bruta maior mesmo com risco individual
+            igual.
+          </p>
+          <p>
+            Para permitir comparações entre estados e ao longo do tempo, o
+            painel calcula também a taxa padronizada por idade, pelo método
+            direto, conforme a Nota Técnica nº 51/2025-CGIAE do Ministério da
+            Saúde: as taxas específicas de 18 faixas etárias são aplicadas a uma
+            população-padrão única, a do Brasil em 2022. As duas taxas aparecem
+            sempre lado a lado.
+          </p>
+          <p>
+            Os anos de 2020 e 2021 são destacados nos gráficos por causa da
+            mortalidade atípica provocada pela pandemia de covid-19.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content-col app-gutter gap-2 md:gap-4">
+      <div
         class="mb-4 flex flex-col gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
       >
-        <h2 class="font-bold">Conferências e limitações</h2>
+        <h2 class="font-bold">Limitações</h2>
         <ul
           class="flex list-disc flex-col gap-2 pl-4 text-gray-700 dark:text-gray-300"
         >
           <li>
-            Neoplasias malignas 2023: 249.942 — idêntico à ficha MRT.5.02.
+            <strong>Início da série em 2000.</strong> Os dados do SIM codificados
+            pela CID-10 existem desde 1996, mas as projeções do IBGE usadas como denominador
+            começam em 2000.
           </li>
           <li>
-            Causas externas por tipo e meios da agressão: totais idênticos às
-            fichas MRT.4.01–04.
+            <strong>Dados preliminares.</strong> Os óbitos de 2025 ainda são preliminares
+            (Portaria MS nº 116/2009) e serão consolidados ao longo de 2026; 2024
+            já está consolidado. Os anos preliminares recebem indicação visual no
+            painel.
           </li>
           <li>
-            Escopo temporal 2000 em diante: as projeções do IBGE, denominador
-            das taxas, começam nesse ano.
+            <strong>Sub-registro não corrigido.</strong> As taxas refletem os óbitos
+            registrados, sem correção. Como a cobertura do SIM é publicada até 2023,
+            os dois últimos anos seguem sem essa referência.
           </li>
           <li>
-            2025 é preliminar (Portaria MS nº 116/2009); 2024 já foi
-            consolidado. A cobertura do SIM é publicada até 2023, então os dois
-            últimos anos seguem sem verificação independente de sub-registro.
-          </li>
-          <li>
-            Sub-registro declarado, não corrigido. Segundo nível de causa
-            disponível onde a RIPSA o normatiza: neoplasias, cardiovasculares e
-            causas externas.
+            <strong>Detalhamento.</strong> Apenas unidades da federação, grandes grupos
+            de causas (com segundo nível onde a RIPSA o normatiza: neoplasias, cardiovasculares
+            e causas externas) e dados anuais.
           </li>
         </ul>
       </div>

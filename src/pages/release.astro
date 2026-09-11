@@ -1,29 +1,78 @@
 ---
+import { Globe } from "@lucide/astro";
 import Footer from "../components/Footer.astro";
+import GithubIcon from "../components/icons/GithubIcon.astro";
 import Header from "../components/Header.astro";
+import InstagramIcon from "../components/icons/InstagramIcon.astro";
+import LinkedinIcon from "../components/icons/LinkedinIcon.astro";
+import XIcon from "../components/icons/XIcon.astro";
 import Layout from "../components/Layout.astro";
+
+type SocialNetwork = "linkedin" | "x" | "instagram" | "github" | "site";
+
+interface SocialLink {
+  network: SocialNetwork;
+  href: string;
+}
 
 interface TeamMember {
   name: string;
   photo: string;
   bio: string;
+  socials: SocialLink[];
 }
+
+const socialLabels: Record<SocialNetwork, string> = {
+  linkedin: "LinkedIn",
+  x: "X",
+  instagram: "Instagram",
+  github: "GitHub",
+  site: "Site",
+};
 
 const team: TeamMember[] = [
   {
     name: "Celso Zanchetta Jr.",
     photo: "/team/celso.jpeg",
     bio: "Engenheiro civil pela Poli-USP, mestre em Saúde Ambiental pela FMU e doutorando na Faculdade de Saúde Pública da USP, onde estuda a mortalidade no trânsito com métodos de análise espacial e inferência causal. Trabalha com infraestrutura de transportes e dirige a Vortex, consultoria de engenharia de infraestrutura e inteligência territorial de dados. No Causa Mortis, cuida do pipeline de dados e da metodologia dos indicadores.",
+    socials: [
+      {
+        network: "linkedin",
+        href: "https://www.linkedin.com/in/celsozanchetta/",
+      },
+      { network: "x", href: "https://www.x.com/czanchetta" },
+      { network: "github", href: "https://github.com/czanchetta" },
+      { network: "site", href: "https://www.vortexinfra.com" },
+    ],
   },
   {
     name: "Franklin Weise",
     photo: "/team/franklin.jpeg",
-    bio: "Engenheiro com ampla vivência em marketing técnico nas multinacionais do setor químico, colunista do Estadão, apresentador do podcast Triturando Dados, fundador do hub Desvendados.com. No Causa Mortis, é responsável pela estruturação dos infográficos.",
+    bio: "Engenheiro com ampla vivência em marketing técnico em multinacionais do setor químico, colunista do Estadão, apresentador do podcast Triturando Dados e fundador do hub Desvendados.com. No Causa Mortis, é responsável pela estruturação dos infográficos.",
+    socials: [
+      {
+        network: "linkedin",
+        href: "https://www.linkedin.com/in/franklinweise",
+      },
+      { network: "x", href: "https://www.x.com/weisefranklin" },
+      {
+        network: "instagram",
+        href: "https://www.instagram.com/franklin.weise",
+      },
+      { network: "site", href: "https://www.franklinweise.com.br" },
+    ],
   },
   {
     name: "Pedro Veloso",
     photo: "/team/pedro.jpeg",
-    bio: "Graduando em Inteligência Artificial e em Análise e Desenvolvimento de Sistemas. Atua como desenvolvedor de software na criação de sites, aplicativos e sistemas escaláveis. No Causa Mortis, é responsável pelo desenvolvimento do website.",
+    bio: "Graduando em Inteligência Artificial e em Análise e Desenvolvimento de Sistemas, atua como desenvolvedor de software na criação de sites, aplicativos e sistemas escaláveis. No Causa Mortis, é responsável pelo desenvolvimento do site.",
+    socials: [
+      {
+        network: "linkedin",
+        href: "https://www.linkedin.com/in/pedrohaveloso/",
+      },
+      { network: "github", href: "https://github.com/pedrohaveloso" },
+    ],
   },
 ];
 ---
@@ -44,125 +93,162 @@ const team: TeamMember[] = [
     <div class="app-content-col app-gutter flex flex-col gap-6">
       <section class="flex flex-col gap-3 text-gray-700 dark:text-gray-300">
         <p>
-          O Brasil tem um excelente sistema de registro de óbitos: o SIM
-          (Sistema de Informações sobre Mortalidade). Os dados são acessíveis
-          tanto via web (<a
+          O Brasil tem um sistema de registro de óbitos abrangente e de acesso
+          público: o SIM (Sistema de Informações sobre Mortalidade), do
+          Ministério da Saúde. Os dados podem ser consultados na web, pelo <a
             class="underline transition-opacity duration-200 hover:opacity-70"
             href="https://tabnet.datasus.gov.br/cgi/deftohtm.exe?sim/cnv/obt10uf.def"
-            target="_blank">Tabnet</a
-          >) quanto para <a
+            target="_blank">TabNet</a
+          >, ou baixados como microdados, pelo <a
             class="underline transition-opacity duration-200 hover:opacity-70"
             href="https://datasus.saude.gov.br/transferencia-de-arquivos/"
-            target="_blank">download</a
-          > dos microdados (também acessíveis pelo portal <a
+            target="_blank">DATASUS</a
+          > e pelo portal de <a
             class="underline transition-opacity duration-200 hover:opacity-70"
             href="https://dadosabertos.saude.gov.br/dataset/sim"
             target="_blank">Dados Abertos</a
-          >).
+          > do Ministério da Saúde.
         </p>
         <p>
-          No entanto, o Tabnet/DataSUS não possui alguns recursos interessantes
-          que o seu equivalente dos Estados Unidos, o <a
+          O TabNet, porém, gera tabelas sem calcular taxas de mortalidade
+          padronizadas por idade — recurso central do seu equivalente nos
+          Estados Unidos, o <a
             class="underline transition-opacity duration-200 hover:opacity-70"
             href="https://wonder.cdc.gov/controller/datarequest/D158"
-            target="_blank">CDC Wonder</a
-          >, contém: plotagem do histórico em gráficos e cálculo dos índices de
-          mortalidade (padronizados por idade).
+            target="_blank">CDC WONDER</a
+          >. Sem a padronização, comparar estados com estruturas etárias
+          diferentes, ou um mesmo estado ao longo de décadas de envelhecimento
+          da população, pode levar a conclusões enganosas.
         </p>
         <p>
-          A ideia do painel <a
-            class="underline transition-opacity duration-200 hover:opacity-70"
-            href="https://causamortis.net"
-            target="_blank">CausaMortis.net</a
-          > é trazer estes recursos ainda indisponíveis no Tabnet para a realidade
-          brasileira e, simultaneamente, fazê-lo num formato que facilite e encoraje
-          o uso pelo cidadão médio sem conhecimento prévio das terminologias e do
-          painel de dados mantido pelo Ministério da Saúde.
+          A proposta do Causa Mortis é trazer esse recurso aos dados
+          brasileiros, junto com séries históricas prontas em gráfico, num
+          formato que facilite e estimule o uso por qualquer cidadão, sem que
+          ele precise conhecer a terminologia epidemiológica ou as ferramentas
+          do Ministério da Saúde.
         </p>
 
         <p>
-          Considerando que estamos em tempos de mídia social ditando o discurso,
-          incluímos opções para compartilhar facilmente os gráficos via links ou
-          como imagem, já devidamente dimensionadas no formato quadrado, que
-          funciona bem tanto em telas verticais quanto horizontais.
+          Como boa parte do debate público hoje acontece nas redes sociais, cada
+          gráfico pode ser compartilhado por link ou baixado como imagem, já no
+          formato quadrado, que funciona bem em telas verticais e horizontais.
+          Os dados por trás de cada gráfico também podem ser baixados em CSV e
+          XLSX.
         </p>
         <p>
-          Outro ponto importante pensado na usabilidade do cidadão médio:
-          diferente de painéis governamentais que acessam o banco de dados
-          completo e, por isso, têm um certo atraso até que a consulta gere a
-          resposta para o usuário, no painel <a
-            class="underline transition-opacity duration-200 hover:opacity-70"
-            href="https://causamortis.net"
-            target="_blank">CausaMortis.net</a
-          > usamos um banco de dados compactado, menos detalhado e, portanto, menos
-          pesado, fazendo com que a resposta seja quase momentânea — diminuindo a
-          taxa de abandono do site.
+          Outra escolha pensada para o usuário: em vez de consultar a base
+          completa a cada pedido, o painel trabalha com tabelas pré-agregadas e
+          leves, processadas no próprio navegador. A resposta é quase
+          instantânea — e quem espera menos desiste menos.
         </p>
         <p>
-          Um ponto fundamental: a pandemia introduziu variações atípicas e
-          consideramos que isto precisa ser explicitado nos gráficos, portanto
-          os anos correspondentes foram ressaltados visualmente.
+          A pandemia de covid-19 produziu variações atípicas na mortalidade, e
+          isso precisa estar explícito nos gráficos: os anos de 2020 e 2021
+          aparecem destacados visualmente.
+        </p>
+        <p>
+          Por trás da interface simples, os indicadores seguem as fichas de
+          qualificação da RIPSA (Rede Interagencial de Informações para a Saúde)
+          e a Nota Técnica nº 51/2025-CGIAE/DAENT/SVSA/MS: padronização direta
+          por idade, em 18 faixas etárias, tendo como padrão a população do
+          Brasil em 2022. Taxas brutas e padronizadas aparecem sempre lado a
+          lado, e os denominadores vêm das estimativas e projeções populacionais
+          do IBGE (revisão 2024).
         </p>
 
         <p>
-          Em nome da simplicidade e facilidade de uso, optamos em omitir parte
-          da granularidade dos dados:
+          Em nome da simplicidade, abrimos mão de parte do detalhamento dos
+          dados:
         </p>
         <ul class="flex list-disc flex-col gap-2 pl-4">
           <li>
-            <strong>Geográfica:</strong> apenas estados, sem detalhamento por municípios.
+            <strong>Geografia:</strong> apenas unidades da federação, sem detalhamento
+            por município;
           </li>
           <li>
-            <strong>Causas:</strong> apenas grandes grupos de causas, sem categorias
-            CID-10 individuais.
+            <strong>Causas:</strong> grandes grupos de causas, com um segundo nível
+            apenas onde a RIPSA o normatiza (neoplasias, doenças cardiovasculares
+            e causas externas), sem categorias individuais da CID-10;
           </li>
           <li>
-            <strong>Temporalidade:</strong> apenas óbitos anuais, não mensais.
+            <strong>Periodicidade:</strong> apenas dados anuais, sem desagregação
+            mensal.
           </li>
         </ul>
 
-        <p>Este painel tem algumas limitações:</p>
+        <p>O painel também tem limitações que merecem registro:</p>
         <ul class="flex list-disc flex-col gap-2 pl-4">
           <li>
-            <strong>Intervalo temporal:</strong> a despeito de os dados de mortalidade
-            com a CID-10 estarem disponíveis desde 1996, optamos em iniciar a série
-            no ano 2000 devido à disponibilização das estimativas intercensitárias
-            e projeções futuras do IBGE a partir deste ano.
+            <strong>Início da série:</strong> embora os dados de mortalidade codificados
+            pela CID-10 existam desde 1996, a série começa em 2000, primeiro ano coberto
+            pelas estimativas e projeções populacionais do IBGE usadas como denominador
+            das taxas;
           </li>
           <li>
-            <strong>Não-consolidação:</strong> no momento do lançamento do painel
-            (setembro/26), os dados do ano mais recente (2025) ainda estão em status
-            provisório e apenas serão consolidados ao longo dos próximos meses. Optamos
-            em incluir estes dados no painel mesmo com esta condição, incluindo uma
-            indicação visual do status preliminar.
+            <strong>Dados preliminares:</strong> no lançamento do painel (setembro
+            de 2026), os dados de 2025 ainda são preliminares e serão consolidados
+            ao longo dos próximos meses. Optamos por incluí-los assim mesmo, com indicação
+            visual do status preliminar;
+          </li>
+          <li>
+            <strong>Sub-registro:</strong> as taxas refletem os óbitos registrados
+            no SIM, sem correção de sub-registro. Como referência desse limite, o
+            painel exibe o indicador de cobertura do SIM.
           </li>
         </ul>
 
         <p class="font-bold">
-          Em suma, esta é uma ferramenta para trazer ao cidadão comum respostas
-          para a pergunta: “Do que morremos?”.
+          Em suma, o Causa Mortis é uma ferramenta para levar ao cidadão comum
+          respostas para a pergunta: “Do que morremos?”.
         </p>
       </section>
 
       <section class="flex flex-col gap-2">
-        <h2 class="text-xl font-bold lg:text-2xl">O time:</h2>
+        <h2 class="text-xl font-bold lg:text-2xl">O time</h2>
         <div class="grid grid-cols-1 gap-2 md:grid-cols-3 lg:gap-4">
           {
             team.map((member) => (
-              <div class="flex flex-col items-center gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                <img
-                  src={member.photo}
-                  alt={member.name}
-                  width="112"
-                  height="112"
-                  loading="lazy"
-                  class="size-28 shrink-0 rounded-full object-cover"
-                />
-                <div class="flex flex-col gap-1">
-                  <span class="text-center font-bold">{member.name}</span>
-                  <p class="text-sm text-gray-700 dark:text-gray-300">
-                    {member.bio}
-                  </p>
+              <div class="flex flex-col items-center justify-between gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
+                <div class="flex flex-col items-center gap-3">
+                  <img
+                    src={member.photo}
+                    alt={member.name}
+                    width="112"
+                    height="112"
+                    loading="lazy"
+                    class="size-28 shrink-0 rounded-full object-cover"
+                  />
+                  <div class="flex flex-col gap-1 text-center">
+                    <span class="text-center font-bold">{member.name}</span>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                      {member.bio}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  {member.socials.map((social) => (
+                    <a
+                      class="text-gray-500 transition-opacity duration-200 hover:opacity-70 dark:text-gray-400"
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${socialLabels[social.network]} de ${member.name}`}
+                    >
+                      {social.network === "linkedin" && (
+                        <LinkedinIcon class="size-5" />
+                      )}
+                      {social.network === "x" && <XIcon class="size-5" />}
+                      {social.network === "instagram" && (
+                        <InstagramIcon class="size-5" />
+                      )}
+                      {social.network === "github" && (
+                        <GithubIcon class="size-5" />
+                      )}
+                      {social.network === "site" && (
+                        <Globe class="size-5" aria-hidden="true" />
+                      )}
+                    </a>
+                  ))}
                 </div>
               </div>
             ))
