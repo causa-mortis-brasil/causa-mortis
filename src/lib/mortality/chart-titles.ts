@@ -87,7 +87,7 @@ export function mapChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Mortes por UF - ${causePathLabel(filters)}`,
+    line1: `Mortalidade por UF - ${causePathLabel(filters)}`,
     line2: `${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)}`,
   };
 }
@@ -97,7 +97,7 @@ export function evolutionChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Histórico de óbitos - ${causePathLabel(filters)}`,
+    line1: `Histórico de mortalidade - ${causePathLabel(filters)}`,
     line2: `${filters.yearStart}-${filters.yearEnd} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`,
   };
 }
@@ -107,7 +107,7 @@ export function causesChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: `Composição dos óbitos - ${causePathLabel(filters)}`,
+    line1: `Composição da mortalidade - ${causePathLabel(filters)}`,
     line2: `${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`,
   };
 }
@@ -124,7 +124,7 @@ export function ageCompositionChartTitle(
   dimensions: Dimensions,
 ): ChartTitle {
   return {
-    line1: "Composição dos óbitos por faixa etária",
+    line1: "Composição da mortalidade por faixa etária",
     line2: `${yearLabel(filters.year, dimensions)} · ${sexLabel(filters.sex)} · ${locationLabel(dimensions, filters.location)}`,
   };
 }

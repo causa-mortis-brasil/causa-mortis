@@ -179,7 +179,7 @@ export function init(
               fontSize: 11,
             },
             data: [
-              [{ name: "pandemia", xAxis: 2020 }, { xAxis: 2023 }],
+              [{ name: "pandemia", xAxis: 2020 }, { xAxis: 2022 }],
               [
                 {
                   name: "preliminar",
