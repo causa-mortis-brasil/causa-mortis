@@ -117,31 +117,10 @@ export function init(
     domainMin: number;
   }
 
-  interface RoamState {
-    center?: [number, number];
-    zoom?: number;
-  }
-
   let lastOptionData: QualityOptionData | null = null;
-
-  function readRoamState(): RoamState {
-    const option = chart.getOption();
-    const series = option?.series;
-    const first = Array.isArray(series) ? series[0] : undefined;
-    if (!first || typeof first !== "object") return {};
-    const { center, zoom } = first as { center?: unknown; zoom?: unknown };
-    return {
-      center:
-        Array.isArray(center) && center.length === 2
-          ? (center as [number, number])
-          : undefined,
-      zoom: typeof zoom === "number" ? zoom : undefined,
-    };
-  }
 
   function buildOption(
     optionData: QualityOptionData,
-    roam: RoamState,
     forceLight = false,
   ): EChartsOption {
     const { data, domainMin } = optionData;
@@ -192,10 +171,7 @@ export function init(
           aspectScale: 0.95,
           layoutCenter: ["50%", "46%"],
           layoutSize: "88%",
-          roam: true,
-          scaleLimit: { min: 1, max: 8 },
-          ...(roam.center ? { center: roam.center } : {}),
-          ...(roam.zoom ? { zoom: roam.zoom } : {}),
+          roam: false,
           itemStyle: {
             areaColor: noDataColor({ forceLight }),
             borderColor: chartSurfaceColor({ forceLight }),
@@ -266,7 +242,7 @@ export function init(
         : "Cobertura ainda não publicada para este ano";
 
     lastOptionData = { data, domainMin };
-    chart.setOption(buildOption(lastOptionData, {}), { notMerge: true });
+    chart.setOption(buildOption(lastOptionData), { notMerge: true });
 
     exportRows = {
       headers: ["UF", "Território", "Cobertura do SIM (%)"],
@@ -284,7 +260,7 @@ export function init(
     getExportOption: () =>
       lastOptionData
         ? {
-            ...buildOption(lastOptionData, readRoamState(), true),
+            ...buildOption(lastOptionData, true),
             animation: false,
           }
         : {},

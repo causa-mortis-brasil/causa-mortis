@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "Se você usar este painel, cite-o conforme os metadados abaixo."
+type: software
+title: "Causa Mortis: mortalidade no Brasil, causa por causa"
+version: 1.0.0
+date-released: 2026-09-11
+url: "https://causamortis.net"
+repository-code: "https://github.com/causa-mortis-brasil/causa-mortis"
+license: MIT
+authors:
+  - family-names: Zanchetta Jr.
+    given-names: Celso
+    orcid: "https://orcid.org/0009-0007-4539-548X"
+  - family-names: Weise
+    given-names: Franklin
+    orcid: "https://orcid.org/0009-0009-7979-7334"
+  - family-names: Veloso
+    given-names: Pedro
+    orcid: "https://orcid.org/0009-0004-9614-171X"

@@ -67,7 +67,7 @@ export function causePathLabel(filters: CauseFilter): string {
 export function sexLabel(sex: Sex): string {
   if (sex === "Homens") return "Homens";
   if (sex === "Mulheres") return "Mulheres";
-  return "Todos os sexos";
+  return "Todos";
 }
 
 export function yearLabel(year: number, dimensions: Dimensions): string {

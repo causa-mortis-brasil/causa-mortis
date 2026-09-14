@@ -1,9 +1,20 @@
 ---
+import { Check, Copy } from "@lucide/astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import Layout from "../components/Layout.astro";
 import QualityChartCard from "../components/mortality/QualityChartCard.astro";
 import YearControl from "../components/mortality/YearControl.astro";
+import { formatAccessDate } from "../lib/mortality/format";
+
+const bibtex = `@software{causamortis2026,
+  author  = {Zanchetta Jr., Celso and Weise, Franklin and Veloso, Pedro},
+  title   = {Causa Mortis: mortalidade no Brasil, causa por causa},
+  version = {1.0},
+  year    = {2026},
+  url     = {https://causamortis.net},
+  note    = {Painel interativo. ORCID: 0009-0007-4539-548X (Zanchetta Jr.), 0009-0009-7979-7334 (Weise), 0009-0004-9614-171X (Veloso)}
+}`;
 ---
 
 <Layout
@@ -87,7 +98,7 @@ import YearControl from "../components/mortality/YearControl.astro";
 
     <div class="app-content-col app-gutter gap-2 md:gap-4">
       <div
-        class="mb-4 flex flex-col gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
+        class="flex flex-col gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
       >
         <h2 class="font-bold">Limitações</h2>
         <ul
@@ -114,6 +125,12 @@ import YearControl from "../components/mortality/YearControl.astro";
             de causas (com segundo nível onde a RIPSA o normatiza: neoplasias, cardiovasculares
             e causas externas) e dados anuais.
           </li>
+          <li>
+            <strong>Sexo.</strong> O SIM registra masculino, feminino e ignorado.
+            A categoria "Todos" soma os três; os óbitos com sexo ignorado (menos de
+            0,1% do total) não aparecem nas visões por sexo, mas entram em todas as
+            taxas totais.
+          </li>
         </ul>
       </div>
 
@@ -121,10 +138,84 @@ import YearControl from "../components/mortality/YearControl.astro";
       <QualityChartCard active standalone padding="p-6" />
     </div>
 
+    <div class="app-content-col app-gutter gap-2 md:gap-4">
+      <div
+        class="flex flex-col gap-3 rounded-ui-lg border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
+      >
+        <h2 class="font-bold">Como citar</h2>
+        <div class="flex flex-col gap-3 text-gray-700 dark:text-gray-300">
+          <div data-copy class="flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="text-sm font-bold">ABNT</h3>
+              <button
+                type="button"
+                data-copy-button
+                class="chart-export-trigger"
+              >
+                <span data-copy-icon-default>
+                  <Copy class="size-4" />
+                </span>
+                <span data-copy-icon-success hidden>
+                  <Check class="size-4" />
+                </span>
+                <span data-copy-label aria-live="polite">Copiar</span>
+              </button>
+            </div>
+            <p
+              data-copy-source
+              class="rounded-ui-sm border border-gray-200 bg-white p-4 text-sm dark:border-gray-700 dark:bg-gray-900"
+            >
+              ZANCHETTA JR., Celso; WEISE, Franklin; VELOSO, Pedro. <strong
+                >Causa Mortis: mortalidade no Brasil, causa por causa</strong
+              >. Versão 1.0. São Paulo, 2026. Painel interativo. Disponível em:
+              https://causamortis.net. Acesso em: <span data-access-date
+                >{formatAccessDate(new Date())}</span
+              >.
+            </p>
+          </div>
+          <p>
+            Ao citar um gráfico ou tabela específica, indique também a visão, os
+            filtros usados e a data de acesso, já que os dados de anos
+            preliminares mudam. Os dados tratados podem ser citados a partir da
+            página <a
+              class="underline transition-opacity duration-200 hover:opacity-70"
+              href="/dados">Dados</a
+            >; os microdados originais devem ser atribuídos ao Ministério da
+            Saúde (SIM/DATASUS) e ao IBGE.
+          </p>
+          <div data-copy class="flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="text-sm font-bold">BibTeX</h3>
+              <button
+                type="button"
+                data-copy-button
+                class="chart-export-trigger"
+              >
+                <span data-copy-icon-default>
+                  <Copy class="size-4" />
+                </span>
+                <span data-copy-icon-success hidden>
+                  <Check class="size-4" />
+                </span>
+                <span data-copy-label aria-live="polite">Copiar</span>
+              </button>
+            </div>
+            <pre
+              data-copy-source
+              class="overflow-x-auto rounded-ui-sm border border-gray-200 bg-white p-4 text-xs dark:border-gray-700 dark:bg-gray-900"><code>{bibtex}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       import { fetchCoverage } from "../lib/mortality/data";
       import { fetchDimensions } from "../lib/mortality/dimensions";
       import { FiltersStore } from "../lib/mortality/filters";
+      import { formatAccessDate } from "../lib/mortality/format";
+
+      const accessDate = document.querySelector("[data-access-date]");
+      if (accessDate) accessDate.textContent = formatAccessDate(new Date());
 
       const container = document.getElementById("chart-quality");
 
@@ -167,6 +258,38 @@ import YearControl from "../components/mortality/YearControl.astro";
           { rootMargin: "200px" },
         );
         observer.observe(container);
+      }
+
+      for (const copyBlock of document.querySelectorAll("[data-copy]")) {
+        const button = copyBlock.querySelector("[data-copy-button]");
+        const source = copyBlock.querySelector("[data-copy-source]");
+        if (!(button instanceof HTMLButtonElement)) continue;
+        if (!(source instanceof HTMLElement)) continue;
+
+        const label = button.querySelector("[data-copy-label]");
+        const defaultLabel = label?.textContent ?? "";
+        const defaultIcon = button.querySelector("[data-copy-icon-default]");
+        const successIcon = button.querySelector("[data-copy-icon-success]");
+        let resetTimeout: ReturnType<typeof setTimeout> | undefined;
+
+        button.addEventListener("click", () => {
+          void navigator.clipboard
+            .writeText(source.innerText.trim())
+            .then(() => {
+              clearTimeout(resetTimeout);
+              if (label) label.textContent = "Copiado!";
+              defaultIcon?.toggleAttribute("hidden", true);
+              successIcon?.toggleAttribute("hidden", false);
+              resetTimeout = setTimeout(() => {
+                if (label) label.textContent = defaultLabel;
+                defaultIcon?.toggleAttribute("hidden", false);
+                successIcon?.toggleAttribute("hidden", true);
+              }, 2000);
+            })
+            .catch((error: unknown) => {
+              console.error("Falha ao copiar a referência.", error);
+            });
+        });
       }
     </script>
   </main>

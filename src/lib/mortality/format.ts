@@ -47,3 +47,22 @@ export function formatSignedPercent(fraction: number): string {
 export function formatCompact(value: number): string {
   return compactFormatter.format(value);
 }
+
+const ABNT_MONTHS = [
+  "jan.",
+  "fev.",
+  "mar.",
+  "abr.",
+  "maio",
+  "jun.",
+  "jul.",
+  "ago.",
+  "set.",
+  "out.",
+  "nov.",
+  "dez.",
+];
+
+export function formatAccessDate(date: Date): string {
+  return `${date.getDate()} ${ABNT_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+}
