@@ -48,12 +48,16 @@ function setupLocationSelect(
   const select = customSelect(scope, `#filter-location`, (value) =>
     store.setLocation(value),
   );
-  select.setOptions(
-    dimensions.locations.map((location) => ({
-      value: location,
-      label: dimensions.location_names[location] ?? location,
-    })),
-  );
+  const locationOptions = dimensions.locations.map((location) => ({
+    value: location,
+    label: dimensions.location_names[location] ?? location,
+  }));
+  locationOptions.sort((a, b) => {
+    if (a.value === "BR") return -1;
+    if (b.value === "BR") return 1;
+    return a.label.localeCompare(b.label, "pt-BR");
+  });
+  select.setOptions(locationOptions);
   store.subscribe((filters) => select.setValue(filters.location));
 }
 
